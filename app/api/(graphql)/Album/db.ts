@@ -14,7 +14,8 @@ export const AlbumTable = pgTable(
   {
     id: serial("id").primaryKey(),
     name: text("name").notNull(),
-    url: text("url"),
+    albumUrl: text("album_url"),
+    thumbnailUrl: text("thumbnail_url"),
     isPublished: boolean("is_published").default(false).notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },

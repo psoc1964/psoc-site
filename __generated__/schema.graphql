@@ -229,11 +229,12 @@ schema {
 }
 
 type Album {
+  albumUrl: String
   createdAt: DateTimeISO!
   id: Float!
   isPublished: Boolean!
   name: String!
-  url: String
+  thumbnailUrl: String
 }
 
 """
@@ -242,9 +243,9 @@ A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `dat
 scalar DateTimeISO
 
 type Mutation {
-  createAlbum(isPublished: Boolean, name: String!, url: String): Album!
+  createAlbum(albumUrl: String, isPublished: Boolean, name: String!, thumbnailUrl: String): Album!
   resetPassword(newPassword: String!, token: String!): Boolean!
-  updateAlbum(id: Float!, isPublished: Boolean, name: String, url: String): Album!
+  updateAlbum(albumUrl: String, id: Float!, isPublished: Boolean, name: String, thumbnailUrl: String): Album!
 }
 
 type Query {

@@ -25,7 +25,8 @@ export const GET_PUBLISHED_ALBUMS = gql(`
     albums: getPublishedAlbums {
       id
       name
-      url
+      albumUrl
+      thumbnailUrl
       createdAt
     }
   }
@@ -37,8 +38,9 @@ export const GET_UNPUBLISHED_ALBUMS = gql(`
     albums: getUnpublishedAlbums {
       id
       name
-      url
+      albumUrl
+      thumbnailUrl
       createdAt
     }
   }
-`); 
+`);

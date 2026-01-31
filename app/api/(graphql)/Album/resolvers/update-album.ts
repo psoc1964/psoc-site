@@ -10,13 +10,17 @@ import { AlbumTable } from "../db";
 export async function handleUpdateAlbum(
   ctx: AuthorizedContext,
   id: number,
-  data: Partial<Pick<AlbumDBInsert, "name" | "url" | "isPublished">>,
+  data: Partial<
+    Pick<AlbumDBInsert, "name" | "albumUrl" | "thumbnailUrl" | "isPublished">
+  >,
 ): Promise<AlbumDB> {
   await ensureAdmin(ctx);
 
   const values: Partial<AlbumDBInsert> = {};
   if (typeof data.name === "string") values.name = data.name;
-  if (typeof data.url === "string") values.url = data.url;
+  if (typeof data.albumUrl === "string") values.albumUrl = data.albumUrl;
+  if (typeof data.thumbnailUrl === "string")
+    values.thumbnailUrl = data.thumbnailUrl;
   if (typeof data.isPublished === "boolean")
     values.isPublished = data.isPublished;
 

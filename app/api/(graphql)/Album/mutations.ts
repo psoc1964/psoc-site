@@ -12,10 +12,16 @@ export class AlbumMutationResolver {
   async createAlbum(
     @Ctx() ctx: AuthorizedContext,
     @Arg("name") name: string,
-    @Arg("url", { nullable: true }) url?: string,
+    @Arg("albumUrl", { nullable: true }) albumUrl?: string,
+    @Arg("thumbnailUrl", { nullable: true }) thumbnailUrl?: string,
     @Arg("isPublished", { nullable: true }) isPublished?: boolean,
   ) {
-    return handleCreateAlbum(ctx, { name, url, isPublished });
+    return handleCreateAlbum(ctx, {
+      name,
+      albumUrl,
+      thumbnailUrl,
+      isPublished,
+    });
   }
 
   @Authorized()
@@ -24,9 +30,15 @@ export class AlbumMutationResolver {
     @Ctx() ctx: AuthorizedContext,
     @Arg("id") id: number,
     @Arg("name", { nullable: true }) name?: string,
-    @Arg("url", { nullable: true }) url?: string,
+    @Arg("albumUrl", { nullable: true }) albumUrl?: string,
+    @Arg("thumbnailUrl", { nullable: true }) thumbnailUrl?: string,
     @Arg("isPublished", { nullable: true }) isPublished?: boolean,
   ) {
-    return handleUpdateAlbum(ctx, id, { name, url, isPublished });
+    return handleUpdateAlbum(ctx, id, {
+      name,
+      albumUrl,
+      thumbnailUrl,
+      isPublished,
+    });
   }
 }

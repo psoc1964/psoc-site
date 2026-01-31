@@ -9,7 +9,10 @@ export class AlbumGQL {
   name: string;
 
   @Field({ nullable: true })
-  url?: string;
+  albumUrl?: string;
+
+  @Field({ nullable: true })
+  thumbnailUrl?: string;
 
   @Field()
   isPublished: boolean;

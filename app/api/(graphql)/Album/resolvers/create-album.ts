@@ -8,7 +8,10 @@ import { AlbumTable } from "../db";
 
 export async function handleCreateAlbum(
   ctx: AuthorizedContext,
-  data: Pick<AlbumDBInsert, "name" | "url" | "isPublished">,
+  data: Pick<
+    AlbumDBInsert,
+    "name" | "albumUrl" | "thumbnailUrl" | "isPublished"
+  >,
 ): Promise<AlbumDB> {
   await ensureAdmin(ctx);
 
@@ -16,7 +19,8 @@ export async function handleCreateAlbum(
     .insert(AlbumTable)
     .values({
       name: data.name,
-      url: data.url,
+      albumUrl: data.albumUrl,
+      thumbnailUrl: data.thumbnailUrl,
       isPublished: data.isPublished ?? false,
     })
     .returning();
