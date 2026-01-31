@@ -5,6 +5,7 @@ import Navbar from "./components/compo/Navbar";
 import IntroLogo from "./components/compo/IntroLogo";
 import Hero from "./hero";
 import About from "./components/compo/About";
+import Footer from "./components/compo/Footer";
 
 export default function Page() {
   const [introDone, setIntroDone] = useState(false);
@@ -18,12 +19,16 @@ export default function Page() {
       {introDone && (
         <>
           <Navbar visible={introDone} />
+
           <section id="home">
             <Hero />
           </section>
+
           <section id="about">
             <About />
           </section>
+
+          <Footer />
         </>
       )}
     </main>

@@ -18,46 +18,74 @@ export default function Hero() {
     if (!sectionRef.current) return;
 
     const ctx = gsap.context(() => {
-      // HERO FADE IN (after intro)
-      gsap.to(sectionRef.current, {
-        opacity: 1,
-        duration: 1,
-        ease: "power2.out",
+      /* ================= INITIAL OUT-OF-FOCUS STATE ================= */
+      gsap.set(sectionRef.current, { opacity: 0 });
+
+      gsap.set(imageRef.current, {
+        scale: 1.15,
+        filter: "blur(20px)",
       });
 
-      // LEFT CONTENT
-      gsap.from(leftRef.current, {
-        y: 80,
-        opacity: 0,
-        duration: 1.2,
-        ease: "power4.out",
-        delay: 0.2,
-      });
-
-      // RIGHT METRIC
-      gsap.from(rightRef.current, {
+      gsap.set([leftRef.current, rightRef.current], {
         y: 60,
         opacity: 0,
-        duration: 1,
-        ease: "power3.out",
-        delay: 0.4,
+        filter: "blur(10px)",
       });
 
-      // IMAGE PARALLAX
-      gsap.to(imageRef.current, {
-        yPercent: -15,
-        ease: "none",
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: "top top",
-          end: "bottom top",
-          scrub: true,
-        },
+      /* ================= LENS FOCUS INTRO ================= */
+      const intro = gsap.timeline({
+        defaults: { ease: "power3.out" },
       });
 
-      // BACKGROUND TYPOGRAPHY FLOAT
+      intro
+        .to(sectionRef.current, {
+          opacity: 1,
+          duration: 1.2,
+        })
+        .to(
+          imageRef.current,
+          {
+            scale: 1.05,
+            filter: "blur(0px)",
+            duration: 2.8, // slow focus pull
+          },
+          0
+        )
+        .to(
+          leftRef.current,
+          {
+            y: 0,
+            opacity: 1,
+            filter: "blur(0px)",
+            duration: 1.8,
+          },
+          0.7
+        )
+        .to(
+          rightRef.current,
+          {
+            y: 0,
+            opacity: 1,
+            filter: "blur(0px)",
+            duration: 1.6,
+          },
+          1
+        );
+
+      /* ================= SCROLL EFFECTS (AFTER INTRO) ================= */
+      ScrollTrigger.create({
+        trigger: sectionRef.current,
+        start: "top top",
+        end: "bottom top",
+        scrub: true,
+        animation: gsap.to(imageRef.current, {
+          yPercent: -18,
+          ease: "none",
+        }),
+      });
+
       gsap.to(bgTextRef.current, {
-        y: -80,
+        y: -120,
         ease: "none",
         scrollTrigger: {
           trigger: sectionRef.current,
@@ -74,30 +102,24 @@ export default function Hero() {
   return (
     <section
       ref={sectionRef}
-      className="relative h-screen w-full overflow-hidden opacity-0"
+      className="relative h-screen w-full overflow-hidden bg-black"
     >
-      {/* BACKGROUND IMAGE */}
+      {/* ================= BACKGROUND IMAGE ================= */}
       <div ref={imageRef} className="absolute inset-0">
         <Image
           src="/camera1.jpg"
           alt="Vintage camera"
           fill
           priority
-          className="
-            object-cover
-            scale-105
-            [mask-image:linear-gradient(to_bottom,black_85%,transparent)]
-          "
+          className="object-cover"
         />
 
-        {/* SOFT BLUR */}
-        <div className="absolute inset-0 backdrop-blur-[4px] opacity-30" />
-
-        {/* DARK OVERLAY */}
-        <div className="absolute inset-0 bg-black/30" />
+        {/* subtle atmospheric layers */}
+        <div className="absolute inset-0 backdrop-blur-[2px] opacity-20" />
+        <div className="absolute inset-0 bg-black/35" />
       </div>
 
-      {/* CONTENT */}
+      {/* ================= CONTENT ================= */}
       <div className="relative z-10 max-w-7xl mx-auto px-8 lg:px-16 h-full grid grid-cols-1 lg:grid-cols-3 items-center">
         {/* LEFT TEXT */}
         <div ref={leftRef} className="space-y-10">
@@ -116,13 +138,12 @@ export default function Hero() {
 
           <a
             href="#about"
-            className="inline-block text-sm font-medium border-b border-white pb-1 hover:opacity-80 transition"
+            className="inline-block text-sm font-medium border-b border-white/80 pb-1 hover:opacity-80 transition"
           >
             Learn more
           </a>
         </div>
 
-        {/* CENTER GAP */}
         <div />
 
         {/* RIGHT METRIC */}
@@ -136,13 +157,13 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* BACKGROUND TYPOGRAPHY */}
-      <div className="absolute inset-x-0 bottom-[-4rem] pointer-events-none">
+      {/* ================= BACKGROUND TYPOGRAPHY ================= */}
+      <div className="absolute inset-x-0 bottom-[-5rem] pointer-events-none">
         <h1
           ref={bgTextRef}
           className="text-center text-[16vw] font-bold text-white/10 leading-none"
         >
-          PSOC
+          
         </h1>
       </div>
     </section>
