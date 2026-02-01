@@ -7,8 +7,10 @@
   ],
   "compilerOptions": {
     "esModuleInterop": true,
+    "baseUrl": ".",
     "skipLibCheck": true,
     "target": "es2022",
+    
     "resolveJsonModule": true,
     "isolatedModules": true,
     "moduleDetection": "force",

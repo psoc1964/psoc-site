@@ -44,6 +44,35 @@ export default function About() {
         );
       });
 
+      // ========== MANIFESTO WORD-BY-WORD REVEAL ==========
+      const manifestoWords = document.querySelectorAll(".manifesto-word");
+      manifestoWords.forEach((word, index) => {
+        gsap.fromTo(
+          word,
+          { 
+            opacity: 0,
+            y: 30,
+            rotateX: -90,
+            filter: "blur(10px)",
+          },
+          {
+            opacity: 1,
+            y: 0,
+            rotateX: 0,
+            filter: "blur(0px)",
+            duration: 0.8,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: word,
+              start: "top 85%",
+              end: "top 65%",
+              scrub: 1,
+            },
+            delay: index * 0.05,
+          }
+        );
+      });
+
       // ========== ENHANCED REVEAL ANIMATIONS ==========
       gsap.utils.toArray<HTMLElement>(".reveal-up").forEach((el) => {
         gsap.fromTo(
@@ -171,7 +200,7 @@ export default function About() {
         {/* PARALLAX BACKGROUND WORD */}
         <div className="absolute inset-x-0 top-24 pointer-events-none">
           <h1 className="parallax-slow text-center text-[28vw] md:text-[20vw] font-bold text-white/[0.03] leading-none tracking-tighter select-none">
-            
+            ABOUT US
           </h1>
         </div>
 
@@ -192,14 +221,27 @@ export default function About() {
           </p>
         </div>
 
-        {/* MANIFESTO */}
+        {/* MANIFESTO - ENHANCED PREMIUM ANIMATION */}
         <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-12 lg:px-16 mb-32">
-          <p className="split-text max-w-3xl text-[1.15rem] md:text-[1.35rem] font-serif text-white/85 leading-relaxed">
-            We don't just take photographs —{" "}
-            <span className="text-white font-medium">
-              we preserve moments that outlive time.
-            </span>
-          </p>
+          <div className="relative">
+            {/* Subtle spotlight effect that follows scroll */}
+            <div className="absolute -inset-8 bg-gradient-radial from-white/5 via-transparent to-transparent opacity-0 manifesto-glow pointer-events-none" />
+            
+            <p className="max-w-3xl text-[1.15rem] md:text-[1.35rem] font-light text-white/85 leading-[1.8] tracking-wide perspective-1000">
+              <span className="manifesto-word inline-block">We</span>{" "}
+              <span className="manifesto-word inline-block">don't</span>{" "}
+              <span className="manifesto-word inline-block">just</span>{" "}
+              <span className="manifesto-word inline-block">take</span>{" "}
+              <span className="manifesto-word inline-block">photographs</span>{" "}
+              <span className="manifesto-word inline-block">—</span>{" "}
+              <span className="manifesto-word inline-block font-normal text-white">we</span>{" "}
+              <span className="manifesto-word inline-block font-normal text-white">preserve</span>{" "}
+              <span className="manifesto-word inline-block font-normal text-white">moments</span>{" "}
+              <span className="manifesto-word inline-block font-normal text-white">that</span>{" "}
+              <span className="manifesto-word inline-block font-normal text-white">outlive</span>{" "}
+              <span className="manifesto-word inline-block font-normal text-white">time.</span>
+            </p>
+          </div>
         </div>
 
         {/* ANIMATED STATS */}
@@ -261,13 +303,13 @@ export default function About() {
           {/* EVENT 1: UTKRISHT */}
           <div className="reveal-up">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-              {/* Image with Premium Glow */}
+              {/* Image with Bold Red Glow */}
               <div className="relative group">
-                {/* Animated Glow Effect */}
-                <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 rounded-[22px] opacity-0 group-hover:opacity-75 blur-xl transition-all duration-700 animate-pulse" />
+                {/* Bold Animated Glow - RED/ORANGE */}
+                <div className="absolute -inset-2 bg-gradient-to-r from-red-600 via-orange-500 to-amber-500 rounded-[24px] opacity-40 group-hover:opacity-70 blur-2xl transition-all duration-700 animate-pulse-slow" />
                 
-                {/* Subtle Always-On Glow */}
-                <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-500/30 via-pink-500/30 to-blue-500/30 rounded-[21px] blur-lg opacity-60" />
+                {/* Stronger Always-On Glow */}
+                <div className="absolute -inset-1 bg-gradient-to-r from-red-500/50 via-orange-500/50 to-amber-500/50 rounded-[22px] blur-xl opacity-60" />
                 
                 {/* Main Card */}
                 <div className="relative rounded-[20px] overflow-hidden w-full aspect-square border border-white/10 shadow-2xl">
@@ -349,13 +391,13 @@ export default function About() {
                 </div>
               </div>
 
-              {/* Image with Premium Glow - Appears second on mobile, second on desktop */}
+              {/* Image with Bold Blue/Cyan Glow - Appears second on mobile, second on desktop */}
               <div className="relative group lg:order-2">
-                {/* Animated Glow Effect */}
-                <div className="absolute -inset-1 bg-gradient-to-r from-cyan-600 via-blue-600 to-purple-600 rounded-[22px] opacity-0 group-hover:opacity-75 blur-xl transition-all duration-700 animate-pulse" />
+                {/* Bold Animated Glow - BLUE/CYAN */}
+                <div className="absolute -inset-2 bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-600 rounded-[24px] opacity-40 group-hover:opacity-70 blur-2xl transition-all duration-700 animate-pulse-slow" />
                 
-                {/* Subtle Always-On Glow */}
-                <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-500/30 via-blue-500/30 to-purple-500/30 rounded-[21px] blur-lg opacity-60" />
+                {/* Stronger Always-On Glow */}
+                <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400/50 via-blue-500/50 to-indigo-500/50 rounded-[22px] blur-xl opacity-60" />
                 
                 {/* Main Card */}
                 <div className="relative rounded-[20px] overflow-hidden w-full aspect-square border border-white/10 shadow-2xl">
@@ -377,6 +419,46 @@ export default function About() {
 
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes pulse-slow {
+          0%, 100% {
+            opacity: 0.4;
+            transform: scale(1);
+          }
+          50% {
+            opacity: 0.7;
+            transform: scale(1.05);
+          }
+        }
+
+        .animate-pulse-slow {
+          animation: pulse-slow 4s ease-in-out infinite;
+        }
+
+        .perspective-1000 {
+          perspective: 1000px;
+          transform-style: preserve-3d;
+        }
+
+        .manifesto-word {
+          display: inline-block;
+          transform-origin: bottom center;
+        }
+
+        @keyframes glow-pulse {
+          0%, 100% {
+            opacity: 0;
+          }
+          50% {
+            opacity: 0.3;
+          }
+        }
+
+        .manifesto-glow {
+          animation: glow-pulse 3s ease-in-out infinite;
+        }
+      `}</style>
     </section>
   );
 }

@@ -138,7 +138,7 @@ export default function Footer() {
                 <h3 className="text-4xl md:text-5xl font-serif mb-3 bg-gradient-to-br from-white via-white/95 to-white/70 bg-clip-text text-transparent">
                   PSOC
                 </h3>
-                <div className="h-[2px] w-16 bg-gradient-to-r from-purple-500 via-blue-500 to-cyan-500 rounded-full" />
+                {/*<div className="h-[2px] w-16 bg-gradient-to-r from-red-500 via-white-500 to-yellow-500 rounded-full" />*/}
               </div>
               
               <p className="text-white/60 text-sm md:text-base max-w-md leading-relaxed">

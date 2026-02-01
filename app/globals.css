@@ -150,7 +150,12 @@ body {
   overscroll-behavior: none;
 }
 
-* {
+/* * {
+  transform-style: preserve-3d;
+} */
+.three-d,
+canvas,
+.hero-3d {
   transform-style: preserve-3d;
 }
 canvas {

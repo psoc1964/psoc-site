@@ -1,142 +1,135 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 const navItems = [
-  { label: "Home", href: "#home" },
-  { label: "Album", href: "#album" },
-  { label: "About Us", href: "#about" },
+  { label: "Home", href: "/#home", type: "scroll", targetId: "home" },
+  { label: "Album", href: "/album", type: "route" },
+  { label: "About Us", href: "/#about", type: "scroll", targetId: "about" },
 ];
 
-export default function Navbar({ visible }: { visible: boolean }) {
+export default function Navbar({ 
+  visible, 
+  onNavigate 
+}: { 
+  visible: boolean; 
+  onNavigate?: (targetId: string) => void;
+}) {
+  const router = useRouter();
+  const [isRouteTransitioning, setIsRouteTransitioning] = useState(false);
+
+  const handleRouteNav = (href: string) => {
+    // Start transition
+    setIsRouteTransitioning(true);
+    
+    // Navigate after blur effect
+    setTimeout(() => {
+      router.push(href);
+    }, 300);
+  };
+
   return (
-    <header
-      className={`fixed top-0 left-0 w-full z-40 transition-opacity duration-700 ${
-        visible ? "opacity-100" : "opacity-0 pointer-events-none"
-      } bg-black/40 backdrop-blur border-b border-white/10`}
-    >
-      <div className="max-w-7xl mx-auto px-8 lg:px-16 h-16 flex items-center justify-between">
-        {/* LOGO → CAMERA MORPH WITH UNIFORM GLASS LIGHT */}
-        <div
-          className="relative w-[68px] h-[68px] group cursor-pointer"
-          onMouseMove={(e) => {
-            const rect = e.currentTarget.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-
-            e.currentTarget.style.setProperty("--x", `${x}px`);
-            e.currentTarget.style.setProperty("--y", `${y}px`);
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.setProperty("--x", "50%");
-            e.currentTarget.style.setProperty("--y", "50%");
-          }}
-        >
-          {/* PSOC LOGO */}
-          <Image
-            src="/Psoc logo white.png"
-            alt="PSOC Logo"
-            fill
-            priority
-            className="
-              object-contain
-              transition-all
-              duration-[600ms]
-              ease-[cubic-bezier(0.22,1,0.36,1)]
-              group-hover:scale-110
-              group-hover:opacity-0
-            "
-          />
-
-          {/* CAMERA ICON */}
-          <Image
-            src="/camera-navbar.png"
-            alt="Camera"
-            fill
-            className="
-              object-contain
-              opacity-0
-              scale-75
-              transition-all
-              duration-[700ms]
-              ease-[cubic-bezier(0.22,1,0.36,1)]
-              group-hover:opacity-100
-              group-hover:scale-100
-            "
-          />
-
-          {/* UNIFORM GLASS LIGHT (NO CIRCLE SHAPE) */}
-          <div
-            className="
-              absolute
-              inset-0
-              rounded-full
-              pointer-events-none
-              opacity-0
-              group-hover:opacity-100
-              transition-opacity
-              duration-500
-              blur-[6px]
-            "
-            style={{
-              background: `
-                linear-gradient(
-                  120deg,
-                  rgba(255,255,255,0.08),
-                  rgba(255,255,255,0.02),
-                  rgba(255,255,255,0.06)
-                ),
-                radial-gradient(
-                  900px 700px at var(--x, 50%) var(--y, 50%),
-                  rgba(255,255,255,0.12),
-                  transparent 75%
-                )
-              `,
-            }}
-          />
-        </div>
-
-        {/* NAV LINKS */}
-        <nav className="flex gap-10 text-sm">
-  {navItems.map((item) => (
-    <a
-      key={item.label}
-      href={item.href}
-      className="
-        relative
-        text-white/70
-        transition-all
-        duration-300
-        ease-out
-        hover:text-white
-        hover:-translate-y-[1px]
-        group
-      "
-    >
-      {item.label}
-
-      {/* UNDERLINE */}
-      <span
-        className="
-          pointer-events-none
-          absolute
-          left-1/2
-          -bottom-1
-          h-[1px]
-          w-0
-          bg-white
-          transition-all
-          duration-300
-          ease-out
-          group-hover:w-full
-          group-hover:left-0
-        "
+    <>
+      {/* Route transition overlay */}
+      <div
+        className={`fixed inset-0 z-[100] pointer-events-none transition-all duration-300 ${
+          isRouteTransitioning
+            ? "backdrop-blur-xl bg-black/40 opacity-100"
+            : "backdrop-blur-none opacity-0"
+        }`}
       />
-    </a>
-  ))}
-</nav>
 
-      </div>
-    </header>
+      <header
+        className={`fixed top-0 left-0 w-full z-40 transition-opacity duration-700 ${
+          visible ? "opacity-100" : "opacity-0 pointer-events-none"
+        } bg-black/40 backdrop-blur border-b border-white/10`}
+      >
+        <div className="max-w-7xl mx-auto px-8 lg:px-16 h-16 flex items-center justify-between">
+          {/* LOGO */}
+          <Link href="/" className="relative w-[68px] h-[68px] group cursor-pointer">
+            <Image
+              src="/psoc-logo-white.png"
+              alt="PSOC Logo"
+              fill
+              priority
+              className="
+                object-contain
+                transition-all
+                duration-[600ms]
+                ease-[cubic-bezier(0.22,1,0.36,1)]
+                group-hover:scale-110
+                group-hover:opacity-0
+              "
+            />
+
+            <Image
+              src="/camera-navbar.png"
+              alt="Camera"
+              fill
+              className="
+                object-contain
+                opacity-0
+                scale-75
+                transition-all
+                duration-[700ms]
+                ease-[cubic-bezier(0.22,1,0.36,1)]
+                group-hover:opacity-100
+                group-hover:scale-100
+              "
+            />
+          </Link>
+
+          {/* NAV LINKS */}
+          <nav className="flex gap-10 text-sm">
+            {navItems.map((item) =>
+              item.type === "route" ? (
+                <button
+                  key={item.label}
+                  onClick={() => handleRouteNav(item.href)}
+                  className="
+                    relative
+                    text-white/70
+                    transition-all
+                    duration-300
+                    ease-out
+                    hover:text-white
+                    hover:-translate-y-[1px]
+                    group
+                  "
+                >
+                  {item.label}
+                  <span className="absolute left-1/2 -bottom-1 h-[1px] w-0 bg-white transition-all duration-300 group-hover:w-full group-hover:left-0" />
+                </button>
+              ) : (
+                <button
+                  key={item.label}
+                  onClick={() => {
+                    if (onNavigate && item.targetId) {
+                      onNavigate(item.targetId);
+                    }
+                  }}
+                  className="
+                    relative
+                    text-white/70
+                    transition-all
+                    duration-300
+                    ease-out
+                    hover:text-white
+                    hover:-translate-y-[1px]
+                    group
+                  "
+                >
+                  {item.label}
+                  <span className="absolute left-1/2 -bottom-1 h-[1px] w-0 bg-white transition-all duration-300 group-hover:w-full group-hover:left-0" />
+                </button>
+              )
+            )}
+          </nav>
+        </div>
+      </header>
+    </>
   );
 }
