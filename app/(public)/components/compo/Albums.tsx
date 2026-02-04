@@ -1,14 +1,40 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  useMemo,
+  useCallback,
+  memo,
+} from "react";
 import gsap from "gsap";
 import ScrollTrigger from "gsap/ScrollTrigger";
 import Image from "next/image";
 
 gsap.registerPlugin(ScrollTrigger);
 
-// Album data
-const albums = [
+/* ─────────────────────────────────────────────
+   TYPES
+   ───────────────────────────────────────────── */
+
+interface Album {
+  id: number;
+  title: string;
+  description: string;
+  month: string;
+  image: string;
+  photoCount: number;
+  category: FilterKey;
+}
+
+type FilterKey = "all" | "events" | "workshops" | "portraits" | "campus";
+
+/* ─────────────────────────────────────────────
+   STATIC DATA – module-level, frozen.
+   ───────────────────────────────────────────── */
+
+const ALBUMS: readonly Album[] = Object.freeze([
   {
     id: 1,
     title: "Autumn Chronicles",
@@ -16,6 +42,7 @@ const albums = [
     month: "December 2025",
     image: "/camera1.jpg",
     photoCount: 127,
+    category: "campus",
   },
   {
     id: 2,
@@ -24,6 +51,7 @@ const albums = [
     month: "November 2025",
     image: "/camera1.jpg",
     photoCount: 89,
+    category: "events",
   },
   {
     id: 3,
@@ -32,6 +60,7 @@ const albums = [
     month: "October 2025",
     image: "/camera1.jpg",
     photoCount: 156,
+    category: "workshops",
   },
   {
     id: 4,
@@ -40,6 +69,7 @@ const albums = [
     month: "July 2025",
     image: "/camera1.jpg",
     photoCount: 92,
+    category: "events",
   },
   {
     id: 5,
@@ -48,6 +78,7 @@ const albums = [
     month: "June 2025",
     image: "/camera1.jpg",
     photoCount: 64,
+    category: "portraits",
   },
   {
     id: 6,
@@ -56,64 +87,179 @@ const albums = [
     month: "May 2025",
     image: "/camera1.jpg",
     photoCount: 201,
+    category: "campus",
   },
-];
+]) as Album[];
+
+const FILTERS: readonly FilterKey[] = Object.freeze([
+  "all",
+  "events",
+  "workshops",
+  "portraits",
+  "campus",
+]) as FilterKey[];
+
+/* ─────────────────────────────────────────────
+   FILTER PILL
+   ───────────────────────────────────────────── */
+
+interface FilterPillProps {
+  label: string;
+  isActive: boolean;
+  onClick: () => void;
+}
+
+const FilterPill = memo<FilterPillProps>(({ label, isActive, onClick }) => (
+  <button
+    onClick={onClick}
+    className={`
+      relative px-4 sm:px-6 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-medium
+      transition-all duration-300 whitespace-nowrap touch-manipulation uppercase tracking-wide
+      ${
+        isActive
+          ? "text-white shadow-lg shadow-purple-500/50"
+          : "text-gray-400 hover:text-gray-200 border border-gray-700"
+      }
+    `}
+  >
+    {label}
+    {isActive && (
+      <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full -z-10" />
+    )}
+  </button>
+));
+
+FilterPill.displayName = "FilterPill";
+
+/* ─────────────────────────────────────────────
+   ALBUM CARD
+   ───────────────────────────────────────────── */
+
+interface AlbumCardProps {
+  album: Album;
+  index: number;
+}
+
+const AlbumCard = memo<AlbumCardProps>(({ album, index }) => {
+  const [hovered, setHovered] = useState(false);
+
+  return (
+    <div
+      className="album-card group relative"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      {/* Shell */}
+      <div className="relative bg-zinc-900/50 backdrop-blur-sm rounded-2xl overflow-hidden border border-zinc-800/50 hover:border-purple-500/30 transition-all duration-500 h-full">
+        {/* Image area */}
+        <div className="relative w-full aspect-[4/3] sm:aspect-video overflow-hidden">
+          <Image
+            src={album.image}
+            alt={album.title}
+            fill
+            className={`object-cover transition-transform duration-700 ${
+              hovered ? "scale-110" : "scale-100"
+            }`}
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          />
+          {/* Bottom gradient */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+
+          {/* Hover / tap CTA */}
+          <div
+            className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${
+              hovered ? "opacity-100" : "opacity-0"
+            }`}
+          >
+            <div className="px-4 sm:px-6 py-2 sm:py-3 bg-white/10 backdrop-blur-md rounded-full border border-white/20 text-white text-xs sm:text-sm font-medium">
+              View Album
+            </div>
+          </div>
+
+          {/* Photo-count badge */}
+          <div className="absolute top-3 sm:top-4 right-3 sm:right-4 px-2 sm:px-3 py-1 sm:py-1.5 bg-black/60 backdrop-blur-sm rounded-full border border-white/10">
+            <span className="text-[10px] sm:text-xs text-white font-medium">
+              {album.photoCount} photos
+            </span>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="p-4 sm:p-6 space-y-2 sm:space-y-3">
+          <div className="text-[10px] sm:text-xs text-purple-400 font-medium uppercase tracking-wider">
+            {album.month}
+          </div>
+          <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-white group-hover:text-purple-400 transition-colors duration-300">
+            {album.title}
+          </h3>
+          <p className="text-xs sm:text-sm text-gray-400 line-clamp-2">
+            {album.description}
+          </p>
+        </div>
+
+        {/* Bottom bar */}
+        <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-zinc-800/50 flex items-center justify-between">
+          <button className="text-xs sm:text-sm text-purple-400 hover:text-purple-300 font-medium transition-colors touch-manipulation">
+            Explore
+          </button>
+          <button className="text-xs sm:text-sm text-gray-400 hover:text-gray-300 transition-colors touch-manipulation">
+            Save
+          </button>
+        </div>
+
+        {/* Corner glow */}
+        <div className="absolute -top-20 -right-20 w-40 h-40 bg-purple-500/20 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+
+        {/* Background index number */}
+        <div className="absolute bottom-4 sm:bottom-6 right-4 sm:right-6 text-5xl sm:text-6xl lg:text-7xl font-black text-white/5 select-none pointer-events-none">
+          {String(index + 1).padStart(2, "0")}
+        </div>
+      </div>
+    </div>
+  );
+});
+
+AlbumCard.displayName = "AlbumCard";
+
+/* ─────────────────────────────────────────────
+   ROOT
+   ───────────────────────────────────────────── */
 
 export default function Album() {
-  const sectionRef = useRef<HTMLElement | null>(null);
-  const [activeFilter, setActiveFilter] = useState("all");
+  const sectionRef = useRef<HTMLElement>(null);
+  const [activeFilter, setActiveFilter] = useState<FilterKey>("all");
+  const [searchQuery, setSearchQuery] = useState("");
 
+  /* ── GSAP – runs once, every trigger self-kills ── */
   useEffect(() => {
-    if (!sectionRef.current) return;
+    const section = sectionRef.current;
+    if (!section) return;
 
     const ctx = gsap.context(() => {
-      // Staggered album card reveals
-      gsap.utils.toArray<HTMLElement>(".album-card").forEach((card, index) => {
+      gsap.utils.toArray<HTMLElement>(".album-card").forEach((card) => {
         gsap.fromTo(
           card,
-          {
-            opacity: 0,
-            y: 60,
-            scale: 0.95,
-          },
+          { opacity: 0, y: 60, scale: 0.95 },
           {
             opacity: 1,
             y: 0,
             scale: 1,
-            duration: 1.2,
+            duration: 0.9,
             ease: "power3.out",
             scrollTrigger: {
               trigger: card,
-              start: "top 85%",
-              end: "top 60%",
+              start: "top 88%",
+              end: "top 65%",
               scrub: 1,
+              once: true,
             },
           }
         );
       });
 
-      // Floating doodles parallax
-      gsap.utils.toArray<HTMLElement>(".doodle").forEach((doodle) => {
-        const speed = doodle.getAttribute("data-speed") || "1";
-        gsap.to(doodle, {
-          y: -100 * parseFloat(speed),
-          ease: "none",
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: "top bottom",
-            end: "bottom top",
-            scrub: 1.5,
-          },
-        });
-      });
-
-      // Header animation
       gsap.fromTo(
         ".album-header",
-        {
-          opacity: 0,
-          y: 40,
-        },
+        { opacity: 0, y: 40 },
         {
           opacity: 1,
           y: 0,
@@ -121,268 +267,219 @@ export default function Album() {
           ease: "power3.out",
           scrollTrigger: {
             trigger: ".album-header",
-            start: "top 80%",
+            start: "top 85%",
+            once: true,
           },
         }
       );
-    }, sectionRef);
+    }, section);
 
     return () => ctx.revert();
   }, []);
 
+  /* ── Stable filter setter ── */
+  const handleFilterClick = useCallback(
+    (f: FilterKey) => setActiveFilter(f),
+    []
+  );
+
+  /* ── Stable search handler ── */
+  const handleSearchChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setSearchQuery(e.target.value);
+    },
+    []
+  );
+
+  /* ── Clear search ── */
+  const clearSearch = useCallback(() => {
+    setSearchQuery("");
+  }, []);
+
+  /* ── Filtered albums based on category and search ── */
+  const filteredAlbums = useMemo(() => {
+    let filtered = [...ALBUMS];
+
+    // Filter by category
+    if (activeFilter !== "all") {
+      filtered = filtered.filter((album) => album.category === activeFilter);
+    }
+
+    // Filter by search query
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(
+        (album) =>
+          album.title.toLowerCase().includes(query) ||
+          album.description.toLowerCase().includes(query) ||
+          album.month.toLowerCase().includes(query)
+      );
+    }
+
+    return filtered;
+  }, [activeFilter, searchQuery]);
+
+  /* Pills – rebuilds only when activeFilter changes */
+  const pills = useMemo(
+    () =>
+      FILTERS.map((f) => (
+        <FilterPill
+          key={f}
+          label={f.charAt(0).toUpperCase() + f.slice(1)}
+          isActive={activeFilter === f}
+          onClick={() => handleFilterClick(f)}
+        />
+      )),
+    [activeFilter, handleFilterClick]
+  );
+
+  /* Cards – rebuilds when filteredAlbums changes */
+  const cards = useMemo(
+    () =>
+      filteredAlbums.map((album, i) => (
+        <AlbumCard key={album.id} album={album} index={i} />
+      )),
+    [filteredAlbums]
+  );
+
+  /* ── Render ── */
   return (
     <section
       ref={sectionRef}
-      id="album"
-      className="relative min-h-screen bg-gradient-to-b from-black via-[#0a0a0a] to-black text-white py-32 overflow-hidden"
+      className="relative min-h-screen bg-black py-12 sm:py-16 lg:py-24 px-4 sm:px-6 lg:px-8 overflow-hidden"
     >
-      {/* Subtle noise texture */}
-      <div className="absolute inset-0 opacity-[0.015] pointer-events-none mix-blend-overlay">
-        <div
-          className="w-full h-full"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' /%3E%3C/svg%3E")`,
-          }}
-        />
-      </div>
+      {/* Noise */}
+      <div className="absolute inset-0 opacity-[0.015] pointer-events-none bg-[url('/noise.png')] bg-repeat" />
 
-      {/* Photography Doodles - Floating Elements */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {/* Camera doodle - top right */}
-        <div
-          className="doodle absolute top-32 right-[10%] opacity-[0.03]"
-          data-speed="0.8"
-        >
-          <svg width="120" height="120" viewBox="0 0 120 120" fill="none" stroke="white" strokeWidth="2">
-            <rect x="20" y="40" width="80" height="50" rx="4" />
-            <circle cx="60" cy="65" r="15" />
-            <circle cx="60" cy="65" r="10" />
-            <rect x="85" y="45" width="8" height="8" rx="1" />
-            <path d="M40 40 L45 30 L55 30 L60 40" />
-          </svg>
-        </div>
-
-        {/* Aperture doodle - left side */}
-        <div
-          className="doodle absolute top-[40%] left-[5%] opacity-[0.04]"
-          data-speed="1.2"
-        >
-          <svg width="100" height="100" viewBox="0 0 100 100" fill="none" stroke="white" strokeWidth="2">
-            <circle cx="50" cy="50" r="35" />
-            <path d="M50 15 L50 35 M50 65 L50 85 M15 50 L35 50 M65 50 L85 50" />
-            <path d="M25 25 L38 38 M62 62 L75 75 M75 25 L62 38 M38 62 L25 75" />
-          </svg>
-        </div>
-
-        {/* Film strip doodle - bottom left */}
-        <div
-          className="doodle absolute bottom-[20%] left-[15%] opacity-[0.03]"
-          data-speed="0.6"
-        >
-          <svg width="140" height="80" viewBox="0 0 140 80" fill="none" stroke="white" strokeWidth="2">
-            <rect x="10" y="10" width="120" height="60" rx="2" />
-            <line x1="10" y1="20" x2="130" y2="20" />
-            <line x1="10" y1="60" x2="130" y2="60" />
-            <line x1="45" y1="10" x2="45" y2="70" />
-            <line x1="70" y1="10" x2="70" y2="70" />
-            <line x1="95" y1="10" x2="95" y2="70" />
-            <rect x="5" y="15" width="6" height="6" />
-            <rect x="5" y="35" width="6" height="6" />
-            <rect x="5" y="55" width="6" height="6" />
-            <rect x="129" y="15" width="6" height="6" />
-            <rect x="129" y="35" width="6" height="6" />
-            <rect x="129" y="55" width="6" height="6" />
-          </svg>
-        </div>
-
-        {/* Focus frame doodle - top left */}
-        <div
-          className="doodle absolute top-[25%] left-[8%] opacity-[0.04]"
-          data-speed="1"
-        >
-          <svg width="90" height="90" viewBox="0 0 90 90" fill="none" stroke="white" strokeWidth="2">
-            <path d="M10 10 L30 10 M10 10 L10 30" />
-            <path d="M80 10 L60 10 M80 10 L80 30" />
-            <path d="M10 80 L30 80 M10 80 L10 60" />
-            <path d="M80 80 L60 80 M80 80 L80 60" />
-            <circle cx="45" cy="45" r="8" strokeDasharray="2 2" />
-          </svg>
-        </div>
-
-        {/* Lens doodle - right side */}
-        <div
-          className="doodle absolute top-[60%] right-[12%] opacity-[0.03]"
-          data-speed="0.9"
-        >
-          <svg width="110" height="110" viewBox="0 0 110 110" fill="none" stroke="white" strokeWidth="2">
-            <circle cx="55" cy="55" r="40" />
-            <circle cx="55" cy="55" r="30" />
-            <circle cx="55" cy="55" r="20" />
-            <circle cx="55" cy="55" r="10" />
-            <path d="M15 55 L25 55 M85 55 L95 55" strokeOpacity="0.5" />
-          </svg>
-        </div>
-
-        {/* Shutter doodle - bottom right */}
-        <div
-          className="doodle absolute bottom-[15%] right-[20%] opacity-[0.04]"
-          data-speed="1.1"
-        >
-          <svg width="100" height="100" viewBox="0 0 100 100" fill="none" stroke="white" strokeWidth="2">
-            <circle cx="50" cy="50" r="35" />
-            <path d="M50 15 L50 50 L35 35" />
-            <path d="M50 15 L50 50 L65 35" />
-            <path d="M50 85 L50 50 L35 65" />
-            <path d="M50 85 L50 50 L65 65" />
-            <path d="M15 50 L50 50 L35 35" />
-            <path d="M85 50 L50 50 L65 35" />
-          </svg>
-        </div>
-      </div>
-
-      <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
+      {/* Content */}
+      <div className="relative max-w-7xl mx-auto z-10">
         {/* Header */}
-        <div className="album-header mb-20">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-12 h-px bg-white/20" />
-            <span className="text-xs tracking-[0.35em] uppercase text-white/50">
+        <div className="album-header text-center mb-8 sm:mb-12 lg:mb-16 space-y-3 sm:space-y-4">
+          <div className="inline-block px-3 sm:px-4 py-1 sm:py-1.5 bg-purple-500/10 border border-purple-500/20 rounded-full">
+            <span className="text-xs sm:text-sm text-purple-400 font-medium">
               Our Collections
             </span>
           </div>
-
-          <h1 className="text-5xl md:text-6xl lg:text-7xl font-serif mb-6 leading-tight">
+          <h2 className="text-3xl sm:text-4xl lg:text-6xl font-black text-white">
             Visual Archives
-          </h1>
-
-          <p className="text-white/60 text-lg max-w-2xl leading-relaxed">
-            A curated collection of moments captured through our lens — from campus life
-            to creative explorations, each album tells its own story.
+          </h2>
+          <p className="text-sm sm:text-base lg:text-lg text-gray-400 max-w-2xl mx-auto px-4">
+            A curated collection of moments captured through our lens — from
+            campus life to creative explorations, each album tells its own
+            story.
           </p>
+        </div>
 
-          {/* Filter Pills */}
-          <div className="flex flex-wrap gap-3 mt-12">
-            {["all", "events", "workshops", "portraits", "campus"].map((filter) => (
+        {/* Search Bar - ENHANCED VISIBILITY & Z-INDEX */}
+        <div className="mb-8 sm:mb-10 max-w-2xl mx-auto relative z-20">
+          <div className="relative">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={handleSearchChange}
+              placeholder="Search albums by title, description, or month..."
+              className="w-full px-6 py-4 pl-14 pr-12 bg-zinc-900/90 backdrop-blur-md border-2 border-zinc-700 rounded-full text-white placeholder-gray-500 focus:outline-none focus:border-purple-500/70 focus:ring-2 focus:ring-purple-500/30 transition-all duration-300 text-base shadow-2xl"
+              autoComplete="off"
+            />
+            {/* Search Icon */}
+            <svg
+              className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
+            {/* Clear Button */}
+            {searchQuery && (
               <button
-                key={filter}
-                onClick={() => setActiveFilter(filter)}
-                className={`group relative px-5 py-2 text-xs tracking-wider uppercase font-medium rounded-full border transition-all duration-300 ${
-                  activeFilter === filter
-                    ? "border-white text-white bg-white/5"
-                    : "border-white/20 text-white/50 hover:border-white/40 hover:text-white/70"
-                }`}
+                onClick={clearSearch}
+                className="absolute right-4 top-1/2 -translate-y-1/2 p-1.5 text-gray-400 hover:text-white transition-colors touch-manipulation bg-zinc-700/70 hover:bg-zinc-600 rounded-full z-10"
+                aria-label="Clear search"
               >
-                {filter}
-                {activeFilter === filter && (
-                  <div className="absolute inset-0 rounded-full bg-white/10 animate-pulse" />
-                )}
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
               </button>
-            ))}
+            )}
           </div>
         </div>
 
-        {/* Album Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 lg:gap-10">
-          {albums.map((album, index) => (
-            <div
-              key={album.id}
-              className="album-card group relative"
-            >
-              {/* Card Container */}
-              <div className="relative overflow-hidden rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 transition-all duration-500 hover:border-white/30 hover:shadow-2xl hover:shadow-white/5">
-                {/* Image */}
-                <div className="relative aspect-[4/3] overflow-hidden">
-                  <Image
-                    src={album.image}
-                    alt={album.title}
-                    fill
-                    className="object-cover transition-all duration-700 group-hover:scale-110"
-                  />
-                  {/* Gradient Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-60 group-hover:opacity-40 transition-opacity duration-500" />
-                  
-                  {/* Hover Overlay */}
-                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
-                    <div className="flex items-center gap-2 text-sm font-medium">
-                      <span>View Album</span>
-                      <svg className="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    </div>
-                  </div>
+        {/* Filters */}
+        <div className="flex flex-wrap items-center justify-center gap-3 mb-10 sm:mb-12 px-2 relative z-10">
+          {pills}
+        </div>
 
-                  {/* Photo Count Badge */}
-                  <div className="absolute top-4 right-4 px-3 py-1.5 bg-black/70 backdrop-blur-md rounded-full text-xs font-medium border border-white/20">
-                    {album.photoCount} photos
-                  </div>
-                </div>
+        {/* Results count */}
+        {(searchQuery || activeFilter !== "all") && (
+          <div className="text-center mb-8">
+            <p className="text-sm text-gray-400">
+              Showing <span className="text-white font-semibold">{filteredAlbums.length}</span> of{" "}
+              <span className="text-white font-semibold">{ALBUMS.length}</span> albums
+              {searchQuery && (
+                <span className="ml-2">
+                  for <span className="text-purple-400 font-medium">&quot;{searchQuery}&quot;</span>
+                </span>
+              )}
+            </p>
+          </div>
+        )}
 
-                {/* Content */}
-                <div className="p-6 space-y-3">
-                  <div className="flex items-center gap-2 text-[10px] tracking-widest uppercase text-white/40">
-                    <div className="w-2 h-2 rounded-full bg-white/40" />
-                    <span>{album.month}</span>
-                  </div>
-
-                  <h3 className="text-2xl font-serif leading-tight group-hover:text-white/90 transition-colors">
-                    {album.title}
-                  </h3>
-
-                  <p className="text-sm text-white/60 leading-relaxed line-clamp-2">
-                    {album.description}
-                  </p>
-
-                  {/* Bottom Bar */}
-                  <div className="pt-4 flex items-center justify-between border-t border-white/10">
-                    <button className="text-xs font-medium text-white/70 hover:text-white transition-colors flex items-center gap-1.5">
-                      <span>Explore</span>
-                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                      </svg>
-                    </button>
-
-                    <div className="flex items-center gap-1.5 text-white/40">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                      </svg>
-                      <span className="text-xs">Save</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Subtle corner accent */}
-                <div className="absolute top-0 right-0 w-20 h-20 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                  <div className="absolute top-0 right-0 w-full h-full bg-gradient-to-bl from-white/10 to-transparent rounded-2xl" />
-                </div>
-              </div>
-
-              {/* Card number - Large background */}
-              <div className="absolute -top-8 -right-6 text-[8rem] font-bold text-white/[0.02] leading-none pointer-events-none select-none z-0">
-                {String(index + 1).padStart(2, '0')}
-              </div>
+        {/* Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 mb-12">
+          {cards.length > 0 ? (
+            cards
+          ) : (
+            <div className="col-span-full text-center py-20">
+              <div className="text-6xl mb-6">🔍</div>
+              <h3 className="text-2xl text-white font-bold mb-3">
+                No albums found
+              </h3>
+              <p className="text-base text-gray-400 mb-8 max-w-md mx-auto">
+                Try adjusting your search or filter criteria to find what you&apos;re looking for.
+              </p>
+              <button
+                onClick={() => {
+                  setSearchQuery("");
+                  setActiveFilter("all");
+                }}
+                className="px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-full font-medium transition-all duration-300 hover:scale-105 touch-manipulation shadow-lg shadow-purple-500/50"
+              >
+                Clear All Filters
+              </button>
             </div>
-          ))}
+          )}
         </div>
 
-        {/* Load More Section */}
-        <div className="mt-20 flex flex-col items-center gap-6">
-          <div className="w-px h-20 bg-gradient-to-b from-white/20 to-transparent" />
-          
-          <button className="group relative px-8 py-4 text-sm font-medium text-white rounded-full border border-white/20 hover:border-white/40 transition-all duration-300 overflow-hidden">
-            <span className="relative z-10 flex items-center gap-2">
+        {/* Load More */}
+        {filteredAlbums.length > 0 && filteredAlbums.length >= 6 && (
+          <div className="text-center">
+            <button className="px-8 py-4 bg-zinc-800/80 backdrop-blur-sm border-2 border-zinc-700/50 hover:border-purple-500/50 rounded-full text-white font-medium transition-all duration-300 hover:scale-105 touch-manipulation shadow-xl">
               Load More Albums
-              <svg className="w-4 h-4 transition-transform group-hover:translate-y-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-              </svg>
-            </span>
-            
-            {/* Hover background */}
-            <div className="absolute inset-0 bg-white/5 scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
-          </button>
-        </div>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Bottom fade */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black to-transparent pointer-events-none" />
+      <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-black to-transparent pointer-events-none" />
     </section>
   );
 }

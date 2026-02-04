@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, memo, useMemo } from "react";
 import gsap from "gsap";
 import ScrollTrigger from "gsap/ScrollTrigger";
 
@@ -12,6 +12,55 @@ interface HeroProps {
   ready: boolean;
 }
 
+// Memoized Learn More Link
+const LearnMoreLink = memo(() => (
+  <a
+    href="#about"
+    className="inline-flex items-center gap-2 text-sm font-medium border-b-2 border-white/80 pb-1 hover:border-white hover:gap-3 transition-all duration-300 group"
+  >
+    Learn more
+    <svg
+      className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M17 8l4 4m0 0l-4 4m4-4H3"
+      />
+    </svg>
+  </a>
+));
+
+LearnMoreLink.displayName = "LearnMoreLink";
+
+// Memoized Scroll Indicator
+const ScrollIndicator = memo(() => (
+  <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-40 animate-bounce">
+    <div className="flex flex-col items-center gap-2 text-white/60">
+      <span className="text-xs tracking-widest uppercase">Scroll</span>
+      <svg
+        className="w-6 h-6"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M19 14l-7 7m0 0l-7-7m7 7V3"
+        />
+      </svg>
+    </div>
+  </div>
+));
+
+ScrollIndicator.displayName = "ScrollIndicator";
+
 export default function Hero({ ready }: HeroProps) {
   const sectionRef = useRef<HTMLElement | null>(null);
   const imageRef = useRef<HTMLDivElement | null>(null);
@@ -20,37 +69,47 @@ export default function Hero({ ready }: HeroProps) {
   const bgTextRef = useRef<HTMLHeadingElement | null>(null);
   const lensRef = useRef<HTMLDivElement | null>(null);
 
-  // ---------------------------------------------------------------------------
-  // Scroll-based animations — set up once on mount. These don't play until
-  // the user actually scrolls, so they don't need to wait for `ready`.
-  // ---------------------------------------------------------------------------
+  // Detect device type for performance optimization
+  const isMobile = useMemo(() => {
+    if (typeof window === 'undefined') return false;
+    return window.innerWidth < 768;
+  }, []);
+
+  // Memoized animation configs for better performance
+  const scrollConfig = useMemo(() => ({
+    imageParallax: isMobile ? { yPercent: -10 } : { yPercent: -15 },
+    contentParallax: isMobile ? { y: -20 } : { y: -40 },
+    bgTypography: isMobile ? { y: -50 } : { y: -100 },
+  }), [isMobile]);
+
+  // Scroll-based animations
   useEffect(() => {
     if (!sectionRef.current) return;
 
     const ctx = gsap.context(() => {
-      /* IMAGE PARALLAX */
+      /* IMAGE PARALLAX - Optimized for device */
       gsap.to(imageRef.current, {
-        yPercent: -15,
+        ...scrollConfig.imageParallax,
         ease: "none",
         force3D: true,
         scrollTrigger: {
           trigger: sectionRef.current,
           start: "top top",
           end: "bottom top",
-          scrub: 1,
+          scrub: isMobile ? 0.5 : 1,
         },
       });
 
-      /* CONTENT GENTLE PARALLAX */
+      /* CONTENT GENTLE PARALLAX - Optimized for device */
       gsap.to([leftRef.current, rightRef.current], {
-        y: -40,
+        ...scrollConfig.contentParallax,
         ease: "none",
         force3D: true,
         scrollTrigger: {
           trigger: sectionRef.current,
           start: "top top",
           end: "bottom top",
-          scrub: 1,
+          scrub: isMobile ? 0.5 : 1,
         },
       });
 
@@ -66,36 +125,30 @@ export default function Hero({ ready }: HeroProps) {
         },
       });
 
-      /* BG TYPOGRAPHY PARALLAX */
+      /* BG TYPOGRAPHY PARALLAX - Optimized for device */
       gsap.to(bgTextRef.current, {
-        y: -100,
+        ...scrollConfig.bgTypography,
         ease: "none",
         force3D: true,
         scrollTrigger: {
           trigger: sectionRef.current,
           start: "top bottom",
           end: "bottom top",
-          scrub: 1.5,
+          scrub: isMobile ? 1 : 1.5,
         },
       });
     }, sectionRef);
 
     return () => ctx.revert();
-  }, []);
+  }, [isMobile, scrollConfig]);
 
-  // ---------------------------------------------------------------------------
-  // Intro animation — only fires once `ready` flips to true.
-  // By that point the component has been in the DOM for at least one full
-  // IntroLogo fade-out cycle, so GSAP refs are live and the scroll triggers
-  // above are already registered.
-  // ---------------------------------------------------------------------------
+  // Intro animation
   useEffect(() => {
     if (!ready) return;
     if (!sectionRef.current) return;
 
     const ctx = gsap.context(() => {
-      /* Set the starting state explicitly right now — same frame as the
-         effect, before any paint happens, so there's no "jump". */
+      /* Set the starting state explicitly */
       gsap.set(imageRef.current, {
         scale: 1.15,
         opacity: 0,
@@ -108,37 +161,64 @@ export default function Hero({ ready }: HeroProps) {
         filter: "blur(10px)",
       });
 
-      /* Run the intro timeline */
-      gsap.timeline({ defaults: { ease: "power3.out", force3D: true } })
-        .to(sectionRef.current, { opacity: 1, duration: 1, ease: "power2.out" })
-        .to(
-          imageRef.current,
-          { scale: 1, opacity: 1, filter: "blur(0px)", duration: 2.4 },
-          0.3
-        )
-        .to(
-          leftRef.current,
-          { y: 0, opacity: 1, filter: "blur(0px)", duration: 1.8 },
-          1.0
-        )
-        .to(
-          rightRef.current,
-          { y: 0, opacity: 1, filter: "blur(0px)", duration: 1.8 },
-          1.2
-        );
+      /* Run the intro timeline - Optimized durations for mobile */
+      const timeline = gsap.timeline({ 
+        defaults: { 
+          ease: "power3.out", 
+          force3D: true 
+        } 
+      });
+
+      if (isMobile) {
+        timeline
+          .to(sectionRef.current, { opacity: 1, duration: 0.8, ease: "power2.out" })
+          .to(
+            imageRef.current,
+            { scale: 1, opacity: 1, filter: "blur(0px)", duration: 1.8 },
+            0.2
+          )
+          .to(
+            leftRef.current,
+            { y: 0, opacity: 1, filter: "blur(0px)", duration: 1.4 },
+            0.8
+          )
+          .to(
+            rightRef.current,
+            { y: 0, opacity: 1, filter: "blur(0px)", duration: 1.4 },
+            1.0
+          );
+      } else {
+        timeline
+          .to(sectionRef.current, { opacity: 1, duration: 1, ease: "power2.out" })
+          .to(
+            imageRef.current,
+            { scale: 1, opacity: 1, filter: "blur(0px)", duration: 2.4 },
+            0.3
+          )
+          .to(
+            leftRef.current,
+            { y: 0, opacity: 1, filter: "blur(0px)", duration: 1.8 },
+            1.0
+          )
+          .to(
+            rightRef.current,
+            { y: 0, opacity: 1, filter: "blur(0px)", duration: 1.8 },
+            1.2
+          );
+      }
     }, sectionRef);
 
     return () => ctx.revert();
-  }, [ready]);
+  }, [ready, isMobile]);
 
   return (
-  <section
-    ref={sectionRef}
-    className={`relative h-screen w-full overflow-hidden bg-black ${
-      !ready ? 'pointer-events-none' : ''
-    }`}
-    style={{ opacity: 0 }}
-  >
+    <section
+      ref={sectionRef}
+      className={`relative h-screen w-full overflow-hidden bg-black ${
+        !ready ? 'pointer-events-none' : ''
+      }`}
+      style={{ opacity: 0 }}
+    >
       {/* ================= BACKGROUND IMAGE ================= */}
       <div
         ref={imageRef}
@@ -150,7 +230,8 @@ export default function Hero({ ready }: HeroProps) {
           alt="Vintage camera"
           fill
           priority
-          quality={90}
+          quality={isMobile ? 75 : 90}
+          sizes="100vw"
           className="object-cover"
         />
         <div className="absolute inset-0 bg-black/40" />
@@ -188,25 +269,7 @@ export default function Hero({ ready }: HeroProps) {
             moments with intention, clarity, and creative vision.
           </p>
 
-          <a
-            href="#about"
-            className="inline-flex items-center gap-2 text-sm font-medium border-b-2 border-white/80 pb-1 hover:border-white hover:gap-3 transition-all duration-300 group"
-          >
-            Learn more
-            <svg
-              className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M17 8l4 4m0 0l-4 4m4-4H3"
-              />
-            </svg>
-          </a>
+          <LearnMoreLink />
         </div>
 
         <div />
@@ -231,24 +294,7 @@ export default function Hero({ ready }: HeroProps) {
       </div>
 
       {/* ================= SCROLL INDICATOR ================= */}
-      <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-40 animate-bounce">
-        <div className="flex flex-col items-center gap-2 text-white/60">
-          <span className="text-xs tracking-widest uppercase">Scroll</span>
-          <svg
-            className="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M19 14l-7 7m0 0l-7-7m7 7V3"
-            />
-          </svg>
-        </div>
-      </div>
+      <ScrollIndicator />
     </section>
   );
 }
