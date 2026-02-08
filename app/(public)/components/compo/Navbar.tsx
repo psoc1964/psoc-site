@@ -4,35 +4,31 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useCallback, useMemo, memo } from "react";
-
-const navItems = [
-  { label: "Home", href: "/#home", type: "scroll", targetId: "home" },
-  { label: "Album", href: "/album", type: "route" },
-  { label: "About Us", href: "/#about", type: "scroll", targetId: "about" },
-] as const;
+import { NAV_ITEMS, NavItem, Route } from "../../../../constants/routes";
 
 // Memoized NavLink component to prevent unnecessary re-renders
-const NavLink = memo(({ 
-  item, 
-  onRouteNav, 
-  onScrollNav 
-}: { 
-  item: typeof navItems[number];
-  onRouteNav: (href: string) => void;
-  onScrollNav: (targetId: string) => void;
-}) => {
-  const handleClick = useCallback(() => {
-    if (item.type === "route") {
-      onRouteNav(item.href);
-    } else if (item.targetId) {
-      onScrollNav(item.targetId);
-    }
-  }, [item, onRouteNav, onScrollNav]);
+const NavLink = memo(
+  ({
+    item,
+    onRouteNav,
+    onScrollNav,
+  }: {
+    item: NavItem;
+    onRouteNav: (routeKey: NavItem["route"]) => void;
+    onScrollNav: (targetId: string) => void;
+  }) => {
+    const handleClick = useCallback(() => {
+      if (item.type === "route") {
+        onRouteNav(item.route);
+      } else if (item.targetId) {
+        onScrollNav(item.targetId);
+      }
+    }, [item, onRouteNav, onScrollNav]);
 
-  return (
-    <button
-      onClick={handleClick}
-      className="
+    return (
+      <button
+        onClick={handleClick}
+        className="
         relative
         text-white/70
         transition-all
@@ -42,12 +38,13 @@ const NavLink = memo(({
         hover:-translate-y-[1px]
         group
       "
-    >
-      {item.label}
-      <span className="absolute left-1/2 -bottom-1 h-[1px] w-0 bg-white transition-all duration-300 group-hover:w-full group-hover:left-0" />
-    </button>
-  );
-});
+      >
+        {item.label}
+        <span className="absolute left-1/2 -bottom-1 h-[1px] w-0 bg-white transition-all duration-300 group-hover:w-full group-hover:left-0" />
+      </button>
+    );
+  },
+);
 
 NavLink.displayName = "NavLink";
 
@@ -90,50 +87,59 @@ const Logo = memo(() => (
 Logo.displayName = "Logo";
 
 // Memoized TransitionOverlay component
-const TransitionOverlay = memo(({ isTransitioning }: { isTransitioning: boolean }) => (
-  <div
-    className={`fixed inset-0 z-[100] pointer-events-none transition-all duration-300 ${
-      isTransitioning
-        ? "backdrop-blur-xl bg-black/40 opacity-100"
-        : "backdrop-blur-none opacity-0"
-    }`}
-  />
-));
+const TransitionOverlay = memo(
+  ({ isTransitioning }: { isTransitioning: boolean }) => (
+    <div
+      className={`fixed inset-0 z-[100] pointer-events-none transition-all duration-300 ${
+        isTransitioning
+          ? "backdrop-blur-xl bg-black/40 opacity-100"
+          : "backdrop-blur-none opacity-0"
+      }`}
+    />
+  ),
+);
 
 TransitionOverlay.displayName = "TransitionOverlay";
 
-export default function Navbar({ 
-  visible, 
-  onNavigate 
-}: { 
-  visible: boolean; 
+export default function Navbar({
+  visible,
+  onNavigate,
+}: {
+  visible: boolean;
   onNavigate?: (targetId: string) => void;
 }) {
   const router = useRouter();
   const [isRouteTransitioning, setIsRouteTransitioning] = useState(false);
 
   // Memoized route navigation handler - EXACTLY like original
-  const handleRouteNav = useCallback((href: string) => {
-    // Start transition
-    setIsRouteTransitioning(true);
-    
-    // Navigate after blur effect
-    setTimeout(() => {
-      router.push(href);
-    }, 300);
-  }, [router]);
+  const handleRouteNav = useCallback(
+    (routeKey: NavItem["route"]) => {
+      // Start transition
+      setIsRouteTransitioning(true);
+
+      // Navigate after blur effect
+      setTimeout(() => {
+        router.push(Route[routeKey]);
+      }, 300);
+    },
+    [router],
+  );
 
   // Memoized scroll navigation handler
-  const handleScrollNav = useCallback((targetId: string) => {
-    onNavigate?.(targetId);
-  }, [onNavigate]);
+  const handleScrollNav = useCallback(
+    (targetId: string) => {
+      onNavigate?.(targetId);
+    },
+    [onNavigate],
+  );
 
   // Memoize header className to prevent recalculation
-  const headerClassName = useMemo(() => 
-    `fixed top-0 left-0 w-full z-40 transition-opacity duration-700 ${
-      visible ? "opacity-100" : "opacity-0 pointer-events-none"
-    } bg-black/40 backdrop-blur border-b border-white/10`,
-    [visible]
+  const headerClassName = useMemo(
+    () =>
+      `fixed top-0 left-0 w-full z-40 transition-opacity duration-700 ${
+        visible ? "opacity-100" : "opacity-0 pointer-events-none"
+      } bg-black/40 backdrop-blur border-b border-white/10`,
+    [visible],
   );
 
   return (
@@ -146,7 +152,7 @@ export default function Navbar({
 
           {/* NAV LINKS */}
           <nav className="flex gap-10 text-sm">
-            {navItems.map((item) => (
+            {NAV_ITEMS.map((item) => (
               <NavLink
                 key={item.label}
                 item={item}
