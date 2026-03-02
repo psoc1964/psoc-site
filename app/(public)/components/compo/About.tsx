@@ -193,13 +193,13 @@ export default function About() {
       className="relative bg-[#0b0d0c] text-white overflow-hidden"
     >
       {/* SIMPLE GRADIENT BACKGROUND - Optimized */}
-      <div className="absolute top-0 right-0 w-[800px] h-[800px] pointer-events-none opacity-10 bg-gradient-to-br from-purple-500/30 via-blue-500/30 to-cyan-500/30 blur-[120px] rounded-full" />
+      <div className="absolute top-0 right-0 w-200 h-200 pointer-events-none opacity-10 bg-linear-to-br from-purple-500/30 via-blue-500/30 to-cyan-500/30 blur-[120px] rounded-full" />
 
       {/* INTRO SECTION */}
       <div className="py-32 md:py-40 relative">
         {/* PARALLAX BACKGROUND WORD */}
         <div className="absolute inset-x-0 top-24 pointer-events-none">
-          <h1 className="parallax-slow text-center text-[28vw] md:text-[20vw] font-bold text-white/[0.03] leading-none tracking-tighter select-none">
+          <h1 className="parallax-slow text-center text-[28vw] md:text-[20vw] font-bold text-white/3 leading-none tracking-tighter select-none">
             ABOUT US
           </h1>
         </div>
@@ -248,8 +248,8 @@ export default function About() {
         <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-12 lg:px-16 mb-36">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-12 text-white/75">
             <div className="reveal-up group cursor-pointer">
-              <div className="transition-all duration-300 hover:translate-y-[-4px]">
-                <p className="stat-number text-4xl md:text-5xl font-serif mb-2 bg-gradient-to-br from-white to-white/60 bg-clip-text text-transparent" data-target="10+">
+              <div className="transition-all duration-300 hover:-translate-y-1">
+                <p className="stat-number text-4xl md:text-5xl font-serif mb-2 bg-linear-to-br from-white to-white/60 bg-clip-text text-transparent" data-target="10+">
                   60+
                 </p>
                 <p className="text-xs tracking-[0.3em] uppercase text-white/45 group-hover:text-white/70 transition-colors">
@@ -259,8 +259,8 @@ export default function About() {
             </div>
 
             <div className="reveal-up group cursor-pointer">
-              <div className="transition-all duration-300 hover:translate-y-[-4px]">
-                <p className="stat-number text-4xl md:text-5xl font-serif mb-2 bg-gradient-to-br from-white to-white/60 bg-clip-text text-transparent" data-target="250K+">
+              <div className="transition-all duration-300 hover:-translate-y-1">
+                <p className="stat-number text-4xl md:text-5xl font-serif mb-2 bg-linear-to-br from-white to-white/60 bg-clip-text text-transparent" data-target="250K+">
                   250K+
                 </p>
                 <p className="text-xs tracking-[0.3em] uppercase text-white/45 group-hover:text-white/70 transition-colors">
@@ -270,8 +270,8 @@ export default function About() {
             </div>
 
             <div className="reveal-up group cursor-pointer">
-              <div className="transition-all duration-300 hover:translate-y-[-4px]">
-                <p className="stat-number text-4xl md:text-5xl font-serif mb-2 bg-gradient-to-br from-white to-white/60 bg-clip-text text-transparent" data-target="100+">
+              <div className="transition-all duration-300 hover:-translate-y-1">
+                <p className="stat-number text-4xl md:text-5xl font-serif mb-2 bg-linear-to-br from-white to-white/60 bg-clip-text text-transparent" data-target="100+">
                   100+
                 </p>
                 <p className="text-xs tracking-[0.3em] uppercase text-white/45 group-hover:text-white/70 transition-colors">
@@ -284,7 +284,7 @@ export default function About() {
 
         {/* CINEMATIC DIVIDER */}
         <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-12 lg:px-16 mb-28">
-          <div className="cinematic-line h-px w-full bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+          <div className="cinematic-line h-px w-full bg-linear-to-r from-transparent via-white/20 to-transparent" />
         </div>
 
         {/* SECTION HEADER */}
@@ -306,10 +306,10 @@ export default function About() {
               {/* Image with Bold Red Glow */}
               <div className="relative group">
                 {/* Bold Animated Glow - RED/ORANGE */}
-                <div className="absolute -inset-2 bg-gradient-to-r from-red-600 via-orange-500 to-amber-500 rounded-[24px] opacity-40 group-hover:opacity-70 blur-2xl transition-all duration-700 animate-pulse-slow" />
+                <div className="absolute -inset-2 bg-linear-to-r from-red-600 via-orange-500 to-amber-500 rounded-3xl opacity-40 group-hover:opacity-70 blur-2xl transition-all duration-700 animate-pulse-slow" />
                 
                 {/* Stronger Always-On Glow */}
-                <div className="absolute -inset-1 bg-gradient-to-r from-red-500/50 via-orange-500/50 to-amber-500/50 rounded-[22px] blur-xl opacity-60" />
+                <div className="absolute -inset-1 bg-linear-to-r from-red-500/50 via-orange-500/50 to-amber-500/50 rounded-[22px] blur-xl opacity-60" />
                 
                 {/* Main Card */}
                 <div className="relative rounded-[20px] overflow-hidden w-full aspect-square border border-white/10 shadow-2xl">
@@ -318,7 +318,7 @@ export default function About() {
                     alt="Utkrisht Exhibition"
                     className="image-reveal w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent pointer-events-none" />
+                  <div className="absolute inset-0 bg-linear-to-t from-black/60 via-black/20 to-transparent pointer-events-none" />
                   
                   {/* Floating Badge */}
                   <div className="absolute top-6 right-6 bg-white/10 backdrop-blur-xl border border-white/20 px-4 py-2 rounded-full text-xs tracking-wider shadow-lg">
@@ -333,7 +333,7 @@ export default function About() {
                   <p className="text-[11px] tracking-[0.4em] uppercase text-white/45 mb-4">
                     Annual Exhibition
                   </p>
-                  <h4 className="text-[2.5rem] md:text-[3rem] font-serif mb-6 leading-none bg-gradient-to-br from-white via-white/90 to-white/60 bg-clip-text text-transparent">
+                  <h4 className="text-[2.5rem] md:text-[3rem] font-serif mb-6 leading-none bg-linear-to-br from-white via-white/90 to-white/60 bg-clip-text text-transparent">
                     Utkrisht
                   </h4>
                 </div>
@@ -368,7 +368,7 @@ export default function About() {
                   <p className="text-[11px] tracking-[0.4em] uppercase text-white/45 mb-4">
                     Legacy Project
                   </p>
-                  <h4 className="text-[2.5rem] md:text-[3rem] font-serif mb-6 leading-none bg-gradient-to-br from-white via-white/90 to-white/60 bg-clip-text text-transparent">
+                  <h4 className="text-[2.5rem] md:text-[3rem] font-serif mb-6 leading-none bg-linear-to-br from-white via-white/90 to-white/60 bg-clip-text text-transparent">
                     Batch Photography
                   </h4>
                 </div>
@@ -394,10 +394,10 @@ export default function About() {
               {/* Image with Bold Blue/Cyan Glow - Appears second on mobile, second on desktop */}
               <div className="relative group lg:order-2">
                 {/* Bold Animated Glow - BLUE/CYAN */}
-                <div className="absolute -inset-2 bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-600 rounded-[24px] opacity-40 group-hover:opacity-70 blur-2xl transition-all duration-700 animate-pulse-slow" />
+                <div className="absolute -inset-2 bg-linear-to-r from-cyan-500 via-blue-500 to-indigo-600 rounded-3xl opacity-40 group-hover:opacity-70 blur-2xl transition-all duration-700 animate-pulse-slow" />
                 
                 {/* Stronger Always-On Glow */}
-                <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400/50 via-blue-500/50 to-indigo-500/50 rounded-[22px] blur-xl opacity-60" />
+                <div className="absolute -inset-1 bg-linear-to-r from-cyan-400/50 via-blue-500/50 to-indigo-500/50 rounded-[22px] blur-xl opacity-60" />
                 
                 {/* Main Card */}
                 <div className="relative rounded-[20px] overflow-hidden w-full aspect-square border border-white/10 shadow-2xl">
@@ -406,7 +406,7 @@ export default function About() {
                     alt="Batch Photography"
                     className="image-reveal w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent pointer-events-none" />
+                  <div className="absolute inset-0 bg-linear-to-t from-black/60 via-black/20 to-transparent pointer-events-none" />
                   
                   {/* Floating Badge */}
                   <div className="absolute top-6 right-6 bg-white/10 backdrop-blur-xl border border-white/20 px-4 py-2 rounded-full text-xs tracking-wider shadow-lg">
