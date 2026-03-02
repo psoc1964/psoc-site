@@ -32,6 +32,17 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: PropsWithChildren) {
   return (
+<<<<<<< HEAD
+    <html lang="en" suppressHydrationWarning>
+    <body className="bg-black text-white overflow-x-hidden film-grain">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem={false}
+        >
+          <SmoothScroll>{children}</SmoothScroll>
+        </ThemeProvider>
+=======
     <html className="scroll-smooth no-scrollbar" lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} flex flex-col`}
@@ -61,6 +72,7 @@ export default function RootLayout({ children }: PropsWithChildren) {
             {children}
           </GlobalStateWrapper>
         </ApolloWrapper>
+>>>>>>> origin/main
       </body>
     </html>
   );

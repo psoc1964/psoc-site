@@ -1,0 +1,2 @@
+// function to convert thumbnail image url  from this https://drive.google.com/file/d/1abGU74O2DFaxrON3qyPw32f-FaUgk8By/view
+// to this https://drive.google.com/uc?export=view&id=1abGU74O2DFaxrON3qyPw32f-FaUgk8By
