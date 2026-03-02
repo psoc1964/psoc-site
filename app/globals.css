@@ -120,7 +120,6 @@
     @apply bg-background text-foreground;
   }
 }
-<<<<<<< HEAD
 html,
 body {
   overscroll-behavior: none;
@@ -347,5 +346,3 @@ html {
 .delay-200 {
   animation-delay: 0.2s;
 }
-=======
->>>>>>> origin/main

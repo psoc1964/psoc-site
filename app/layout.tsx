@@ -14,6 +14,7 @@ import { GET_CURRENT_USER } from "@/lib/queries";
 
 import AuthApply from "./(public)/components/auth/auth-apply";
 import TokenApply from "./(public)/components/auth/token-apply";
+import SmoothScroll from "./providers/SmoothScroll";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,21 +33,15 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: PropsWithChildren) {
   return (
-<<<<<<< HEAD
-    <html lang="en" suppressHydrationWarning>
-    <body className="bg-black text-white overflow-x-hidden film-grain">
-        <ThemeProvider
+    <html className="scroll-smooth no-scrollbar" lang="en">
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} flex flex-col bg-black text-white overflow-x-hidden film-grain`}
+      >
+        {/* <ThemeProvider
           attribute="class"
           defaultTheme="dark"
           enableSystem={false}
-        >
-          <SmoothScroll>{children}</SmoothScroll>
-        </ThemeProvider>
-=======
-    <html className="scroll-smooth no-scrollbar" lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} flex flex-col`}
-      >
+        > */}
         <Toaster />
         <ApolloWrapper>
           <GlobalStateWrapper>
@@ -69,10 +64,10 @@ export default function RootLayout({ children }: PropsWithChildren) {
               }
               Component={TokenApply}
             />
-            {children}
+            <SmoothScroll>{children}</SmoothScroll>
           </GlobalStateWrapper>
         </ApolloWrapper>
->>>>>>> origin/main
+        {/* </ThemeProvider> */}
       </body>
     </html>
   );
