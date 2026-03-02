@@ -18,3 +18,29 @@ export const VERIFY_EMAIL = gql(`
     verifyEmail(token: $token)
   }
 `);
+
+export const GET_PUBLISHED_ALBUMS = gql(`
+  #graphql
+  query GetPublishedAlbums {
+    albums: getPublishedAlbums {
+      id
+      name
+      albumUrl
+      thumbnailUrl
+      createdAt
+    }
+  }
+`);
+
+export const GET_UNPUBLISHED_ALBUMS = gql(`
+  #graphql
+  query GetUnpublishedAlbums {
+    albums: getUnpublishedAlbums {
+      id
+      name
+      albumUrl
+      thumbnailUrl
+      createdAt
+    }
+  }
+`);

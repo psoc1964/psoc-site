@@ -228,12 +228,30 @@ schema {
   mutation: Mutation
 }
 
+type Album {
+  albumUrl: String
+  createdAt: DateTimeISO!
+  id: Float!
+  isPublished: Boolean!
+  name: String!
+  thumbnailUrl: String
+}
+
+"""
+A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.This scalar is serialized to a string in ISO 8601 format and parsed from a string in ISO 8601 format.
+"""
+scalar DateTimeISO
+
 type Mutation {
+  createAlbum(albumUrl: String, isPublished: Boolean, name: String!, thumbnailUrl: String): Album!
   resetPassword(newPassword: String!, token: String!): Boolean!
+  updateAlbum(albumUrl: String, id: Float!, isPublished: Boolean, name: String, thumbnailUrl: String): Album!
 }
 
 type Query {
   getCurrentUser: User
+  getPublishedAlbums: [Album!]!
+  getUnpublishedAlbums: [Album!]!
   verifyEmail(token: String!): Boolean!
   __schema: __Schema!
   __type(name: String!): __Type

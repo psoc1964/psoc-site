@@ -38,23 +38,23 @@ export default function Page() {
 
     setIsTransitioning(true);
 
+  setTimeout(() => {
+    const element = document.getElementById(targetId);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+
     setTimeout(() => {
-      const element = document.getElementById(targetId);
-      if (element) {
-        element.scrollIntoView({ behavior: "smooth" });
-      }
+      setIsTransitioning(false);
+    }, 600);
+  }, 400);
+};
 
-      setTimeout(() => {
-        setIsTransitioning(false);
-      }, 600);
-    }, 400);
-  };
-
-  return (
+return (
     <main className="bg-black text-white relative">
       {/* Navigation transition overlay */}
       <div
-        className={`fixed inset-0 z-[100] pointer-events-none transition-all duration-300 ${
+        className={`fixed inset-0 z-100 pointer-events-none transition-all duration-300 ${
           isTransitioning
             ? "backdrop-blur-xl bg-black/20 opacity-100"
             : "backdrop-blur-none opacity-0"

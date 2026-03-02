@@ -9,6 +9,8 @@ import { startServerAndCreateNextHandler } from "@as-integrations/next";
 import { RequestMutationResolver } from "@graphql/Request/mutations";
 import { RequestQueryResolver } from "@graphql/Request/queries";
 import { UserQueryResolver } from "@graphql/User/queries";
+import { AlbumMutationResolver } from "@graphql/Album/mutations";
+import { AlbumQueryResolver } from "@graphql/Album/queries";
 import type { NextRequest } from "next/server";
 import { buildTypeDefsAndResolvers } from "type-graphql";
 
@@ -20,6 +22,8 @@ const { typeDefs, resolvers } = await buildTypeDefsAndResolvers({
     UserQueryResolver,
     RequestQueryResolver,
     RequestMutationResolver,
+    AlbumQueryResolver,
+    AlbumMutationResolver,
   ],
   authChecker,
   validate: true,

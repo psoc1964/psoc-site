@@ -1,13 +1,20 @@
+import { Roles } from "@backend/lib/constants/roles";
 import { sql } from "drizzle-orm";
 import {
   boolean,
   date,
   index,
+  pgEnum,
   pgTable,
   serial,
   text,
   timestamp,
 } from "drizzle-orm/pg-core";
+
+export const rolesEnum = pgEnum("role", [
+  Roles.Admin,
+  Roles.Stu,
+]);
 
 export const UserTable = pgTable(
   "user",
@@ -18,6 +25,7 @@ export const UserTable = pgTable(
     emailVerified: boolean("email_verified").default(false),
     password: text("password"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
+    role: rolesEnum("role").default(Roles.Stu).notNull(),
   },
   (table) => ({
     userSearchNameIndex: index("user_search_name_index").using(
