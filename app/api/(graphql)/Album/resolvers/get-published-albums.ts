@@ -4,11 +4,18 @@ import { eq } from "drizzle-orm";
 import type { AlbumDB } from "../db";
 import { AlbumTable } from "../db";
 
-export async function handleGetPublishedAlbums(): Promise<AlbumDB[]> {
+             // ✅ this now works - lib/db/index.ts
+
+import { convertDriveThumbnail } from "@/app/(private)/lib/utils";
+
+export async function handleGetPublishedAlbums() {
   const albums = await db
     .select()
     .from(AlbumTable)
     .where(eq(AlbumTable.isPublished, true));
 
-  return albums;
+  return albums.map((album) => ({
+    ...album,
+    thumbnailUrl: convertDriveThumbnail(album.thumbnailUrl ?? ""),
+  }));
 }

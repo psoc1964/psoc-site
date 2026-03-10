@@ -18,11 +18,11 @@ export type Scalars = {
   DateTimeISO: { input: any; output: any; }
 };
 
-export type Album = {
-  __typename?: 'Album';
+export type AlbumGql = {
+  __typename?: 'AlbumGQL';
   albumUrl?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['DateTimeISO']['output'];
-  id: Scalars['Float']['output'];
+  id: Scalars['Int']['output'];
   isPublished: Scalars['Boolean']['output'];
   name: Scalars['String']['output'];
   thumbnailUrl?: Maybe<Scalars['String']['output']>;
@@ -30,9 +30,9 @@ export type Album = {
 
 export type Mutation = {
   __typename?: 'Mutation';
-  createAlbum: Album;
+  createAlbum: AlbumGql;
   resetPassword: Scalars['Boolean']['output'];
-  updateAlbum: Album;
+  updateAlbum: AlbumGql;
 };
 
 
@@ -61,8 +61,8 @@ export type MutationUpdateAlbumArgs = {
 export type Query = {
   __typename?: 'Query';
   getCurrentUser?: Maybe<User>;
-  getPublishedAlbums: Array<Album>;
-  getUnpublishedAlbums: Array<Album>;
+  getPublishedAlbums: Array<AlbumGql>;
+  getUnpublishedAlbums: Array<AlbumGql>;
   verifyEmail: Scalars['Boolean']['output'];
 };
 
@@ -102,16 +102,16 @@ export type VerifyEmailQuery = { __typename?: 'Query', verifyEmail: boolean };
 export type GetPublishedAlbumsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetPublishedAlbumsQuery = { __typename?: 'Query', albums: Array<{ __typename?: 'Album', id: number, name: string, albumUrl?: string | null, thumbnailUrl?: string | null, createdAt: any }> };
+export type GetPublishedAlbumsQuery = { __typename?: 'Query', getPublishedAlbums: Array<{ __typename?: 'AlbumGQL', id: number, name: string, albumUrl?: string | null, thumbnailUrl?: string | null, createdAt: any }> };
 
 export type GetUnpublishedAlbumsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetUnpublishedAlbumsQuery = { __typename?: 'Query', albums: Array<{ __typename?: 'Album', id: number, name: string, albumUrl?: string | null, thumbnailUrl?: string | null, createdAt: any }> };
+export type GetUnpublishedAlbumsQuery = { __typename?: 'Query', albums: Array<{ __typename?: 'AlbumGQL', id: number, name: string, albumUrl?: string | null, thumbnailUrl?: string | null, createdAt: any }> };
 
 
 export const ResetPasswordDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"ResetPassword"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"newPassword"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"token"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"resetPassword"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"newPassword"},"value":{"kind":"Variable","name":{"kind":"Name","value":"newPassword"}}},{"kind":"Argument","name":{"kind":"Name","value":"token"},"value":{"kind":"Variable","name":{"kind":"Name","value":"token"}}}]}]}}]} as unknown as DocumentNode<ResetPasswordMutation, ResetPasswordMutationVariables>;
 export const GetCurrentUserDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetCurrentUser"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"user"},"name":{"kind":"Name","value":"getCurrentUser"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"emailVerified"}}]}}]}}]} as unknown as DocumentNode<GetCurrentUserQuery, GetCurrentUserQueryVariables>;
 export const VerifyEmailDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"VerifyEmail"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"token"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"verifyEmail"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"token"},"value":{"kind":"Variable","name":{"kind":"Name","value":"token"}}}]}]}}]} as unknown as DocumentNode<VerifyEmailQuery, VerifyEmailQueryVariables>;
-export const GetPublishedAlbumsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetPublishedAlbums"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"albums"},"name":{"kind":"Name","value":"getPublishedAlbums"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"albumUrl"}},{"kind":"Field","name":{"kind":"Name","value":"thumbnailUrl"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]} as unknown as DocumentNode<GetPublishedAlbumsQuery, GetPublishedAlbumsQueryVariables>;
+export const GetPublishedAlbumsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetPublishedAlbums"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"getPublishedAlbums"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"albumUrl"}},{"kind":"Field","name":{"kind":"Name","value":"thumbnailUrl"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]} as unknown as DocumentNode<GetPublishedAlbumsQuery, GetPublishedAlbumsQueryVariables>;
 export const GetUnpublishedAlbumsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetUnpublishedAlbums"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"albums"},"name":{"kind":"Name","value":"getUnpublishedAlbums"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"albumUrl"}},{"kind":"Field","name":{"kind":"Name","value":"thumbnailUrl"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]} as unknown as DocumentNode<GetUnpublishedAlbumsQuery, GetUnpublishedAlbumsQueryVariables>;

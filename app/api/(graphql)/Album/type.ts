@@ -1,22 +1,11 @@
-import { Field, ObjectType } from "type-graphql";
+import { ObjectType, Field, Int } from "type-graphql";
 
-@ObjectType("Album")
+@ObjectType()
 export class AlbumGQL {
-  @Field()
-  id: number;
-
-  @Field()
-  name: string;
-
-  @Field({ nullable: true })
-  albumUrl?: string;
-
-  @Field({ nullable: true })
-  thumbnailUrl?: string;
-
-  @Field()
-  isPublished: boolean;
-
-  @Field()
-  createdAt: Date;
+  @Field(() => Int)      id: number;
+  @Field()               name: string;
+  @Field({ nullable: true }) albumUrl?: string;
+  @Field({ nullable: true }) thumbnailUrl?: string;
+  @Field()               isPublished: boolean;
+  @Field()               createdAt: Date;
 }
