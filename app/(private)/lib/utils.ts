@@ -16,29 +16,22 @@
 /* -------------------------------------------------------------------------- */
 
 // Converts Google Drive URLs into direct image URLs usable in <img>
-
 export function convertDriveThumbnail(url: string): string {
   if (!url) return "";
 
   try {
     let fileId: string | null = null;
 
-    // Format: /file/d/FILE_ID/view
     const fileMatch = url.match(/\/d\/([^/]+)/);
-    if (fileMatch && fileMatch[1]) {
-      fileId = fileMatch[1];
-    }
+    if (fileMatch?.[1]) fileId = fileMatch[1];
 
-    // Format: open?id=FILE_ID
     const openMatch = url.match(/[?&]id=([^&]+)/);
-    if (!fileId && openMatch && openMatch[1]) {
-      fileId = openMatch[1];
-    }
+    if (!fileId && openMatch?.[1]) fileId = openMatch[1];
 
     if (!fileId) return url;
 
-    // Reliable Google image CDN
-    return `https://lh3.googleusercontent.com/d/${fileId}`;
+    // ✅ Use your own proxy instead of direct Google URL
+    return `/api/drive-image?id=${fileId}`;
   } catch (error) {
     console.error("Drive thumbnail conversion failed:", error);
     return url;
