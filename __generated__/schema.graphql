@@ -228,10 +228,10 @@ schema {
   mutation: Mutation
 }
 
-type Album {
+type AlbumGQL {
   albumUrl: String
   createdAt: DateTimeISO!
-  id: Float!
+  id: Int!
   isPublished: Boolean!
   name: String!
   thumbnailUrl: String
@@ -243,15 +243,15 @@ A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `dat
 scalar DateTimeISO
 
 type Mutation {
-  createAlbum(albumUrl: String, isPublished: Boolean, name: String!, thumbnailUrl: String): Album!
+  createAlbum(albumUrl: String, isPublished: Boolean, name: String!, thumbnailUrl: String): AlbumGQL!
   resetPassword(newPassword: String!, token: String!): Boolean!
-  updateAlbum(albumUrl: String, id: Float!, isPublished: Boolean, name: String, thumbnailUrl: String): Album!
+  updateAlbum(albumUrl: String, id: Float!, isPublished: Boolean, name: String, thumbnailUrl: String): AlbumGQL!
 }
 
 type Query {
   getCurrentUser: User
-  getPublishedAlbums: [Album!]!
-  getUnpublishedAlbums: [Album!]!
+  getPublishedAlbums: [AlbumGQL!]!
+  getUnpublishedAlbums: [AlbumGQL!]!
   verifyEmail(token: String!): Boolean!
   __schema: __Schema!
   __type(name: String!): __Type

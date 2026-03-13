@@ -22,7 +22,7 @@ export const VERIFY_EMAIL = gql(`
 export const GET_PUBLISHED_ALBUMS = gql(`
   #graphql
   query GetPublishedAlbums {
-    albums: getPublishedAlbums {
+    getPublishedAlbums {
       id
       name
       albumUrl
@@ -44,3 +44,4 @@ export const GET_UNPUBLISHED_ALBUMS = gql(`
     }
   }
 `);
+
