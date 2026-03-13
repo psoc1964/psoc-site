@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useMemo, memo, useCallback } from "react";
 import { createPortal } from "react-dom";
 import gsap from "gsap";
 import ScrollTrigger from "gsap/ScrollTrigger";
-import { convertDriveThumbnail } from "../(private)/lib/utils";
+import AlbumCard from "./AlbumCard";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -242,103 +242,7 @@ const SkeletonCard = memo(({ index }: { index: number }) => (
 ));
 SkeletonCard.displayName = "SkeletonCard";
 
-/* -------------------------------------------------------------------------- */
-/*                     ALBUM THUMBNAIL                                        */
-/* -------------------------------------------------------------------------- */
-
-const AlbumThumbnail = memo(({ src, alt }: { src: string; alt: string }) => {
-  const [imgSrc, setImgSrc] = useState(src);
-  useEffect(() => {
-    setImgSrc(src);
-  }, [src]);
-
-  return (
-    <img
-      src={imgSrc}
-      alt={alt}
-      className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.06]"
-      loading="lazy"
-      decoding="async"
-      onError={() => setImgSrc("/fallback.jpg")}
-    />
-  );
-});
-AlbumThumbnail.displayName = "AlbumThumbnail";
-
-/* -------------------------------------------------------------------------- */
-/*                              ALBUM CARD                                    */
-/* -------------------------------------------------------------------------- */
-
-const AlbumCard = memo(
-  ({
-    album,
-    index,
-    isVisible,
-  }: {
-    album: Album;
-    index: number;
-    isVisible: boolean;
-  }) => {
-    const dateLabel = useMemo(
-      () =>
-        new Date(album.createdAt).toLocaleDateString("en-US", {
-          month: "long",
-          year: "numeric",
-        }),
-      [album.createdAt],
-    );
-
-    const thumbnail = useMemo(
-      () => convertDriveThumbnail(album.thumbnailUrl ?? ""),
-      [album.thumbnailUrl],
-    );
-
-    const delay = Math.min(index * 60, 540);
-
-    return (
-      <div
-        className="album-card-animate group relative"
-        style={{
-          opacity: isVisible ? 1 : 0,
-          transform: isVisible
-            ? "translateY(0px) translateZ(0)"
-            : "translateY(24px) translateZ(0)",
-          transition: `opacity 550ms cubic-bezier(0.25,0.46,0.45,0.94) ${delay}ms, transform 550ms cubic-bezier(0.25,0.46,0.45,0.94) ${delay}ms`,
-          willChange: "opacity, transform",
-        }}
-      >
-        <a
-          href={album.albumUrl ?? "#"}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="block relative overflow-hidden rounded-2xl bg-white/[0.02] border border-white/[0.07] hover:border-white/20 transition-[border-color] duration-500 cursor-pointer"
-        >
-          <div className="relative aspect-[4/3] overflow-hidden bg-white/[0.03]">
-            <AlbumThumbnail src={thumbnail} alt={album.name} />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
-            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br from-white/[0.03] to-transparent" />
-          </div>
-
-          <div className="p-5 md:p-6 space-y-1.5">
-            <span className="text-[11px] tracking-[0.3em] uppercase text-white/30 font-medium">
-              {dateLabel}
-            </span>
-            <h3 className="text-lg md:text-xl font-serif text-white/85 group-hover:text-white transition-colors duration-300 leading-snug">
-              {album.name}
-            </h3>
-          </div>
-
-          <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-center" />
-        </a>
-      </div>
-    );
-  },
-  (prev, next) =>
-    prev.isVisible === next.isVisible &&
-    prev.index === next.index &&
-    prev.album.id === next.album.id,
-);
-AlbumCard.displayName = "AlbumCard";
+/* Album card moved to its own file for auth handling */
 
 /* -------------------------------------------------------------------------- */
 /*                              MAIN COMPONENT                                */
