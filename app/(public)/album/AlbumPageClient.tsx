@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/app/(public)/components/compo/Navbar";
 import Footer from "@/app/(public)/components/compo/Footer";
-import AlbumContent from "@/app/album/Albumcontent";
+import AlbumContent from "@/app/(public)/album/Albumcontent";
 import type { GetPublishedAlbumsQuery } from "@/__generated__/graphql";
 
 /*

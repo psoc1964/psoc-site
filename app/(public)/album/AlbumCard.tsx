@@ -5,7 +5,7 @@ import { memo, useCallback, useMemo, useState } from "react";
 import Modal from "@/components/ui/modal";
 import { useUser } from "@/lib/auth-client";
 
-import { convertDriveThumbnail } from "../(private)/lib/utils";
+import { convertDriveThumbnail } from "../../(private)/lib/utils";
 
 type Album = {
   id: number;
@@ -57,21 +57,19 @@ function AlbumCardInner({ album, index, isVisible }: AlbumCardProps) {
 
   const delay = Math.min(index * 60, 540);
 
-  const handleClick = useCallback(
-    (e: React.MouseEvent<HTMLAnchorElement>) => {
-      if (user && album.albumUrl) {
-        return; // allow normal navigation to Drive link
-      }
-      e.preventDefault();
-      setOpen(true);
-    },
-    [user, album.albumUrl],
-  );
+  const handleClick = useCallback(() => {
+    if (user && album.albumUrl) {
+      window.open(album.albumUrl, "_blank", "noopener,noreferrer");
+      return;
+    }
+    setOpen(true);
+  }, [user, album.albumUrl]);
 
   return (
     <>
       <div
-        className="album-card-animate group relative"
+        className="album-card-animate group relative overflow-hidden rounded-2xl bg-white/[0.02] border border-white/[0.07] hover:border-white/20 transition-[border-color] duration-500 cursor-pointer"
+        onClick={handleClick}
         style={{
           opacity: isVisible ? 1 : 0,
           transform: isVisible
@@ -81,30 +79,22 @@ function AlbumCardInner({ album, index, isVisible }: AlbumCardProps) {
           willChange: "opacity, transform",
         }}
       >
-        <a
-          href={album.albumUrl ?? "#"}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={handleClick}
-          className="block relative overflow-hidden rounded-2xl bg-white/[0.02] border border-white/[0.07] hover:border-white/20 transition-[border-color] duration-500 cursor-pointer"
-        >
-          <div className="relative aspect-[4/3] overflow-hidden bg-white/[0.03]">
-            <AlbumThumbnail src={thumbnail} alt={album.name} />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
-            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br from-white/[0.03] to-transparent" />
-          </div>
+        <div className="relative aspect-[4/3] overflow-hidden bg-white/[0.03]">
+          <AlbumThumbnail src={thumbnail} alt={album.name} />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
+          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br from-white/[0.03] to-transparent" />
+        </div>
 
-          <div className="p-5 md:p-6 space-y-1.5">
-            <span className="text-[11px] tracking-[0.3em] uppercase text-white/30 font-medium">
-              {dateLabel}
-            </span>
-            <h3 className="text-lg md:text-xl font-serif text-white/85 group-hover:text-white transition-colors duration-300 leading-snug">
-              {album.name}
-            </h3>
-          </div>
+        <div className="p-5 md:p-6 space-y-1.5">
+          <span className="text-[11px] tracking-[0.3em] uppercase text-white/30 font-medium">
+            {dateLabel}
+          </span>
+          <h3 className="text-lg md:text-xl font-serif text-white/85 group-hover:text-white transition-colors duration-300 leading-snug">
+            {album.name}
+          </h3>
+        </div>
 
-          <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-center" />
-        </a>
+        <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-center" />
       </div>
 
       <Modal
@@ -120,7 +110,7 @@ function AlbumCardInner({ album, index, isVisible }: AlbumCardProps) {
           </p>
           <div className="flex items-center gap-3 text-xs text-white/40">
             <span className="inline-flex h-10 items-center justify-center rounded-full border border-white/15 bg-white/5 px-2 font-mono uppercase tracking-[0.18em] text-center">
-                Private Collection
+              Private Collection
             </span>
             <span className="h-px w-10 bg-white/10" />
             <span>Curated photo stories, behind the scenes & more.</span>
