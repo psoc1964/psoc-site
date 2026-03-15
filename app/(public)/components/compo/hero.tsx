@@ -296,17 +296,6 @@ export default function Hero({ ready }: HeroProps) {
               Frames captured across events, workshops, and everyday campus life.
             </p>
           </div>
-
-          <div className="hidden">
-            <h2 className="font-light tracking-tight leading-none text-white drop-shadow-2xl text-[4rem] xl:text-[5rem]">
-              280K+
-            </h2>
-            {/* Single clean white rule on desktop too */}
-            <div className="h-px mt-3 w-24 ml-auto bg-white/20" />
-            <p className="text-white/40 leading-snug drop-shadow-lg text-sm max-w-[200px] mt-4 ml-auto">
-              Frames captured across events, workshops, and everyday campus life.
-            </p>
-          </div>
         </div>
 
       </div>
