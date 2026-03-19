@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "./components/compo/Navbar";
 import IntroLogo from "./components/compo/IntroLogo";
-import Hero from "./hero";
+import Hero from "./components/compo/hero";
 import About from "./components/compo/About";
 import Footer from "./components/compo/Footer";
 

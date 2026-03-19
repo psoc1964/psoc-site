@@ -1,21 +1,3 @@
-// function to convert thumbnail image url  from this https://drive.google.com/file/d/1abGU74O2DFaxrON3qyPw32f-FaUgk8By/view
-// to this https://drive.google.com/uc?export=view&id=1abGU74O2DFaxrON3qyPw32f-FaUgk8By
-
-/* -------------------------------------------------------------------------- */
-/*                        GOOGLE DRIVE THUMBNAIL CONVERTER                    */
-/* -------------------------------------------------------------------------- */
-
-// Converts Google Drive URLs like:
-// https://drive.google.com/file/d/FILE_ID/view
-// https://drive.google.com/open?id=FILE_ID
-// https://drive.google.com/uc?id=FILE_ID
-// into a direct image URL usable in <img>
-
-/* -------------------------------------------------------------------------- */
-/*                        GOOGLE DRIVE THUMBNAIL CONVERTER                    */
-/* -------------------------------------------------------------------------- */
-
-// Converts Google Drive URLs into direct image URLs usable in <img>
 export function convertDriveThumbnail(url: string): string {
   if (!url) return "";
 
@@ -30,17 +12,12 @@ export function convertDriveThumbnail(url: string): string {
 
     if (!fileId) return url;
 
-    // ✅ Use your own proxy instead of direct Google URL
     return `/api/drive-image?id=${fileId}`;
   } catch (error) {
     console.error("Drive thumbnail conversion failed:", error);
     return url;
   }
 }
-
-/* -------------------------------------------------------------------------- */
-/*                              DATE UTILS                                    */
-/* -------------------------------------------------------------------------- */
 
 export function getYearFromDate(date: string | Date): number {
   return new Date(date).getFullYear();

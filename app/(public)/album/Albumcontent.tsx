@@ -1,15 +1,11 @@
 
 "use client";
 
-import {
-  useEffect, useRef, useState, useMemo, memo, useCallback,
-} from "react";
+import { useEffect, useRef, useState, useMemo, memo, useCallback } from "react";
 import { createPortal } from "react-dom";
 import gsap from "gsap";
 import ScrollTrigger from "gsap/ScrollTrigger";
-import { useLazyQuery } from "@apollo/client";
-import { GET_PUBLISHED_ALBUMS } from "@/lib/queries";
-import { convertDriveThumbnail } from "../(private)/lib/utils";
+import AlbumCard from "./AlbumCard";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -18,20 +14,29 @@ gsap.registerPlugin(ScrollTrigger);
 /* -------------------------------------------------------------------------- */
 
 const ALL_MONTHS = [
-  "January","February","March","April","May","June",
-  "July","August","September","October","November","December",
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
 ] as const;
 
 const YEAR_START = 2020;
-const YEAR_END   = 2026;
+const YEAR_END = 2026;
 
 type Album = {
-  id:            number;
-  name:          string;
-  albumUrl?:     string;
+  id: number;
+  name: string;
+  albumUrl?: string;
   thumbnailUrl?: string;
-  isPublished:   boolean;
-  createdAt:     string;
+  createdAt: string;
 };
 
 /* -------------------------------------------------------------------------- */
@@ -51,60 +56,69 @@ const Dropdown = memo(({
   placeholder: string;
   width?: string;
 }) => {
-  const [open, setOpen]       = useState(false);
-  const [rect, setRect]       = useState<DOMRect | null>(null);
-  const [mounted, setMounted] = useState(false);
-  const triggerRef            = useRef<HTMLButtonElement>(null);
-  const panelRef              = useRef<HTMLDivElement>(null);
+  const [open, setOpen]           = useState(false);
+  const [rect, setRect]           = useState<DOMRect | null>(null);
+  const [mounted, setMounted]     = useState(false);
+  const triggerRef                = useRef<HTMLButtonElement>(null);
+  const panelRef                  = useRef<HTMLDivElement>(null);
 
-  const selected   = options.find((o) => o.value === value);
-  const isFiltered = value !== "all";
+    const selected = options.find((o) => o.value === value);
+    const isFiltered = value !== "all";
 
-  useEffect(() => { setMounted(true); }, []);
+    useEffect(() => {
+      setMounted(true);
+    }, []);
 
   const handleOpen = useCallback(() => {
-    if (triggerRef.current) setRect(triggerRef.current.getBoundingClientRect());
+    if (triggerRef.current) {
+      setRect(triggerRef.current.getBoundingClientRect());
+    }
     setOpen((p) => !p);
   }, []);
 
-  useEffect(() => {
-    if (!open) return;
-    const update = () => {
-      if (triggerRef.current) setRect(triggerRef.current.getBoundingClientRect());
-    };
-    window.addEventListener("scroll", update, true);
-    window.addEventListener("resize", update);
-    return () => {
-      window.removeEventListener("scroll", update, true);
-      window.removeEventListener("resize", update);
-    };
-  }, [open]);
+    useEffect(() => {
+      if (!open) return;
+      const update = () => {
+        if (triggerRef.current)
+          setRect(triggerRef.current.getBoundingClientRect());
+      };
+      window.addEventListener("scroll", update, true);
+      window.addEventListener("resize", update);
+      return () => {
+        window.removeEventListener("scroll", update, true);
+        window.removeEventListener("resize", update);
+      };
+    }, [open]);
 
-  useEffect(() => {
-    if (!open) return;
-    const handler = (e: MouseEvent) => {
-      if (
-        triggerRef.current?.contains(e.target as Node) ||
-        panelRef.current?.contains(e.target as Node)
-      ) return;
-      setOpen(false);
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, [open]);
+    useEffect(() => {
+      if (!open) return;
+      const handler = (e: MouseEvent) => {
+        if (
+          triggerRef.current?.contains(e.target as Node) ||
+          panelRef.current?.contains(e.target as Node)
+        )
+          return;
+        setOpen(false);
+      };
+      document.addEventListener("mousedown", handler);
+      return () => document.removeEventListener("mousedown", handler);
+    }, [open]);
 
-  const handleChange = useCallback((val: string) => {
-    onChange(val);
-    setOpen(false);
-  }, [onChange]);
+    const handleChange = useCallback(
+      (val: string) => {
+        onChange(val);
+        setOpen(false);
+      },
+      [onChange],
+    );
 
   const panelStyle: React.CSSProperties = rect
     ? {
-        position: "fixed",
-        top:      rect.bottom + 6,
-        left:     rect.left,
-        width:    Math.max(rect.width, 160),
-        zIndex:   9999,
+        position:  "fixed",
+        top:       rect.bottom + 6,
+        left:      rect.left,
+        width:     Math.max(rect.width, 160),
+        zIndex:    9999,
       }
     : { display: "none" };
 
@@ -114,8 +128,7 @@ const Dropdown = memo(({
       style={panelStyle}
       className="rounded-2xl border border-white/10 bg-[#0d0d0d] shadow-[0_20px_60px_rgba(0,0,0,0.95)] overflow-hidden"
     >
-      <div
-        className="max-h-52 overflow-y-auto py-1"
+      <div className="max-h-52 overflow-y-auto py-1"
         onWheel={(e) => e.stopPropagation()}
         onTouchMove={(e) => e.stopPropagation()}
       >
@@ -130,36 +143,50 @@ const Dropdown = memo(({
               transition-colors duration-100 flex items-center justify-between
               ${opt.value === value
                 ? "text-white bg-white/[0.08]"
-                : "text-white/45 hover:text-white hover:bg-white/[0.05]"}
+                : "text-white/45 hover:text-white hover:bg-white/[0.05]"
+              }
             `}
-          >
-            <span>{opt.label}</span>
-            {opt.value === value && (
-              <svg className="h-3 w-3 text-white/40 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-              </svg>
-            )}
-          </button>
-        ))}
-      </div>
-    </div>,
-    document.body
-  ) : null;
+                  >
+                    <span>{opt.label}</span>
+                    {opt.value === value && (
+                      <svg
+                        className="h-3 w-3 text-white/40 shrink-0"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2.5}
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>,
+            document.body,
+          )
+        : null;
 
-  return (
-    <div className={`relative ${width} select-none`}>
-      <button
-        ref={triggerRef}
-        type="button"
-        onClick={handleOpen}
-        className={`
+    return (
+      <div className={`relative ${width} select-none`}>
+        <button
+          ref={triggerRef}
+          type="button"
+          onClick={handleOpen}
+          className={`
           w-full h-9 flex items-center justify-between gap-2 px-3 rounded-xl
-          text-[12.5px] font-medium cursor-pointer transition-all duration-200
+          text-[12.5px] font-medium cursor-pointer
+          transition-all duration-200
           ${isFiltered
             ? "border border-white/30 bg-white/[0.09] text-white shadow-[0_0_0_1px_rgba(255,255,255,0.07)]"
             : open
               ? "border border-white/18 bg-white/[0.06] text-white/70"
-              : "border border-white/10 bg-white/[0.04] text-white/40 hover:border-white/18 hover:text-white/65 hover:bg-white/[0.06]"}
+              : "border border-white/10 bg-white/[0.04] text-white/40 hover:border-white/18 hover:text-white/65 hover:bg-white/[0.06]"
+          }
         `}
       >
         <span className="truncate leading-none text-left flex items-center gap-2">
@@ -173,6 +200,7 @@ const Dropdown = memo(({
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
       </button>
+
       {panel}
     </div>
   );
@@ -226,8 +254,8 @@ AlbumThumbnail.displayName = "AlbumThumbnail";
 
 const AlbumCard = memo(
   ({ album, index, isVisible }: { album: Album; index: number; isVisible: boolean }) => {
-    const dateLabel = useMemo(
-      () => new Date(album.createdAt).toLocaleDateString("en-US", {
+    const dateLabel = useMemo(() =>
+      new Date(album.createdAt).toLocaleDateString("en-US", {
         month: "long", year: "numeric",
       }),
       [album.createdAt]
@@ -289,26 +317,36 @@ AlbumCard.displayName = "AlbumCard";
 /*                              MAIN COMPONENT                                */
 /* -------------------------------------------------------------------------- */
 
-export default function AlbumContent() {
+export default function AlbumContent({
+  albums,
+  loading,
+}: {
+  albums: Album[];
+  loading: boolean;
+}) {
   const sectionRef = useRef<HTMLElement | null>(null);
-  const gridRef    = useRef<HTMLDivElement | null>(null);
-  const headerRef  = useRef<HTMLDivElement | null>(null);
+  const gridRef = useRef<HTMLDivElement | null>(null);
+  const headerRef = useRef<HTMLDivElement | null>(null);
 
-  const [searchQuery,   setSearchQuery]   = useState<string>("");
-  const [selectedYear,  setSelectedYear]  = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [selectedYear, setSelectedYear] = useState<string>("all");
   const [selectedMonth, setSelectedMonth] = useState<string>("all");
-  const [cardsVisible,  setCardsVisible]  = useState(false);
+  const [cardsVisible, setCardsVisible] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
 
-  /* ── Fetch ── */
+  /* ------------------------------ FETCH DATA ------------------------------ */
+
   const [fetchAlbums, { data, loading, error }] = useLazyQuery(GET_PUBLISHED_ALBUMS, {
     fetchPolicy: "network-only",
   });
 
   useEffect(() => { void fetchAlbums(); }, [fetchAlbums]);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const albums: Album[] = useMemo(() => (data as any)?.getPublishedAlbums ?? [], [data]);
+  const albums: Album[] = useMemo(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    () => (data as any)?.getPublishedAlbums ?? [],
+    [data]
+  );
 
   useEffect(() => {
     if (albums.length > 0) {
@@ -321,8 +359,8 @@ export default function AlbumContent() {
   useEffect(() => {
     const prev = prevFilter.current;
     const changed =
-      prev.searchQuery   !== searchQuery   ||
-      prev.selectedYear  !== selectedYear  ||
+      prev.searchQuery !== searchQuery ||
+      prev.selectedYear !== selectedYear ||
       prev.selectedMonth !== selectedMonth;
 
     if (changed) {
@@ -338,7 +376,14 @@ export default function AlbumContent() {
     gsap.fromTo(
       headerRef.current.children,
       { opacity: 0, y: 20 },
-      { opacity: 1, y: 0, duration: 0.65, stagger: 0.1, ease: "power3.out", delay: 0.1 }
+      {
+        opacity: 1,
+        y: 0,
+        duration: 0.65,
+        stagger: 0.1,
+        ease: "power3.out",
+        delay: 0.1,
+      },
     );
   }, [loading]);
 
@@ -358,26 +403,29 @@ export default function AlbumContent() {
     }
     if (selectedYear !== "all") {
       filtered = filtered.filter(
-        (a) => new Date(a.createdAt).getFullYear() === Number(selectedYear)
+        (a) => new Date(a.createdAt).getFullYear() === Number(selectedYear),
       );
     }
     if (selectedMonth !== "all") {
       filtered = filtered.filter((a) => {
-        const m = new Date(a.createdAt).toLocaleString("en-US", { month: "long" });
+        const m = new Date(a.createdAt).toLocaleString("en-US", {
+          month: "long",
+        });
         return m === selectedMonth;
       });
     }
     return filtered;
   }, [albums, searchQuery, selectedYear, selectedMonth]);
 
-  const hasActiveFilters =
-    selectedYear !== "all" || selectedMonth !== "all" || searchQuery.trim() !== "";
+  const hasActiveFilters = selectedYear !== "all" || selectedMonth !== "all" || searchQuery.trim() !== "";
 
   const clearFilters = useCallback(() => {
     setSearchQuery("");
     setSelectedYear("all");
     setSelectedMonth("all");
   }, []);
+
+  /* ------------------------------ LOADING / ERROR ------------------------- */
 
   if (error) return (
     <div className="min-h-screen bg-black flex items-center justify-center">
@@ -470,10 +518,8 @@ export default function AlbumContent() {
         className="relative min-h-screen bg-gradient-to-b from-black via-[#080808] to-black text-white pt-28 sm:pt-32 pb-32"
       >
         <div className="max-w-7xl mx-auto px-6">
-
           {/* HEADER */}
           <div ref={headerRef}>
-
             {/* Title */}
             <div className="mb-16" style={{ opacity: 0 }}>
               <p className="text-[10px] tracking-[0.55em] uppercase text-white/25 mb-5 font-medium">
@@ -491,19 +537,24 @@ export default function AlbumContent() {
                 style={{ isolation: "isolate" }}
               >
 
-                {/* Row 1 — Search */}
+                {/* ── ROW 1: Search ──────────────────────────────────────── */}
                 <div className="relative group">
                   <div
                     className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 transition-colors duration-200"
-                    style={{
-                      color: searchFocused || searchQuery
-                        ? "rgba(255,255,255,0.45)"
-                        : "rgba(255,255,255,0.22)",
-                    }}
+                    style={{ color: searchFocused || searchQuery ? "rgba(255,255,255,0.45)" : "rgba(255,255,255,0.22)" }}
                   >
-                    <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8}
-                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    <svg
+                      className="h-3.5 w-3.5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={1.8}
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                      />
                     </svg>
                   </div>
 
@@ -527,8 +578,7 @@ export default function AlbumContent() {
                         className="w-[22px] h-[22px] rounded-full bg-white/[0.09] hover:bg-white/[0.16] flex items-center justify-center transition-colors duration-150 cursor-pointer"
                       >
                         <svg className="h-2.5 w-2.5 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5}
-                            d="M6 18L18 6M6 6l12 12" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
                         </svg>
                       </button>
                     ) : (
@@ -586,8 +636,7 @@ export default function AlbumContent() {
                       className="ml-auto flex items-center gap-1.5 px-2.5 h-7 rounded-full border border-white/[0.08] bg-transparent hover:border-white/[0.18] hover:bg-white/[0.04] text-[11.5px] text-white/30 hover:text-white/60 transition-all duration-200 cursor-pointer"
                     >
                       <svg className="h-2.5 w-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5}
-                          d="M6 18L18 6M6 6l12 12" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
                       </svg>
                       Clear filters
                     </button>
@@ -596,7 +645,6 @@ export default function AlbumContent() {
 
               </div>
             </div>
-
           </div>
 
           {/* GRID */}
@@ -627,7 +675,6 @@ export default function AlbumContent() {
               </p>
             </div>
           )}
-
         </div>
       </section>
     </>
