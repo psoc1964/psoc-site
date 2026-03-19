@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState, useCallback, useRef } from "react";
@@ -6,17 +7,6 @@ import Navbar from "@/app/(public)/components/compo/Navbar";
 import Footer from "@/app/(public)/components/compo/Footer";
 import AlbumContent from "@/app/album/Albumcontent";
 
-/*
-  Optimized "Breath in" animation with performance improvements:
-  
-  - Uses will-change for GPU layer promotion only during animation
-  - Removes will-change after animation completes to reduce memory
-  - Improved timing with single requestAnimationFrame
-  - Memoized styles to prevent recalculation
-  - Reduced JavaScript overhead
-  - Better browser paint optimization
-*/
-
 export default function AlbumPage() {
   const [phase, setPhase] = useState<"hold" | "inhale" | "settled">("hold");
   const router = useRouter();
@@ -24,14 +14,12 @@ export default function AlbumPage() {
   const overlayRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Promote to GPU layer only during animation
     const content = contentRef.current;
     const overlay = overlayRef.current;
 
     if (content) content.style.willChange = "opacity, transform";
     if (overlay) overlay.style.willChange = "opacity";
 
-    // Combined timing logic using RAF for smoother frame alignment
     requestAnimationFrame(() => {
       const holdTimer = setTimeout(() => {
         requestAnimationFrame(() => setPhase("inhale"));
@@ -39,8 +27,6 @@ export default function AlbumPage() {
 
       const settleTimer = setTimeout(() => {
         setPhase("settled");
-        
-        // Clean up will-change after animation to reduce memory
         requestAnimationFrame(() => {
           if (content) content.style.willChange = "auto";
           if (overlay) overlay.style.willChange = "auto";
@@ -65,14 +51,12 @@ export default function AlbumPage() {
     [router]
   );
 
-  // Memoized style objects to prevent recalculation on each render
   const overlayStyle: React.CSSProperties = {
     opacity: phase === "hold" ? 1 : 0,
     transition:
       phase !== "hold"
         ? "opacity 800ms cubic-bezier(0.25, 0.46, 0.45, 0.94)"
         : "none",
-    // Use transform3d to force GPU acceleration
     transform: "translate3d(0, 0, 0)",
   };
 
@@ -90,7 +74,7 @@ export default function AlbumPage() {
 
   return (
     <div className="bg-black text-white">
-      {/* Black overlay with GPU optimization */}
+      {/* Black intro overlay */}
       <div
         ref={overlayRef}
         className="fixed inset-0 z-[200] pointer-events-none bg-black"
@@ -98,9 +82,16 @@ export default function AlbumPage() {
         aria-hidden="true"
       />
 
-      {/* Content wrapper with GPU optimization */}
+      {/*
+        Navbar sits OUTSIDE the animated content wrapper so it is never
+        affected by the scale/opacity entrance animation.
+        Your Navbar already has position:fixed internally, so it will
+        always sit at the top of the viewport.
+      */}
+      <Navbar visible={true} onNavigate={handleNavTransition} />
+
+      {/* Page content — fades/scales in on load */}
       <div ref={contentRef} style={contentStyle}>
-        <Navbar visible={true} onNavigate={handleNavTransition} />
         <AlbumContent />
         <Footer />
       </div>

@@ -32,6 +32,8 @@ export const GET_PUBLISHED_ALBUMS = gql(`
   }
 `);
 
+
+
 export const GET_UNPUBLISHED_ALBUMS = gql(`
   #graphql
   query GetUnpublishedAlbums {
