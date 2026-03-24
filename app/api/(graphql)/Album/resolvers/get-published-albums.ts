@@ -4,8 +4,6 @@ import { eq } from "drizzle-orm";
 
 import { AlbumTable } from "../db";
 
-             // ✅ this now works - lib/db/index.ts
-
 import { convertDriveThumbnail } from "@/app/(private)/lib/utils";
 
 export async function handleGetPublishedAlbums() {

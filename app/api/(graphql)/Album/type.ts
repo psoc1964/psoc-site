@@ -7,6 +7,6 @@ export class AlbumGQL {
   @Field({ nullable: true }) albumUrl?: string;
   @Field({ nullable: true }) thumbnailUrl?: string;
   @Field()                   isPublished: boolean;
-  @Field()                   featured_album: boolean;   // ← add this
+  @Field()                   featuredAlbum: boolean;
   @Field()                   createdAt: Date;
 }

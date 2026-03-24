@@ -3,7 +3,7 @@ import { Query, Resolver } from "type-graphql";
 import { AlbumGQL } from "./type";
 import { handleGetPublishedAlbums } from "./resolvers/get-published-albums";
 import { handleGetUnpublishedAlbums } from "./resolvers/get-unpublished-albums";
-import { handleGetFeaturedAlbums } from "./resolvers/get-featured-albums";  // ← add
+import { handleGetFeaturedAlbums } from "./resolvers/get-featured-albums";
 
 @Resolver()
 export class AlbumQueryResolver {
@@ -17,7 +17,7 @@ export class AlbumQueryResolver {
     return handleGetUnpublishedAlbums();
   }
 
-  @Query(() => [AlbumGQL])                                                  // ← add
+  @Query(() => [AlbumGQL])  
   async getFeaturedAlbums() {
     return handleGetFeaturedAlbums();
   }

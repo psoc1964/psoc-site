@@ -1,7 +1,7 @@
 import type { AuthorizedContext } from "@backend/lib/auth/context";
 import GQLError from "@backend/lib/constants/errors";
 import { db } from "@/app/api/lib/db";
-import { ensureAdmin } from "../utils";
+import { convertAlbumThumbnail, ensureAdmin } from "../utils";
 
 import type { AlbumDBInsert, AlbumDB } from "../db";
 import { AlbumTable } from "../db";
@@ -10,7 +10,7 @@ export async function handleCreateAlbum(
   ctx: AuthorizedContext,
   data: Pick<
     AlbumDBInsert,
-    "name" | "albumUrl" | "thumbnailUrl" | "isPublished"
+    "name" | "albumUrl" | "thumbnailUrl" | "isPublished" | "featuredAlbum"
   >,
 ): Promise<AlbumDB> {
   await ensureAdmin(ctx);
@@ -20,8 +20,11 @@ export async function handleCreateAlbum(
     .values({
       name: data.name,
       albumUrl: data.albumUrl,
-      thumbnailUrl: data.thumbnailUrl,
+      thumbnailUrl: data.thumbnailUrl
+        ? convertAlbumThumbnail(data.thumbnailUrl)
+        : undefined,
       isPublished: data.isPublished ?? false,
+      featuredAlbum: data.featuredAlbum ?? false,
     })
     .returning();
 

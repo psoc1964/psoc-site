@@ -15,13 +15,15 @@ export class AlbumMutationResolver {
     @Arg("albumUrl", { nullable: true }) albumUrl?: string,
     @Arg("thumbnailUrl", { nullable: true }) thumbnailUrl?: string,
     @Arg("isPublished", { nullable: true }) isPublished?: boolean,
+    @Arg("featuredAlbum", { nullable: true }) featuredAlbum?: boolean,
   ) {
     return handleCreateAlbum(ctx, {
       name,
       albumUrl,
       thumbnailUrl,
       isPublished,
-    });
+      featuredAlbum,
+    } as any);
   }
 
   @Authorized()
@@ -33,12 +35,14 @@ export class AlbumMutationResolver {
     @Arg("albumUrl", { nullable: true }) albumUrl?: string,
     @Arg("thumbnailUrl", { nullable: true }) thumbnailUrl?: string,
     @Arg("isPublished", { nullable: true }) isPublished?: boolean,
+    @Arg("featuredAlbum", { nullable: true }) featuredAlbum?: boolean,
   ) {
     return handleUpdateAlbum(ctx, id, {
       name,
       albumUrl,
       thumbnailUrl,
       isPublished,
-    });
+      featuredAlbum,
+    } as any);
   }
 }

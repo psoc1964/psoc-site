@@ -41,6 +41,7 @@ export const GET_FEATURED_ALBUMS = gql(`
       albumUrl
       thumbnailUrl
       createdAt
+      featuredAlbum
     }
   }
 `);
