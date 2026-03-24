@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
@@ -8,25 +7,12 @@ import Footer from "@/app/(public)/components/compo/Footer";
 import AlbumContent from "@/app/(public)/album/Albumcontent";
 import type { GetPublishedAlbumsQuery } from "@/__generated__/graphql";
 
-<<<<<<< HEAD:app/album/page.tsx
-export default function AlbumPage() {
-=======
-/*
-  Client-side wrapper for the album page.
-  - Handles the intro "breath in" animation
-  - Receives pre-fetched album data from the server via Injector
-*/
-
 type AlbumPageClientProps = {
   data?: GetPublishedAlbumsQuery;
   loading: boolean;
 };
 
-export default function AlbumPageClient({
-  data,
-  loading,
-}: AlbumPageClientProps) {
->>>>>>> origin/main:app/(public)/album/AlbumPageClient.tsx
+export default function AlbumPageClient({ data, loading }: AlbumPageClientProps) {
   const [phase, setPhase] = useState<"hold" | "inhale" | "settled">("hold");
   const router = useRouter();
   const contentRef = useRef<HTMLDivElement>(null);
@@ -46,11 +32,6 @@ export default function AlbumPageClient({
 
       const settleTimer = setTimeout(() => {
         setPhase("settled");
-<<<<<<< HEAD:app/album/page.tsx
-=======
-
-        // Clean up will-change after animation to reduce memory
->>>>>>> origin/main:app/(public)/album/AlbumPageClient.tsx
         requestAnimationFrame(() => {
           if (content) content.style.willChange = "auto";
           if (overlay) overlay.style.willChange = "auto";
@@ -75,16 +56,6 @@ export default function AlbumPageClient({
     [router],
   );
 
-<<<<<<< HEAD:app/album/page.tsx
-  const overlayStyle: React.CSSProperties = {
-    opacity: phase === "hold" ? 1 : 0,
-    transition:
-      phase !== "hold"
-        ? "opacity 800ms cubic-bezier(0.25, 0.46, 0.45, 0.94)"
-        : "none",
-    transform: "translate3d(0, 0, 0)",
-  };
-=======
   const overlayStyle: React.CSSProperties = useMemo(
     () => ({
       opacity: phase === "hold" ? 1 : 0,
@@ -96,7 +67,6 @@ export default function AlbumPageClient({
     }),
     [phase],
   );
->>>>>>> origin/main:app/(public)/album/AlbumPageClient.tsx
 
   const contentStyle: React.CSSProperties = useMemo(
     () => ({
@@ -113,6 +83,7 @@ export default function AlbumPageClient({
     [phase],
   );
 
+  // Transform server data into the shape AlbumContent expects
   const albums = useMemo(
     () =>
       (data?.getPublishedAlbums ?? []).map((a) => ({
@@ -127,30 +98,15 @@ export default function AlbumPageClient({
 
   return (
     <div className="bg-black text-white">
-      {/* Black intro overlay */}
       <div
         ref={overlayRef}
         className="fixed inset-0 z-[200] pointer-events-none bg-black"
         style={overlayStyle}
         aria-hidden="true"
       />
-
-      {/*
-        Navbar sits OUTSIDE the animated content wrapper so it is never
-        affected by the scale/opacity entrance animation.
-        Your Navbar already has position:fixed internally, so it will
-        always sit at the top of the viewport.
-      */}
       <Navbar visible={true} onNavigate={handleNavTransition} />
-
-      {/* Page content — fades/scales in on load */}
       <div ref={contentRef} style={contentStyle}>
-<<<<<<< HEAD:app/album/page.tsx
-        <AlbumContent />
-=======
-        <Navbar visible={true} onNavigate={handleNavTransition} />
         <AlbumContent albums={albums} loading={loading} />
->>>>>>> origin/main:app/(public)/album/AlbumPageClient.tsx
         <Footer />
       </div>
     </div>

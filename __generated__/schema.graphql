@@ -231,6 +231,7 @@ schema {
 type AlbumGQL {
   albumUrl: String
   createdAt: DateTimeISO!
+  featured: Boolean!
   id: Int!
   isPublished: Boolean!
   name: String!
@@ -250,6 +251,7 @@ type Mutation {
 
 type Query {
   getCurrentUser: User
+  getFeaturedAlbums: [AlbumGQL!]!
   getPublishedAlbums: [AlbumGQL!]!
   getUnpublishedAlbums: [AlbumGQL!]!
   verifyEmail(token: String!): Boolean!

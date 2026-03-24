@@ -17,6 +17,7 @@ export const AlbumTable = pgTable(
     albumUrl: text("album_url"),
     thumbnailUrl: text("thumbnail_url"),
     isPublished: boolean("is_published").default(false).notNull(),
+    featured_album:     boolean("featured_album").notNull().default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => ({

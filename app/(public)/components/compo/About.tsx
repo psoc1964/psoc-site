@@ -5,7 +5,8 @@ import gsap from "gsap";
 import ScrollTrigger from "gsap/ScrollTrigger";
 import SplitType from "split-type";
 import { useLazyQuery } from "@apollo/client";
-import { GET_PUBLISHED_ALBUMS } from "@/lib/queries";
+import { GET_FEATURED_ALBUMS } from "@/lib/queries";
+
 import { convertDriveThumbnail } from "@/app/(private)/lib/utils";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -126,14 +127,14 @@ EventImage.displayName = "EventImage";
 export default function About() {
   const sectionRef = useRef<HTMLElement | null>(null);
 
-  const [fetchAlbums, { data }] = useLazyQuery(GET_PUBLISHED_ALBUMS, {
+  const [fetchAlbums, { data }] = useLazyQuery(GET_FEATURED_ALBUMS, {
     fetchPolicy: "cache-first",
   });
 
   useEffect(() => { void fetchAlbums(); }, [fetchAlbums]);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const albums: Album[] = useMemo(() => (data as any)?.getPublishedAlbums ?? [], [data]);
+  const albums: Album[] = useMemo(() => (data as any)?.getFeaturedAlbums ?? [], [data]);
 
   const albumByName = useCallback(
     (name: string) =>

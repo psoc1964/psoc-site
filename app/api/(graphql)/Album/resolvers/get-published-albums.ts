@@ -1,7 +1,7 @@
 import { db } from "@/app/api/lib/db";
 import { eq } from "drizzle-orm";
 
-import type { AlbumDB } from "../db";
+
 import { AlbumTable } from "../db";
 
              // ✅ this now works - lib/db/index.ts

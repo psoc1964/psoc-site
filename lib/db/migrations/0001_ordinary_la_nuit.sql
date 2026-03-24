@@ -1,0 +1,1 @@
+ALTER TABLE "album" RENAME COLUMN "flagship_event" TO "featured";

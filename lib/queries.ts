@@ -32,6 +32,18 @@ export const GET_PUBLISHED_ALBUMS = gql(`
   }
 `);
 
+export const GET_FEATURED_ALBUMS = gql(`
+  #graphql
+  query GetFeaturedAlbums {
+    getFeaturedAlbums {
+      id
+      name
+      albumUrl
+      thumbnailUrl
+      createdAt
+    }
+  }
+`);
 
 
 export const GET_UNPUBLISHED_ALBUMS = gql(`
