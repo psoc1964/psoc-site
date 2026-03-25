@@ -21,6 +21,8 @@ type AlbumCardProps = {
   isVisible: boolean;
 };
 
+const GATED_ALBUMS = ["utkrisht", "batch photography"];
+
 const AlbumThumbnail = memo(({ src, alt }: { src: string; alt: string }) => {
   const [imgSrc, setImgSrc] = useState(src);
 
@@ -58,12 +60,13 @@ function AlbumCardInner({ album, index, isVisible }: AlbumCardProps) {
   const delay = Math.min(index * 60, 540);
 
   const handleClick = useCallback(() => {
-    if (user && album.albumUrl) {
-      window.open(album.albumUrl, "_blank", "noopener,noreferrer");
+    const isGated = GATED_ALBUMS.includes(album.name.trim().toLowerCase());
+    if (!isGated || user) {
+      if (album.albumUrl) window.open(album.albumUrl, "_blank", "noopener,noreferrer");
       return;
     }
     setOpen(true);
-  }, [user, album.albumUrl]);
+  }, [user, album.albumUrl, album.name]);
 
   return (
     <>

@@ -7,6 +7,8 @@ import SplitType from "split-type";
 import { useLazyQuery } from "@apollo/client";
 import { GET_FEATURED_ALBUMS } from "@/lib/queries";
 
+import Modal from "@/components/ui/modal";
+import { useUser } from "@/lib/auth-client";
 import { convertDriveThumbnail } from "@/app/(private)/lib/utils";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -17,7 +19,11 @@ type Album = {
   albumUrl?:     string;
   thumbnailUrl?: string;
   createdAt:     string;
+  featuredAlbum?: boolean;
 };
+
+const normalize = (str: string) =>
+  str.toLowerCase().replace(/\s+/g, "");
 
 const EVENT_META = [
   {
@@ -52,6 +58,8 @@ const EVENT_META = [
   },
 ] as const;
 
+const GATED_ALBUMS = ["utkrisht", "batch photography"];
+
 const EventImage = memo(({
   album,
   meta,
@@ -59,67 +67,117 @@ const EventImage = memo(({
   album: Album | undefined;
   meta:  typeof EVENT_META[number];
 }) => {
+  const [user] = useUser();
+  const [open, setOpen] = useState(false);
+
   const rawUrl = album?.thumbnailUrl ?? "";
   const convert = (u: string) => u ? convertDriveThumbnail(u) : null;
   const [imgSrc, setImgSrc] = useState<string | null>(() => convert(rawUrl));
 
   useEffect(() => { setImgSrc(convert(rawUrl)); }, [rawUrl]);
 
-  const href = album?.albumUrl ?? "#";
+  const isGated = GATED_ALBUMS.includes(meta.dbName.toLowerCase());
+  const href = (!isGated || user) ? (album?.albumUrl ?? "#") : "#";
+
+  const handleClick = useCallback((e: React.MouseEvent) => {
+    if (isGated && !user) {
+      e.preventDefault();
+      setOpen(true);
+    }
+  }, [isGated, user]);
 
   return (
-    <a
-      href={href}
-      target={href === "#" ? undefined : "_blank"}
-      rel="noopener noreferrer"
-      className={`order-2 relative group cursor-pointer ${
-        meta.imageOnLeft ? "lg:order-1 lg:row-span-2" : "lg:order-2 lg:row-span-2"
-      }`}
-    >
-      {/* Outer ambient glow — blooms on hover */}
-      <div className={`absolute -inset-6 rounded-[44px] bg-gradient-to-br ${meta.glowClasses} to-transparent blur-3xl opacity-0 group-hover:opacity-70 transition-opacity duration-700`} />
-      {/* Mid glow — always subtly present */}
-      <div className={`absolute -inset-2 rounded-[32px] bg-gradient-to-br ${meta.glowClasses} to-transparent blur-2xl opacity-25 group-hover:opacity-55 transition-opacity duration-500`} />
+    <>
+      <a
+        href={href}
+        target={href === "#" ? undefined : "_blank"}
+        rel="noopener noreferrer"
+        onClick={handleClick}
+        className={`order-2 relative group cursor-pointer ${
+          meta.imageOnLeft ? "lg:order-1 lg:row-span-2" : "lg:order-2 lg:row-span-2"
+        }`}
+      >
+        {/* Outer ambient glow — blooms on hover */}
+        <div className={`absolute -inset-6 rounded-[44px] bg-gradient-to-br ${meta.glowClasses} to-transparent blur-3xl opacity-0 group-hover:opacity-70 transition-opacity duration-700`} />
+        {/* Mid glow — always subtly present */}
+        <div className={`absolute -inset-2 rounded-[32px] bg-gradient-to-br ${meta.glowClasses} to-transparent blur-2xl opacity-25 group-hover:opacity-55 transition-opacity duration-500`} />
 
-      <div className={`absolute -top-3 -left-3 sm:-top-4 sm:-left-4 w-14 sm:w-20 h-14 sm:h-20 border-l-2 border-t-2 ${meta.cornerT} rounded-tl-2xl z-10 pointer-events-none`} />
-      <div className={`absolute -bottom-3 -right-3 sm:-bottom-4 sm:-right-4 w-14 sm:w-20 h-14 sm:h-20 border-r-2 border-b-2 ${meta.cornerB} rounded-br-2xl z-10 pointer-events-none`} />
+        <div className={`absolute -top-3 -left-3 sm:-top-4 sm:-left-4 w-14 sm:w-20 h-14 sm:h-20 border-l-2 border-t-2 ${meta.cornerT} rounded-tl-2xl z-10 pointer-events-none`} />
+        <div className={`absolute -bottom-3 -right-3 sm:-bottom-4 sm:-right-4 w-14 sm:w-20 h-14 sm:h-20 border-r-2 border-b-2 ${meta.cornerB} rounded-br-2xl z-10 pointer-events-none`} />
 
-      <div className="relative rounded-[20px] sm:rounded-[24px] overflow-hidden border border-white/[0.08] bg-black shadow-[0_24px_60px_rgba(0,0,0,0.7)]">
-        <div className="relative w-full aspect-[4/3] overflow-hidden bg-white/[0.03]">
-          {imgSrc ? (
-            <img
-              src={imgSrc}
-              alt={album?.name ?? meta.dbName}
-              className="image-reveal w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-[1.04]"
-              loading="lazy"
-              decoding="async"
-              onError={() => setImgSrc("/fallback.jpg")}
-            />
-          ) : (
-            <div className="skeleton-shimmer absolute inset-0" />
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-black/20" />
-          <div className="absolute inset-0 shadow-[inset_0_0_80px_rgba(0,0,0,0.5)]" />
+        <div className="relative rounded-[20px] sm:rounded-[24px] overflow-hidden border border-white/[0.08] bg-black shadow-[0_24px_60px_rgba(0,0,0,0.7)]">
+          <div className="relative w-full aspect-[4/3] overflow-hidden bg-white/[0.03]">
+            {imgSrc ? (
+              <img
+                src={imgSrc}
+                alt={album?.name ?? meta.dbName}
+                className="image-reveal w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-[1.04]"
+                loading="lazy"
+                decoding="async"
+                onError={() => setImgSrc("/fallback.jpg")}
+              />
+            ) : (
+              <div className="skeleton-shimmer absolute inset-0" />
+            )}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-black/20" />
+            <div className="absolute inset-0 shadow-[inset_0_0_80px_rgba(0,0,0,0.5)]" />
+          </div>
+
+          <div className="absolute bottom-0 inset-x-0 px-4 sm:px-6 py-3 sm:py-5 flex items-center justify-between">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <span
+                className={`w-1.5 sm:w-2 h-1.5 sm:h-2 rounded-full ${meta.dot}`}
+                style={{ boxShadow: `0 0 8px 2px ${meta.dotGlow}` }}
+              />
+              <span className="text-[10px] sm:text-[11px] tracking-[0.3em] sm:tracking-[0.35em] uppercase text-white/60 font-medium">
+                {meta.badgeLabel}
+              </span>
+            </div>
+            <div className="w-7 sm:w-8 h-7 sm:h-8 rounded-full border border-white/20 flex items-center justify-center opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 transition-all duration-500">
+              <svg className="w-3 sm:w-3.5 h-3 sm:h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </div>
+          </div>
         </div>
+      </a>
 
-        <div className="absolute bottom-0 inset-x-0 px-4 sm:px-6 py-3 sm:py-5 flex items-center justify-between">
-          <div className="flex items-center gap-2 sm:gap-3">
-            <span
-              className={`w-1.5 sm:w-2 h-1.5 sm:h-2 rounded-full ${meta.dot}`}
-              style={{ boxShadow: `0 0 8px 2px ${meta.dotGlow}` }}
-            />
-            <span className="text-[10px] sm:text-[11px] tracking-[0.3em] sm:tracking-[0.35em] uppercase text-white/60 font-medium">
-              {meta.badgeLabel}
+      <Modal
+        open={open}
+        close={() => setOpen(false)}
+        title="Sign in to view albums"
+        panelClassName="bg-[#050505] border border-white/10 text-white max-w-md"
+      >
+        <div className="mt-4 space-y-4">
+          <p className="text-sm text-white/70 leading-relaxed">
+            These albums are reserved for faculty and students of the BIT Mesra
+            only. Sign in to unlock full-resolution galleries on our Drive.
+          </p>
+          <div className="flex items-center gap-3 text-xs text-white/40">
+            <span className="inline-flex h-10 items-center justify-center rounded-full border border-white/15 bg-white/5 px-2 font-mono uppercase tracking-[0.18em] text-center">
+              Private Collection
             </span>
+            <span className="h-px w-10 bg-white/10" />
+            <span>Curated photo stories, behind the scenes & more.</span>
           </div>
-          <div className="w-7 sm:w-8 h-7 sm:h-8 rounded-full border border-white/20 flex items-center justify-center opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 transition-all duration-500">
-            <svg className="w-3 sm:w-3.5 h-3 sm:h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
+          <div className="mt-6 flex items-center justify-between gap-3">
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              className="text-xs font-medium text-white/50 hover:text-white/80 transition-colors"
+            >
+              Maybe later
+            </button>
+            <a
+              href="/login"
+              className="inline-flex items-center gap-2 rounded-full bg-white text-black px-4 py-2 text-xs font-semibold tracking-[0.18em] uppercase hover:bg-white/90 transition-colors"
+            >
+              Sign in to continue
+            </a>
           </div>
         </div>
-      </div>
-    </a>
+      </Modal>
+    </>
   );
 });
 EventImage.displayName = "EventImage";
@@ -128,7 +186,7 @@ export default function About() {
   const sectionRef = useRef<HTMLElement | null>(null);
 
   const [fetchAlbums, { data }] = useLazyQuery(GET_FEATURED_ALBUMS, {
-    fetchPolicy: "cache-first",
+    fetchPolicy: "network-only",
   });
 
   useEffect(() => { void fetchAlbums(); }, [fetchAlbums]);
@@ -137,11 +195,12 @@ export default function About() {
   const albums: Album[] = useMemo(() => (data as any)?.getFeaturedAlbums ?? [], [data]);
 
   const albumByName = useCallback(
-    (name: string) =>
-      albums.find((a) => a.name.trim().toLowerCase() === name.toLowerCase()),
-    [albums]
-  );
+  (name: string) =>
+    albums.find((a) => normalize(a.name) === normalize(name)),
+  [albums]
+);
 
+  // Main GSAP animations — runs once on mount (no image-reveal here)
   useEffect(() => {
     if (!sectionRef.current) return;
     const ctx = gsap.context(() => {
@@ -200,17 +259,36 @@ export default function About() {
         );
       });
 
-      gsap.utils.toArray<HTMLElement>(".image-reveal").forEach((img) => {
-        gsap.fromTo(img,
-          { clipPath: "inset(100% 0% 0% 0%)", scale: 1.15 },
-          { clipPath: "inset(0% 0% 0% 0%)", scale: 1, duration: 1.5, ease: "power3.out",
-            scrollTrigger: { trigger: img, start: "top 82%", end: "top 42%", scrub: 1 } }
-        );
-      });
-
     }, sectionRef);
     return () => ctx.revert();
   }, []);
+
+  // image-reveal runs AFTER albums data loads so <img> elements exist in DOM
+  useEffect(() => {
+    if (albums.length === 0) return;
+
+    const id = requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        gsap.utils.toArray<HTMLElement>(".image-reveal").forEach((img) => {
+          ScrollTrigger.getAll()
+            .filter((st) => st.vars.trigger === img)
+            .forEach((st) => st.kill());
+
+          gsap.set(img, { clipPath: "none" });
+
+          gsap.fromTo(img,
+            { opacity: 0, scale: 1.08 },
+            {
+              opacity: 1, scale: 1, duration: 1.2, ease: "power3.out",
+              scrollTrigger: { trigger: img, start: "top 85%", end: "top 50%", scrub: 1 },
+            }
+          );
+        });
+      });
+    });
+
+    return () => cancelAnimationFrame(id);
+  }, [albums]);
 
   return (
     <section ref={sectionRef} id="about" className="relative bg-[#0b0d0c] text-white overflow-hidden">
