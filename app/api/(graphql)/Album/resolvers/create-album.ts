@@ -15,18 +15,27 @@ export async function handleCreateAlbum(
 ): Promise<AlbumDB> {
   await ensureAdmin(ctx);
 
-  const [album] = await db
-    .insert(AlbumTable)
-    .values({
-      name: data.name,
-      albumUrl: data.albumUrl,
-      thumbnailUrl: data.thumbnailUrl
-        ? convertAlbumThumbnail(data.thumbnailUrl)
-        : undefined,
-      isPublished: data.isPublished ?? false,
-      featuredAlbum: data.featuredAlbum ?? false,
-    })
-    .returning();
+  let album: AlbumDB | undefined;
+  try {
+    [album] = await db
+      .insert(AlbumTable)
+      .values({
+        name: data.name,
+        albumUrl: data.albumUrl,
+        thumbnailUrl: data.thumbnailUrl
+          ? convertAlbumThumbnail(data.thumbnailUrl)
+          : undefined,
+        isPublished: data.isPublished ?? false,
+        featuredAlbum: data.featuredAlbum ?? false,
+      })
+      .returning();
+  } catch (error: unknown) {
+    const message =
+      error && typeof error === "object" && "cause" in error
+        ? String((error as any).cause?.message || (error as any).message)
+        : "Failed to insert album";
+    throw GQLError(500, message);
+  }
 
   if (!album) {
     throw GQLError(500);
