@@ -5,8 +5,6 @@ import { memo, useCallback, useMemo, useState } from "react";
 import Modal from "@/components/ui/modal";
 import { useUser } from "@/lib/auth-client";
 
-import { convertDriveThumbnail } from "../../(private)/lib/utils";
-
 type Album = {
   id: number;
   name: string;
@@ -52,11 +50,6 @@ function AlbumCardInner({ album, index, isVisible }: AlbumCardProps) {
     [album.createdAt],
   );
 
-  const thumbnail = useMemo(
-    () => convertDriveThumbnail(album.thumbnailUrl ?? ""),
-    [album.thumbnailUrl],
-  );
-
   const delay = Math.min(index * 60, 540);
 
   const handleClick = useCallback(() => {
@@ -83,7 +76,7 @@ function AlbumCardInner({ album, index, isVisible }: AlbumCardProps) {
         }}
       >
         <div className="relative aspect-[4/3] overflow-hidden bg-white/[0.03]">
-          <AlbumThumbnail src={thumbnail} alt={album.name} />
+          <AlbumThumbnail src={album.thumbnailUrl ?? ""} alt={album.name} />
           <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
           <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br from-white/[0.03] to-transparent" />
         </div>

@@ -4,7 +4,7 @@ import { eq } from "drizzle-orm";
 
 import { AlbumTable } from "../db";
 
-import { convertDriveThumbnail } from "@/app/(private)/lib/utils";
+import { convertAlbumThumbnail } from "../utils";
 
 export async function handleGetPublishedAlbums() {
   const albums = await db
@@ -14,6 +14,6 @@ export async function handleGetPublishedAlbums() {
 
   return albums.map((album) => ({
     ...album,
-    thumbnailUrl: convertDriveThumbnail(album.thumbnailUrl ?? ""),
+    thumbnailUrl: convertAlbumThumbnail(album.thumbnailUrl ?? ""),
   }));
 }

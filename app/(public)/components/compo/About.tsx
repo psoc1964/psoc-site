@@ -9,7 +9,6 @@ import { GET_FEATURED_ALBUMS } from "@/lib/queries";
 
 import Modal from "@/components/ui/modal";
 import { useUser } from "@/lib/auth-client";
-import { convertDriveThumbnail } from "@/app/(private)/lib/utils";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -70,11 +69,7 @@ const EventImage = memo(({
   const [user] = useUser();
   const [open, setOpen] = useState(false);
 
-  const rawUrl = album?.thumbnailUrl ?? "";
-  const convert = (u: string) => u ? convertDriveThumbnail(u) : null;
-  const [imgSrc, setImgSrc] = useState<string | null>(() => convert(rawUrl));
-
-  useEffect(() => { setImgSrc(convert(rawUrl)); }, [rawUrl]);
+  const imgSrc = album?.thumbnailUrl ?? "";
 
   const isGated = GATED_ALBUMS.includes(meta.dbName.toLowerCase());
   const href = (!isGated || user) ? (album?.albumUrl ?? "#") : "#";
@@ -114,7 +109,6 @@ const EventImage = memo(({
                 className="image-reveal w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-[1.04]"
                 loading="lazy"
                 decoding="async"
-                onError={() => setImgSrc("/fallback.jpg")}
               />
             ) : (
               <div className="skeleton-shimmer absolute inset-0" />
