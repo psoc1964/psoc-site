@@ -4,7 +4,7 @@ import { ObjectType, Field, Int } from "type-graphql";
 export class AlbumGQL {
   @Field(() => Int)          id: number;
   @Field()                   name: string;
-  @Field({ nullable: true }) albumUrl?: string;
+  @Field()                   albumUrl?: string;
   @Field({ nullable: true }) thumbnailUrl?: string;
   @Field()                   isPublished: boolean;
   @Field()                   featuredAlbum: boolean;

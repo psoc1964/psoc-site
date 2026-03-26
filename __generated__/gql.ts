@@ -15,7 +15,7 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  */
 type Documents = {
     "\n  #graphql\n  mutation ResetPassword($newPassword:String!, $token:String!) {\n    resetPassword(newPassword: $newPassword, token:$token)  \n  }\n": typeof types.ResetPasswordDocument,
-    "\n  #graphql\n  query GetCurrentUser {\n    user: getCurrentUser {\n      id\n      email\n      name\n      emailVerified\n    }\n  }\n": typeof types.GetCurrentUserDocument,
+    "\n  #graphql\n  query GetCurrentUser {\n    user: getCurrentUser {\n      id\n      email\n      name\n      emailVerified\n      role\n    }\n  }\n": typeof types.GetCurrentUserDocument,
     "\n  #graphql\n  query VerifyEmail($token:String!) {\n    verifyEmail(token: $token)\n  }\n": typeof types.VerifyEmailDocument,
     "\n  #graphql\n  query GetPublishedAlbums {\n    getPublishedAlbums {\n      id\n      name\n      albumUrl\n      thumbnailUrl\n      createdAt\n    }\n  }\n": typeof types.GetPublishedAlbumsDocument,
     "\n  #graphql\n  query GetFeaturedAlbums {\n    getFeaturedAlbums {\n      id\n      name\n      albumUrl\n      thumbnailUrl\n      createdAt\n      featuredAlbum\n    }\n  }\n": typeof types.GetFeaturedAlbumsDocument,
@@ -23,7 +23,7 @@ type Documents = {
 };
 const documents: Documents = {
     "\n  #graphql\n  mutation ResetPassword($newPassword:String!, $token:String!) {\n    resetPassword(newPassword: $newPassword, token:$token)  \n  }\n": types.ResetPasswordDocument,
-    "\n  #graphql\n  query GetCurrentUser {\n    user: getCurrentUser {\n      id\n      email\n      name\n      emailVerified\n    }\n  }\n": types.GetCurrentUserDocument,
+    "\n  #graphql\n  query GetCurrentUser {\n    user: getCurrentUser {\n      id\n      email\n      name\n      emailVerified\n      role\n    }\n  }\n": types.GetCurrentUserDocument,
     "\n  #graphql\n  query VerifyEmail($token:String!) {\n    verifyEmail(token: $token)\n  }\n": types.VerifyEmailDocument,
     "\n  #graphql\n  query GetPublishedAlbums {\n    getPublishedAlbums {\n      id\n      name\n      albumUrl\n      thumbnailUrl\n      createdAt\n    }\n  }\n": types.GetPublishedAlbumsDocument,
     "\n  #graphql\n  query GetFeaturedAlbums {\n    getFeaturedAlbums {\n      id\n      name\n      albumUrl\n      thumbnailUrl\n      createdAt\n      featuredAlbum\n    }\n  }\n": types.GetFeaturedAlbumsDocument,
@@ -51,7 +51,7 @@ export function gql(source: "\n  #graphql\n  mutation ResetPassword($newPassword
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function gql(source: "\n  #graphql\n  query GetCurrentUser {\n    user: getCurrentUser {\n      id\n      email\n      name\n      emailVerified\n    }\n  }\n"): (typeof documents)["\n  #graphql\n  query GetCurrentUser {\n    user: getCurrentUser {\n      id\n      email\n      name\n      emailVerified\n    }\n  }\n"];
+export function gql(source: "\n  #graphql\n  query GetCurrentUser {\n    user: getCurrentUser {\n      id\n      email\n      name\n      emailVerified\n      role\n    }\n  }\n"): (typeof documents)["\n  #graphql\n  query GetCurrentUser {\n    user: getCurrentUser {\n      id\n      email\n      name\n      emailVerified\n      role\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
