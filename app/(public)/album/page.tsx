@@ -6,6 +6,8 @@ import {
   type GetPublishedAlbumsQueryVariables,
 } from "@/__generated__/graphql";
 
+export const dynamic = "force-dynamic";
+
 // Server component: fetches albums on the server using Apollo
 // and streams them into the client wrapper via Injector.
 
