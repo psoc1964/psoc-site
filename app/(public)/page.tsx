@@ -38,42 +38,41 @@ export default function Page() {
 
     setIsTransitioning(true);
 
-  setTimeout(() => {
-    const element = document.getElementById(targetId);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-    }
-
     setTimeout(() => {
-      setIsTransitioning(false);
-    }, 600);
-  }, 400);
-};
+      const element = document.getElementById(targetId);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+      }
 
-return (
-    <main className="bg-black text-white relative">
+      setTimeout(() => {
+        setIsTransitioning(false);
+      }, 600);
+    }, 400);
+  };
+
+  return (
+    <main className="bg-black text-white relative min-h-screen">
       {/* Navigation transition overlay */}
       <div
-        className={`fixed inset-0 z-100 pointer-events-none transition-all duration-300 ${
+        className={`fixed inset-0 z-[60] pointer-events-none transition-all duration-300 ${
           isTransitioning
             ? "backdrop-blur-xl bg-black/20 opacity-100"
             : "backdrop-blur-none opacity-0"
         }`}
       />
 
-      {/* IntroLogo - shows on first load, zooms out dramatically */}
+      {/* IntroLogo - shows on first load */}
       {!introDone && <IntroLogo onFinish={() => setIntroDone(true)} />}
 
-      {/* Main content - always rendered but Hero is blurred until IntroLogo finishes */}
+      {/* Navbar is OUTSIDE the scaling div so it never moves or scales */}
+      <Navbar visible={introDone} onNavigate={handleNavTransition} />
+
+      {/* Page content — no scale transform so navbar stays fixed above it */}
       <div
-        className={`transition-all duration-300 ${
-          isTransitioning ? "scale-[0.98]" : "scale-100"
+        className={`transition-opacity duration-300 ${
+          isTransitioning ? "opacity-80" : "opacity-100"
         }`}
       >
-        {/* Navbar fades in after IntroLogo completes */}
-        <Navbar visible={introDone} onNavigate={handleNavTransition} />
-
-        {/* Hero section - visible but blurred during IntroLogo, comes into focus after */}
         <section id="home">
           <Hero ready={introDone} />
         </section>

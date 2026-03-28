@@ -8,7 +8,7 @@ export default function useHandleAuthorized() {
   const [user] = useUser();
   const router = useRouter();
   useEffect(() => {
-    if (user) router.push(getRoute("Profile"));
+    if (user) router.push(getRoute("Admin"));
   }, [router, user]);
   return;
 }

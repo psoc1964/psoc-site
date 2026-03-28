@@ -8,6 +8,7 @@ export const GET_CURRENT_USER = gql(`
       email
       name
       emailVerified
+      role
     }
   }
 `);
@@ -32,6 +33,20 @@ export const GET_PUBLISHED_ALBUMS = gql(`
   }
 `);
 
+export const GET_FEATURED_ALBUMS = gql(`
+  #graphql
+  query GetFeaturedAlbums {
+    getFeaturedAlbums {
+      id
+      name
+      albumUrl
+      thumbnailUrl
+      createdAt
+      featuredAlbum
+    }
+  }
+`);
+
 export const GET_UNPUBLISHED_ALBUMS = gql(`
   #graphql
   query GetUnpublishedAlbums {
@@ -45,3 +60,26 @@ export const GET_UNPUBLISHED_ALBUMS = gql(`
   }
 `);
 
+export const GET_ADMIN_ALBUMS = gql(`
+  #graphql
+  query GetAdminAlbums {
+    published: getPublishedAlbums {
+      id
+      name
+      albumUrl
+      thumbnailUrl
+      isPublished
+      featuredAlbum
+      createdAt
+    }
+    unpublished: getUnpublishedAlbums {
+      id
+      name
+      albumUrl
+      thumbnailUrl
+      isPublished
+      featuredAlbum
+      createdAt
+    }
+  }
+`);

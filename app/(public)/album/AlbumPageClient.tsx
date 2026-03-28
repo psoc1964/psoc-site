@@ -7,35 +7,24 @@ import Footer from "@/app/(public)/components/compo/Footer";
 import AlbumContent from "@/app/(public)/album/Albumcontent";
 import type { GetPublishedAlbumsQuery } from "@/__generated__/graphql";
 
-/*
-  Client-side wrapper for the album page.
-  - Handles the intro "breath in" animation
-  - Receives pre-fetched album data from the server via Injector
-*/
-
 type AlbumPageClientProps = {
   data?: GetPublishedAlbumsQuery;
   loading: boolean;
 };
 
-export default function AlbumPageClient({
-  data,
-  loading,
-}: AlbumPageClientProps) {
+export default function AlbumPageClient({ data, loading }: AlbumPageClientProps) {
   const [phase, setPhase] = useState<"hold" | "inhale" | "settled">("hold");
   const router = useRouter();
   const contentRef = useRef<HTMLDivElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Promote to GPU layer only during animation
     const content = contentRef.current;
     const overlay = overlayRef.current;
 
     if (content) content.style.willChange = "opacity, transform";
     if (overlay) overlay.style.willChange = "opacity";
 
-    // Combined timing logic using RAF for smoother frame alignment
     requestAnimationFrame(() => {
       const holdTimer = setTimeout(() => {
         requestAnimationFrame(() => setPhase("inhale"));
@@ -43,8 +32,6 @@ export default function AlbumPageClient({
 
       const settleTimer = setTimeout(() => {
         setPhase("settled");
-
-        // Clean up will-change after animation to reduce memory
         requestAnimationFrame(() => {
           if (content) content.style.willChange = "auto";
           if (overlay) overlay.style.willChange = "auto";
@@ -96,6 +83,7 @@ export default function AlbumPageClient({
     [phase],
   );
 
+  // Transform server data into the shape AlbumContent expects
   const albums = useMemo(
     () =>
       (data?.getPublishedAlbums ?? []).map((a) => ({
@@ -110,17 +98,14 @@ export default function AlbumPageClient({
 
   return (
     <div className="bg-black text-white">
-      {/* Black overlay with GPU optimization */}
       <div
         ref={overlayRef}
         className="fixed inset-0 z-[200] pointer-events-none bg-black"
         style={overlayStyle}
         aria-hidden="true"
       />
-
-      {/* Content wrapper with GPU optimization */}
+      <Navbar visible={true} onNavigate={handleNavTransition} />
       <div ref={contentRef} style={contentStyle}>
-        <Navbar visible={true} onNavigate={handleNavTransition} />
         <AlbumContent albums={albums} loading={loading} />
         <Footer />
       </div>

@@ -10,4 +10,6 @@ export class UserGQL {
   email?: string;
   @Field()
   emailVerified: boolean;
+  @Field()
+  role: string;
 }
