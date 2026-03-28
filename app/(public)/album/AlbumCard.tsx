@@ -5,6 +5,9 @@ import { memo, useCallback, useMemo, useState } from "react";
 import Modal from "@/components/ui/modal";
 import { useUser } from "@/lib/auth-client";
 
+const NEXT_PUBLIC_BACKEND_BASE_URL =
+  process.env.NEXT_PUBLIC_BACKEND_BASE_URL || "";
+
 type Album = {
   id: number;
   name: string;
@@ -55,7 +58,12 @@ function AlbumCardInner({ album, index, isVisible }: AlbumCardProps) {
   const handleClick = useCallback(() => {
     const isGated = GATED_ALBUMS.includes(album.name.trim().toLowerCase());
     if (!isGated || user) {
-      if (album.albumUrl) window.open(album.albumUrl, "_blank", "noopener,noreferrer");
+      if (album.albumUrl)
+        window.open(
+          NEXT_PUBLIC_BACKEND_BASE_URL + album.albumUrl,
+          "_blank",
+          "noopener,noreferrer",
+        );
       return;
     }
     setOpen(true);
