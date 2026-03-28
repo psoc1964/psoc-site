@@ -11,6 +11,8 @@ import { Route } from "@/constants/routes";
 
 import CreateAlbumPageClient from "../CreateAlbumPageClient";
 
+export const dynamic = "force-dynamic";
+
 export default async function CreateAlbumPage() {
   const cookieStore = await cookies();
 

@@ -46,9 +46,18 @@ export default function RootLayout({ children }: PropsWithChildren) {
         <ApolloWrapper>
           <GlobalStateWrapper>
             <Injector
-              fetch={async () =>
-                queryGQL(GET_CURRENT_USER, undefined, await cookies(), 0)
-              }
+              fetch={async () => {
+                try {
+                  return await queryGQL(
+                    GET_CURRENT_USER,
+                    undefined,
+                    await cookies(),
+                    0,
+                  );
+                } catch {
+                  return { user: null };
+                }
+              }}
               Component={AuthApply}
             />
             <Injector

@@ -14,6 +14,8 @@ import { Route } from "@/constants/routes";
 
 import AdminPageClient from "./AdminPageClient";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminPage() {
   const cookieStore = await cookies();
 
