@@ -64,10 +64,10 @@ const Logo = memo(() => (
     className="relative w-[52px] h-[52px] sm:w-[58px] sm:h-[58px] group cursor-pointer flex-shrink-0 block"
   >
     <img
-      src="/psoc-logo-white.png"
-      alt="PSOC Logo"
-      className="absolute inset-0 w-full h-full object-contain transition-all duration-[600ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-110 group-hover:opacity-0"
-    />
+  src="/psoc-logo-white.png"
+  alt="PSOC Logo"
+  className="absolute inset-0 w-full h-full object-contain scale-125 transition-all duration-[600ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-140 group-hover:opacity-0"
+  />
     <img
       src="/camera-navbar2.png"
       alt="Camera"
