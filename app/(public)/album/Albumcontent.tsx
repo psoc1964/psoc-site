@@ -13,8 +13,9 @@ const ALL_MONTHS = [
   "July", "August", "September", "October", "November", "December",
 ] as const;
 
-const YEAR_START = 2020;
-const YEAR_END = 2026;
+// These are now just fallbacks; actual range is derived from album data
+const YEAR_START_FALLBACK = 2020;
+const YEAR_END_FALLBACK = new Date().getFullYear();
 
 type Album = {
   id: number;
@@ -173,6 +174,22 @@ const SkeletonCard = memo(({ index }: { index: number }) => (
 ));
 SkeletonCard.displayName = "SkeletonCard";
 
+// Year section heading component
+const YearHeading = memo(({ year, count }: { year: number; count: number }) => (
+  <div className="flex items-center gap-5 mb-8 mt-4">
+    <div className="flex items-baseline gap-3">
+      <h2 className="text-[2.6rem] md:text-[3.2rem] font-serif leading-none tracking-tight text-white/90">
+        {year}
+      </h2>
+      <span className="text-[11px] tracking-[0.35em] uppercase text-white/25 font-medium pb-1">
+        {count} {count === 1 ? "album" : "albums"}
+      </span>
+    </div>
+    <div className="flex-1 h-px bg-gradient-to-r from-white/[0.12] to-transparent" />
+  </div>
+));
+YearHeading.displayName = "YearHeading";
+
 export default function AlbumContent({
   albums,
   loading,
@@ -221,11 +238,16 @@ export default function AlbumContent({
     );
   }, [loading]);
 
+  // Derive year range dynamically from actual album data (oldest → newest)
   const availableYears = useMemo(() => {
-    const years: string[] = [];
-    for (let y = YEAR_END; y >= YEAR_START; y--) years.push(String(y));
-    return years;
-  }, []);
+    if (albums.length === 0) return [];
+    const years = albums.map((a) => new Date(a.createdAt).getFullYear());
+    const minYear = Math.min(...years);
+    const maxYear = Math.max(...years);
+    const result: string[] = [];
+    for (let y = maxYear; y >= minYear; y--) result.push(String(y));
+    return result;
+  }, [albums]);
 
   const filteredAlbums = useMemo(() => {
     let filtered = albums;
@@ -247,6 +269,26 @@ export default function AlbumContent({
     return filtered;
   }, [albums, searchQuery, selectedYear, selectedMonth]);
 
+  // Group filtered albums by year (newest year first), albums within each year sorted by month ascending
+  const albumsByYear = useMemo(() => {
+    const map = new Map<number, Album[]>();
+    for (const album of filteredAlbums) {
+      const year = new Date(album.createdAt).getFullYear();
+      if (!map.has(year)) map.set(year, []);
+      map.get(year)!.push(album);
+    }
+    // Sort years descending (newest first), albums within each year ascending by date
+    const sorted = Array.from(map.entries())
+      .sort((a, b) => b[0] - a[0])
+      .map(([year, yearAlbums]) => [
+        year,
+        [...yearAlbums].sort(
+          (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+        ),
+      ] as [number, Album[]]);
+    return sorted;
+  }, [filteredAlbums]);
+
   const hasActiveFilters = selectedYear !== "all" || selectedMonth !== "all" || searchQuery.trim() !== "";
 
   const clearFilters = useCallback(() => {
@@ -254,6 +296,9 @@ export default function AlbumContent({
     setSelectedYear("all");
     setSelectedMonth("all");
   }, []);
+
+  // Running index across all groups for staggered card animation
+  let globalCardIndex = 0;
 
   return (
     <>
@@ -292,6 +337,9 @@ export default function AlbumContent({
           background: rgba(255,255,255,0.055); border: 1px solid rgba(255,255,255,0.1);
           border-radius: 5px; padding: 2px 5px; font-family: ui-monospace, monospace;
           line-height: 1.4; user-select: none;
+        }
+        .year-section + .year-section {
+          margin-top: 4rem;
         }
         @media (prefers-reduced-motion: reduce) {
           .album-card-animate { transition: none !important; opacity: 1 !important; transform: none !important; }
@@ -408,14 +456,39 @@ export default function AlbumContent({
             </div>
           </div>
 
+          {/* Main content area */}
           {loading || (albums.length > 0 && !cardsVisible) ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-              {Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} index={i} />)}
+            <div className="space-y-16">
+              {/* Skeleton with a fake year heading */}
+              <div>
+                <div className="flex items-center gap-5 mb-8 mt-4">
+                  <div className="skeleton-shimmer h-12 w-32 rounded-lg" />
+                  <div className="flex-1 h-px bg-white/[0.06]" />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                  {Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} index={i} />)}
+                </div>
+              </div>
             </div>
-          ) : filteredAlbums.length > 0 ? (
-            <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-              {filteredAlbums.map((album, index) => (
-                <AlbumCard key={album.id} album={album} index={index} isVisible={cardsVisible} />
+          ) : albumsByYear.length > 0 ? (
+            <div ref={gridRef} className="space-y-0">
+              {albumsByYear.map(([year, yearAlbums]) => (
+                <div key={year} className="year-section">
+                  <YearHeading year={year} count={yearAlbums.length} />
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                    {yearAlbums.map((album) => {
+                      const idx = globalCardIndex++;
+                      return (
+                        <AlbumCard
+                          key={album.id}
+                          album={album}
+                          index={idx}
+                          isVisible={cardsVisible}
+                        />
+                      );
+                    })}
+                  </div>
+                </div>
               ))}
             </div>
           ) : (
