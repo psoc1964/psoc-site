@@ -60,7 +60,7 @@ function AlbumCardInner({ album, index, isVisible }: AlbumCardProps) {
     if (!isGated || user) {
       if (album.albumUrl)
         window.open(
-          NEXT_PUBLIC_BACKEND_BASE_URL + album.albumUrl,
+          album.albumUrl,
           "_blank",
           "noopener,noreferrer",
         );
