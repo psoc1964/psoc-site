@@ -6,6 +6,8 @@ import { cookies } from "next/headers";
 import { PropsWithChildren } from "react";
 import { Toaster } from "react-hot-toast";
 
+import { SpeedInsights } from "@vercel/speed-insights/next";
+
 import { ApolloWrapper } from "@/lib/apollo-client";
 import { Injector } from "@/lib/apollo-server";
 import { queryGQL } from "@/lib/apollo-server";
@@ -46,9 +48,18 @@ export default function RootLayout({ children }: PropsWithChildren) {
         <ApolloWrapper>
           <GlobalStateWrapper>
             <Injector
-              fetch={async () =>
-                queryGQL(GET_CURRENT_USER, undefined, await cookies(), 0)
-              }
+              fetch={async () => {
+                try {
+                  return await queryGQL(
+                    GET_CURRENT_USER,
+                    undefined,
+                    await cookies(),
+                    0,
+                  );
+                } catch {
+                  return { user: null };
+                }
+              }}
               Component={AuthApply}
             />
             <Injector
@@ -68,6 +79,7 @@ export default function RootLayout({ children }: PropsWithChildren) {
           </GlobalStateWrapper>
         </ApolloWrapper>
         {/* </ThemeProvider> */}
+        <SpeedInsights />
       </body>
     </html>
   );
