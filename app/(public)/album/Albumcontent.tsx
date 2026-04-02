@@ -5,6 +5,8 @@ import { createPortal } from "react-dom";
 import gsap from "gsap";
 import ScrollTrigger from "gsap/ScrollTrigger";
 import AlbumCard from "./AlbumCard";
+import { useUser } from "@/lib/auth-client";
+import Modal from "@/components/ui/modal";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -19,9 +21,9 @@ type Album = {
   albumUrl?: string;
   thumbnailUrl?: string;
   createdAt: string;
+  isauthentic: boolean;
 };
 
-// ─── Dropdown (unchanged) ────────────────────────────────────────────────────
 const Dropdown = memo(({
   value, onChange, options, placeholder, width = "w-40",
 }: {
@@ -155,7 +157,7 @@ const Dropdown = memo(({
 });
 Dropdown.displayName = "Dropdown";
 
-// ─── Skeleton ────────────────────────────────────────────────────────────────
+// ─── Desktop skeleton card ──────────────────────────────────────────────────
 const SkeletonCard = memo(({ index }: { index: number }) => (
   <div
     className="rounded-2xl overflow-hidden border border-white/[0.06] bg-white/[0.02]"
@@ -172,9 +174,129 @@ const SkeletonCard = memo(({ index }: { index: number }) => (
 ));
 SkeletonCard.displayName = "SkeletonCard";
 
-// ─── Year heading ─────────────────────────────────────────────────────────────
+// ─── Mobile list card ───────────────────────────────────────────────────────
+const ListCard = memo(({
+  album,
+  index,
+  isVisible,
+}: {
+  album: Album;
+  index: number;
+  isVisible: boolean;
+}) => {
+  const [user] = useUser(); // 👈 ADD
+  const [open, setOpen] = useState(false); // 👈 ADD
+
+  const handleClick = useCallback(() => {
+    const isProtected = album.isauthentic;
+
+    if (!isProtected) {
+      if (album.albumUrl) {
+        window.open(album.albumUrl, "_blank", "noopener,noreferrer");
+      }
+      return;
+    }
+
+    if (user) {
+      if (album.albumUrl) {
+        window.open(album.albumUrl, "_blank", "noopener,noreferrer");
+      }
+    } else {
+      setOpen(true);
+    }
+  }, [user, album]);
+
+  const date  = new Date(album.createdAt);
+  const month = date.toLocaleString("en-US", { month: "short" });
+  const day   = date.getDate();
+  const year  = date.getFullYear();
+
+  return (
+    <>
+      <div
+        onClick={handleClick} 
+        className="flex items-center gap-3 px-3 py-2.5 rounded-2xl border border-white/[0.08] bg-white/[0.03] cursor-pointer active:scale-[0.985] transition-transform duration-150"
+        style={{
+          opacity: isVisible ? 1 : 0,
+          transform: isVisible ? "translateX(0)" : "translateX(-10px)",
+          transition: `opacity 0.3s ease ${index * 45}ms, transform 0.3s ease ${index * 45}ms`,
+        }}
+      >
+        {/* existing UI unchanged */}
+        <div className="relative flex-none w-14 h-14 rounded-xl overflow-hidden bg-white/[0.04]">
+          {album.thumbnailUrl ? (
+            <img src={album.thumbnailUrl} alt={album.name} className="w-full h-full object-cover object-center" />
+          ) : null}
+        </div>
+
+        <div className="flex-1 min-w-0">
+          <p className="text-[13px] font-medium text-white/85 truncate">
+            {album.name}
+          </p>
+          <p className="text-[11px] text-white/35">
+            {month} {day}, {year}
+          </p>
+        </div>
+      </div>
+
+      {/* OPTIONAL: reuse modal */}
+      <Modal
+              open={open}
+              close={() => setOpen(false)}
+              title="Sign in to view albums"
+              panelClassName="bg-[#050505] border border-white/10 text-white max-w-md"
+            >
+              <div className="mt-4 space-y-4">
+                <p className="text-sm text-white/70 leading-relaxed">
+                  These albums are reserved for faculty and students of the BIT Mesra
+                  only. Sign in to unlock full-resolution galleries on our Drive.
+                </p>
+                <div className="flex items-center gap-3 text-xs text-white/40">
+                  <span className="inline-flex h-10 items-center justify-center rounded-full border border-white/15 bg-white/5 px-2 font-mono uppercase tracking-[0.18em] text-center">
+                    Private Collection
+                  </span>
+                  <span className="h-px w-10 bg-white/10" />
+                  <span>Curated photo stories, behind the scenes & more.</span>
+                </div>
+                <div className="mt-6 flex items-center justify-between gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setOpen(false)}
+                    className="text-xs font-medium text-white/50 hover:text-white/80 transition-colors"
+                  >
+                    Maybe later
+                  </button>
+                  <a
+                    href="/login"
+                    className="inline-flex items-center gap-2 rounded-full bg-white text-black px-4 py-2 text-xs font-semibold tracking-[0.18em] uppercase hover:bg-white/90 transition-colors"
+                  >
+                    Sign in to continue
+                  </a>
+                </div>
+              </div>
+            </Modal>
+    </>
+  );
+});
+
+// ─── Mobile list skeleton card ──────────────────────────────────────────────
+const ListSkeletonCard = memo(({ index }: { index: number }) => (
+  <div
+    className="flex items-center gap-3 px-3 py-2.5 rounded-2xl border border-white/[0.06] bg-white/[0.02]"
+    style={{ animationDelay: `${index * 60}ms` }}
+  >
+    <div className="skeleton-shimmer flex-none w-14 h-14 rounded-xl" />
+    <div className="flex-1 space-y-2">
+      <div className="skeleton-shimmer h-3 w-2/3 rounded-full" />
+      <div className="skeleton-shimmer h-2.5 w-1/3 rounded-full" />
+    </div>
+  </div>
+));
+ListSkeletonCard.displayName = "ListSkeletonCard";
+
+// ─── Year section heading ───────────────────────────────────────────────────
 const YearHeading = memo(({ year, count }: { year: number; count: number }) => (
-  <div className="flex items-center gap-5 mb-8 mt-4">
+  <div className="flex items-center gap-5 mb-6 mt-4">
     <div className="flex items-baseline gap-3">
       <h2 className="text-[2.6rem] md:text-[3.2rem] font-serif leading-none tracking-tight text-white/90">
         {year}
@@ -188,141 +310,6 @@ const YearHeading = memo(({ year, count }: { year: number; count: number }) => (
 ));
 YearHeading.displayName = "YearHeading";
 
-// ─── Option B: List row item ──────────────────────────────────────────────────
-const ListAlbumRow = memo(({
-  album,
-  index,
-  isVisible,
-}: {
-  album: Album;
-  index: number;
-  isVisible: boolean;
-}) => {
-  const monthYear = new Date(album.createdAt).toLocaleString("en-US", {
-    month: "short",
-    year: "numeric",
-  });
-
-  return (
-    <a
-      href={album.albumUrl ?? "#"}
-      className="flex items-center gap-3 px-3 py-2.5 rounded-xl
-        border border-white/[0.06] bg-white/[0.02]
-        hover:bg-white/[0.05] hover:border-white/[0.12]
-        active:bg-white/[0.08]
-        transition-all duration-150 cursor-pointer no-underline
-        album-card-animate"
-      style={{
-        opacity: isVisible ? 1 : 0,
-        transform: isVisible ? "translateY(0)" : "translateY(10px)",
-        transition: `opacity 0.35s ease ${index * 40}ms, transform 0.35s ease ${index * 40}ms`,
-      }}
-    >
-      {/* Thumbnail */}
-      <div className="w-11 h-11 rounded-lg overflow-hidden bg-white/[0.04] flex-shrink-0 border border-white/[0.07]">
-        {album.thumbnailUrl ? (
-          <img
-            src={album.thumbnailUrl}
-            alt={album.name}
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <svg className="w-4 h-4 text-white/15" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 9a3 3 0 100 6 3 3 0 000-6zm0 8a5 5 0 110-10 5 5 0 010 10zm6.5-9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM22 7l-3-3h-3l-2-2H10L8 4H5L2 7v13h20V7z" />
-            </svg>
-          </div>
-        )}
-      </div>
-
-      {/* Info */}
-      <div className="flex-1 min-w-0">
-        <p className="text-[13.5px] font-medium text-white/85 truncate leading-snug">
-          {album.name}
-        </p>
-        <p className="text-[11px] text-white/30 mt-0.5">{monthYear}</p>
-      </div>
-
-      {/* Chevron */}
-      <svg className="w-3.5 h-3.5 text-white/20 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-      </svg>
-    </a>
-  );
-});
-ListAlbumRow.displayName = "ListAlbumRow";
-
-// ─── Option C: Horizontal scroll card (small square) ─────────────────────────
-const HScrollAlbumCard = memo(({ album }: { album: Album }) => {
-  const month = new Date(album.createdAt).toLocaleString("en-US", { month: "short" });
-
-  return (
-    <a
-      href={album.albumUrl ?? "#"}
-      className="flex-shrink-0 w-[88px] cursor-pointer no-underline group"
-    >
-      <div className="w-[88px] h-[88px] rounded-xl overflow-hidden bg-white/[0.04] border border-white/[0.07] group-hover:border-white/[0.18] transition-all duration-200">
-        {album.thumbnailUrl ? (
-          <img
-            src={album.thumbnailUrl}
-            alt={album.name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <svg className="w-5 h-5 text-white/15" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 9a3 3 0 100 6 3 3 0 000-6zm0 8a5 5 0 110-10 5 5 0 010 10zm6.5-9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM22 7l-3-3h-3l-2-2H10L8 4H5L2 7v13h20V7z" />
-            </svg>
-          </div>
-        )}
-      </div>
-      <p className="text-[10.5px] text-white/50 mt-1.5 truncate leading-tight">{album.name}</p>
-      <p className="text-[9.5px] text-white/25 mt-0.5">{month}</p>
-    </a>
-  );
-});
-HScrollAlbumCard.displayName = "HScrollAlbumCard";
-
-// ─── View toggle icons ────────────────────────────────────────────────────────
-type MobileView = "list" | "hscroll";
-
-const ViewToggle = memo(({
-  view,
-  onChange,
-}: {
-  view: MobileView;
-  onChange: (v: MobileView) => void;
-}) => (
-  <div className="flex items-center gap-1 p-1 rounded-xl border border-white/[0.08] bg-white/[0.03]">
-    {/* List icon */}
-    <button
-      type="button"
-      onClick={() => onChange("list")}
-      title="List view"
-      className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all duration-150 cursor-pointer
-        ${view === "list" ? "bg-white/[0.12] text-white/80" : "text-white/25 hover:text-white/50"}`}
-    >
-      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-      </svg>
-    </button>
-    {/* Scroll/strip icon */}
-    <button
-      type="button"
-      onClick={() => onChange("hscroll")}
-      title="Strip view"
-      className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all duration-150 cursor-pointer
-        ${view === "hscroll" ? "bg-white/[0.12] text-white/80" : "text-white/25 hover:text-white/50"}`}
-    >
-      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
-      </svg>
-    </button>
-  </div>
-));
-ViewToggle.displayName = "ViewToggle";
-
-// ─── Main component ───────────────────────────────────────────────────────────
 export default function AlbumContent({
   albums,
   loading,
@@ -340,19 +327,6 @@ export default function AlbumContent({
   const [cardsVisible,  setCardsVisible]  = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
 
-  // Mobile layout mode — persisted in localStorage so preference survives navigation
-  const [mobileView, setMobileView] = useState<MobileView>(() => {
-    if (typeof window !== "undefined") {
-      return (localStorage.getItem("albumMobileView") as MobileView) ?? "list";
-    }
-    return "list";
-  });
-
-  const handleMobileViewChange = useCallback((v: MobileView) => {
-    setMobileView(v);
-    if (typeof window !== "undefined") localStorage.setItem("albumMobileView", v);
-  }, []);
-
   useEffect(() => {
     if (albums.length > 0) {
       const id = setTimeout(() => setCardsVisible(true), 400);
@@ -364,9 +338,9 @@ export default function AlbumContent({
   useEffect(() => {
     const prev = prevFilter.current;
     const changed =
-      prev.searchQuery   !== searchQuery   ||
-      prev.selectedYear  !== selectedYear  ||
-      prev.selectedMonth !== selectedMonth;
+      prev.searchQuery    !== searchQuery    ||
+      prev.selectedYear   !== selectedYear   ||
+      prev.selectedMonth  !== selectedMonth;
     if (changed) {
       setCardsVisible(false);
       const id = setTimeout(() => setCardsVisible(true), 80);
@@ -480,30 +454,6 @@ export default function AlbumContent({
           line-height: 1.4; user-select: none;
         }
         .year-section + .year-section { margin-top: 4rem; }
-
-        /* Option C: hide scrollbar but keep scrollability */
-        .hscroll-strip {
-          display: flex;
-          gap: 10px;
-          overflow-x: auto;
-          padding-bottom: 6px;
-          -webkit-overflow-scrolling: touch;
-          scrollbar-width: none;
-        }
-        .hscroll-strip::-webkit-scrollbar { display: none; }
-
-        /* Fade hint on right edge of horizontal strips */
-        .hscroll-wrapper {
-          position: relative;
-        }
-        .hscroll-wrapper::after {
-          content: "";
-          pointer-events: none;
-          position: absolute;
-          top: 0; right: 0; bottom: 6px; width: 32px;
-          background: linear-gradient(to right, transparent, #080808 90%);
-        }
-
         @media (prefers-reduced-motion: reduce) {
           .album-card-animate { transition: none !important; opacity: 1 !important; transform: none !important; }
           .skeleton-shimmer::after { animation: none; }
@@ -575,7 +525,7 @@ export default function AlbumContent({
 
                 <div className="h-px bg-white/[0.055] rounded-full" />
 
-                {/* Filter row */}
+                {/* Dropdowns row */}
                 <div className="flex flex-wrap items-center gap-2">
                   <Dropdown
                     value={selectedYear}
@@ -606,17 +556,11 @@ export default function AlbumContent({
                       </span>
                     </div>
                   )}
-
-                  {/* ── Mobile view toggle (hidden on md+) ── */}
-                  <div className="ml-auto flex items-center gap-2 md:hidden">
-                    <ViewToggle view={mobileView} onChange={handleMobileViewChange} />
-                  </div>
-
                   {hasActiveFilters && (
                     <button
                       type="button"
                       onClick={clearFilters}
-                      className="hidden md:flex items-center gap-1.5 ml-auto px-2.5 h-7 rounded-full border border-white/[0.08] bg-transparent hover:border-white/[0.18] hover:bg-white/[0.04] text-[11.5px] text-white/30 hover:text-white/60 transition-all duration-200 cursor-pointer"
+                      className="ml-auto flex items-center gap-1.5 px-2.5 h-7 rounded-full border border-white/[0.08] bg-transparent hover:border-white/[0.18] hover:bg-white/[0.04] text-[11.5px] text-white/30 hover:text-white/60 transition-all duration-200 cursor-pointer"
                     >
                       <svg className="h-2.5 w-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
@@ -625,88 +569,67 @@ export default function AlbumContent({
                     </button>
                   )}
                 </div>
-
-                {/* Clear filters on mobile — full-width row below when active */}
-                {hasActiveFilters && (
-                  <div className="flex md:hidden">
-                    <button
-                      type="button"
-                      onClick={clearFilters}
-                      className="flex items-center gap-1.5 px-2.5 h-7 rounded-full border border-white/[0.08] bg-transparent hover:border-white/[0.18] hover:bg-white/[0.04] text-[11.5px] text-white/30 hover:text-white/60 transition-all duration-200 cursor-pointer"
-                    >
-                      <svg className="h-2.5 w-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                      Clear filters
-                    </button>
-                  </div>
-                )}
               </div>
             </div>
           </div>
 
-          {/* ── Main content ─────────────────────────────────────────────────── */}
+          {/* ── Main content ── */}
           {loading || (albums.length > 0 && !cardsVisible) ? (
             <div className="space-y-16">
               <div>
-                <div className="flex items-center gap-5 mb-8 mt-4">
+                <div className="flex items-center gap-5 mb-6 mt-4">
                   <div className="skeleton-shimmer h-12 w-32 rounded-lg" />
                   <div className="flex-1 h-px bg-white/[0.06]" />
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                {/* Skeleton list on mobile */}
+                <div className="md:hidden flex flex-col gap-2">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <ListSkeletonCard key={i} index={i} />
+                  ))}
+                </div>
+                {/* Skeleton grid on desktop */}
+                <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
                   {Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} index={i} />)}
                 </div>
               </div>
             </div>
           ) : albumsByYear.length > 0 ? (
             <div ref={gridRef} className="space-y-0">
-              {albumsByYear.map(([year, yearAlbums]) => {
-                const startIndex = globalCardIndex;
-                globalCardIndex += yearAlbums.length;
+              {albumsByYear.map(([year, yearAlbums]) => (
+                <div key={year} className="year-section">
+                  <YearHeading year={year} count={yearAlbums.length} />
 
-                return (
-                  <div key={year} className="year-section">
-                    <YearHeading year={year} count={yearAlbums.length} />
+                  {/* ── MOBILE: vertical list ── */}
+                  <div className="md:hidden flex flex-col gap-2 mb-2">
+                    {yearAlbums.map((album) => {
+                      const idx = globalCardIndex++;
+                      return (
+                        <ListCard
+                          key={album.id}
+                          album={album}
+                          index={idx}
+                          isVisible={cardsVisible}
+                        />
+                      );
+                    })}
+                  </div>
 
-                    {/* ── Desktop: always 3-col card grid ── */}
-                    <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-                      {yearAlbums.map((album, i) => (
+                  {/* ── DESKTOP: standard 3-col grid ── */}
+                  <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                    {yearAlbums.map((album) => {
+                      const idx = globalCardIndex++;
+                      return (
                         <AlbumCard
                           key={album.id}
                           album={album}
-                          index={startIndex + i}
+                          index={idx}
                           isVisible={cardsVisible}
                         />
-                      ))}
-                    </div>
-
-                    {/* ── Mobile: Option B — vertical list ── */}
-                    {mobileView === "list" && (
-                      <div className="flex flex-col gap-2 md:hidden">
-                        {yearAlbums.map((album, i) => (
-                          <ListAlbumRow
-                            key={album.id}
-                            album={album}
-                            index={startIndex + i}
-                            isVisible={cardsVisible}
-                          />
-                        ))}
-                      </div>
-                    )}
-
-                    {/* ── Mobile: Option C — horizontal scroll strip ── */}
-                    {mobileView === "hscroll" && (
-                      <div className="hscroll-wrapper md:hidden">
-                        <div className="hscroll-strip">
-                          {yearAlbums.map((album) => (
-                            <HScrollAlbumCard key={album.id} album={album} />
-                          ))}
-                        </div>
-                      </div>
-                    )}
+                      );
+                    })}
                   </div>
-                );
-              })}
+                </div>
+              ))}
             </div>
           ) : (
             <div className="text-center py-32">
@@ -718,4 +641,3 @@ export default function AlbumContent({
     </>
   );
 }
-

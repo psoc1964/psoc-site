@@ -19,6 +19,7 @@ type Album = {
   thumbnailUrl?: string;
   createdAt:     string;
   featuredAlbum?: boolean;
+  isauthentic?:  boolean; 
 };
 
 const normalize = (str: string) =>
@@ -57,8 +58,6 @@ const EVENT_META = [
   },
 ] as const;
 
-const GATED_ALBUMS = ["utkrisht", "batch photography"];
-
 const EventImage = memo(({
   album,
   meta,
@@ -69,17 +68,22 @@ const EventImage = memo(({
   const [user] = useUser();
   const [open, setOpen] = useState(false);
 
+  // ✅ isGated comes from the DB's isauthentic column — no hardcoded list needed
+  const isGated = album?.isauthentic === true;
+  const isAuthenticated = Boolean(user);
+
   const imgSrc = album?.thumbnailUrl ?? "";
 
-  const isGated = GATED_ALBUMS.includes(meta.dbName.toLowerCase());
-  const href = (!isGated || user) ? (album?.albumUrl ?? "#") : "#";
+  // Resolve href: gated + not logged in → keep "#" so browser doesn't navigate
+  const href = (!isGated || isAuthenticated) ? (album?.albumUrl ?? "#") : "#";
 
+  // Show modal only when album is gated AND user is not authenticated
   const handleClick = useCallback((e: React.MouseEvent) => {
-    if (isGated && !user) {
+    if (isGated && !isAuthenticated) {
       e.preventDefault();
       setOpen(true);
     }
-  }, [isGated, user]);
+  }, [isGated, isAuthenticated]);
 
   return (
     <>
@@ -189,12 +193,12 @@ export default function About() {
   const albums: Album[] = useMemo(() => (data as any)?.getFeaturedAlbums ?? [], [data]);
 
   const albumByName = useCallback(
-  (name: string) =>
-    albums.find((a) => normalize(a.name) === normalize(name)),
-  [albums]
-);
+    (name: string) =>
+      albums.find((a) => normalize(a.name) === normalize(name)),
+    [albums]
+  );
 
-  // Main GSAP animations — runs once on mount (no image-reveal here)
+  // Main GSAP animations — runs once on mount
   useEffect(() => {
     if (!sectionRef.current) return;
     const ctx = gsap.context(() => {
