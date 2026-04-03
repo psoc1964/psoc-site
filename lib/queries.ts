@@ -29,6 +29,7 @@ export const GET_PUBLISHED_ALBUMS = gql(`
       albumUrl
       thumbnailUrl
       createdAt
+      isauthentic
     }
   }
 `);
@@ -43,6 +44,7 @@ export const GET_FEATURED_ALBUMS = gql(`
       thumbnailUrl
       createdAt
       featuredAlbum
+      isauthentic
     }
   }
 `);

@@ -14,6 +14,7 @@ type Album = {
   albumUrl?: string;
   thumbnailUrl?: string;
   createdAt: string;
+  isauthentic: boolean;
 };
 
 type AlbumCardProps = {
@@ -22,7 +23,7 @@ type AlbumCardProps = {
   isVisible: boolean;
 };
 
-const GATED_ALBUMS = ["utkrisht", "batch photography"];
+//const GATED_ALBUMS = ["utkrisht", "batch photography"];
 
 const AlbumThumbnail = memo(({ src, alt }: { src: string; alt: string }) => {
   const [imgSrc, setImgSrc] = useState(src);
@@ -56,7 +57,8 @@ function AlbumCardInner({ album, index, isVisible }: AlbumCardProps) {
   const delay = Math.min(index * 60, 540);
 
   const handleClick = useCallback(() => {
-    const isGated = GATED_ALBUMS.includes(album.name.trim().toLowerCase());
+    const isGated = album.isauthentic;
+
     if (!isGated || user) {
       if (album.albumUrl)
         window.open(

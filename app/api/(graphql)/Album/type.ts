@@ -9,4 +9,5 @@ export class AlbumGQL {
   @Field()                   isPublished: boolean;
   @Field()                   featuredAlbum: boolean;
   @Field()                   createdAt: Date;
+  @Field()                   isauthentic:boolean;
 }

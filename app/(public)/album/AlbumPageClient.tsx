@@ -92,6 +92,7 @@ export default function AlbumPageClient({ data, loading }: AlbumPageClientProps)
         albumUrl: a.albumUrl ?? undefined,
         thumbnailUrl: a.thumbnailUrl ?? undefined,
         createdAt: a.createdAt as unknown as string,
+         isauthentic: a.isauthentic ?? false,
       })),
     [data],
   );

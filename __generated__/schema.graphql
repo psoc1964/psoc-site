@@ -234,6 +234,7 @@ type AlbumGQL {
   featuredAlbum: Boolean!
   id: Int!
   isPublished: Boolean!
+  isauthentic: Boolean!
   name: String!
   thumbnailUrl: String
 }
@@ -250,6 +251,7 @@ type Mutation {
 }
 
 type Query {
+  GetAuthenticAlbums: [AlbumGQL!]!
   getCurrentUser: User
   getFeaturedAlbums: [AlbumGQL!]!
   getPublishedAlbums: [AlbumGQL!]!
