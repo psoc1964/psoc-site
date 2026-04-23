@@ -1,5 +1,5 @@
 "use client";
-
+import { toDriveThumbnail } from "@/app/(private)/lib/utils";
 import { useEffect, useRef, useState, memo, useMemo, useCallback } from "react";
 import gsap from "gsap";
 import ScrollTrigger from "gsap/ScrollTrigger";
@@ -72,7 +72,14 @@ const EventImage = memo(({
   const isGated = album?.isauthentic === true;
   const isAuthenticated = Boolean(user);
 
-  const imgSrc = album?.thumbnailUrl ?? "";
+ const [imgSrc, setImgSrc] = useState(() => toDriveThumbnail(album?.thumbnailUrl));
+const [loaded, setLoaded] = useState(false);
+
+useEffect(() => {
+  const src = toDriveThumbnail(album?.thumbnailUrl);
+  setImgSrc(src);
+  setLoaded(false);
+}, [album?.thumbnailUrl]);
 
   // Resolve href: gated + not logged in → keep "#" so browser doesn't navigate
   const href = (!isGated || isAuthenticated) ? (album?.albumUrl ?? "#") : "#";
@@ -106,17 +113,19 @@ const EventImage = memo(({
 
         <div className="relative rounded-[20px] sm:rounded-[24px] overflow-hidden border border-white/[0.08] bg-black shadow-[0_24px_60px_rgba(0,0,0,0.7)]">
           <div className="relative w-full aspect-[4/3] overflow-hidden bg-white/[0.03]">
-            {imgSrc ? (
-              <img
-                src={imgSrc}
-                alt={album?.name ?? meta.dbName}
-                className="image-reveal w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-[1.04]"
-                loading="lazy"
-                decoding="async"
-              />
-            ) : (
-              <div className="skeleton-shimmer absolute inset-0" />
-            )}
+            <div className="skeleton-shimmer absolute inset-0" style={{ opacity: loaded ? 0 : 1, transition: "opacity 0.5s" }} />
+{imgSrc && (
+  <img
+    src={imgSrc}
+    alt={album?.name ?? meta.dbName}
+    className="image-reveal w-full h-full object-cover transition-[transform,opacity] duration-1000 ease-out group-hover:scale-[1.04]"
+    style={{ opacity: loaded ? 1 : 0, transition: "opacity 0.7s ease" }}
+    loading="lazy"
+    decoding="async"
+    onLoad={() => setLoaded(true)}
+    onError={() => setLoaded(true)}
+  />
+)}
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-black/20" />
             <div className="absolute inset-0 shadow-[inset_0_0_80px_rgba(0,0,0,0.5)]" />
           </div>

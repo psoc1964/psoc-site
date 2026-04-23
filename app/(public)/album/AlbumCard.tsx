@@ -4,6 +4,7 @@ import { memo, useCallback, useMemo, useState } from "react";
 
 import Modal from "@/components/ui/modal";
 import { useUser } from "@/lib/auth-client";
+import { toDriveThumbnail } from "@/app/(private)/lib/utils";
 
 const NEXT_PUBLIC_BACKEND_BASE_URL =
   process.env.NEXT_PUBLIC_BACKEND_BASE_URL || "";
@@ -22,8 +23,6 @@ type AlbumCardProps = {
   index: number;
   isVisible: boolean;
 };
-
-//const GATED_ALBUMS = ["utkrisht", "batch photography"];
 
 const AlbumThumbnail = memo(({ src, alt }: { src: string; alt: string }) => {
   const [imgSrc, setImgSrc] = useState(src);
@@ -57,7 +56,7 @@ function AlbumCardInner({ album, index, isVisible }: AlbumCardProps) {
   const delay = Math.min(index * 60, 540);
 
   const handleClick = useCallback(() => {
-    const isGated = album.isauthentic;
+    const isGated = album.isauthentic === true;
 
     if (!isGated || user) {
       if (album.albumUrl)
@@ -69,7 +68,7 @@ function AlbumCardInner({ album, index, isVisible }: AlbumCardProps) {
       return;
     }
     setOpen(true);
-  }, [user, album.albumUrl, album.name]);
+  }, [user, album.albumUrl, album.name, album.isauthentic]);
 
   return (
     <>
@@ -86,7 +85,10 @@ function AlbumCardInner({ album, index, isVisible }: AlbumCardProps) {
         }}
       >
         <div className="relative aspect-[4/3] overflow-hidden bg-white/[0.03]">
-          <AlbumThumbnail src={album.thumbnailUrl ?? ""} alt={album.name} />
+          <AlbumThumbnail
+            src={toDriveThumbnail(album.thumbnailUrl ?? "")}
+            alt={album.name}
+          />
           <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
           <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br from-white/[0.03] to-transparent" />
         </div>

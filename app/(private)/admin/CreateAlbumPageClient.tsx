@@ -60,6 +60,17 @@ export default function CreateAlbumPageClient({
     try {
       const { data } = await createAlbumMutation(values);
       if (!data) throw new Error("No data returned from server");
+      //caching
+       // ← add this: warm the Drive CDN cache immediately after creation
+    if (values.thumbnailUrl) {
+      const fileMatch = values.thumbnailUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+      const idMatch = values.thumbnailUrl.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+      const id = fileMatch?.[1] ?? idMatch?.[1];
+      if (id) {
+        fetch(`https://drive.google.com/thumbnail?id=${id}&sz=w800`, { method: "HEAD" })
+          .catch(() => {}); // fire and forget, non-critical
+      }
+    }
       toast.success("Album created");
       form.reset();
       setCreatedOnce(true);

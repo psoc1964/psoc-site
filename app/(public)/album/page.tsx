@@ -17,6 +17,9 @@ export default function AlbumPage() {
       fetch={() =>
         queryGQL<GetPublishedAlbumsQuery, GetPublishedAlbumsQueryVariables>(
           GetPublishedAlbumsDocument,
+          undefined, // variables
+          undefined, // cookie
+          0,         // ← revalidate: 0 = never cache
         )
       }
       Component={AlbumPageClient}

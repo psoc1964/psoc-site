@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
-const nextConfig = {
+
+const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       {
@@ -12,15 +13,12 @@ const nextConfig = {
       },
     ],
   },
-  // ... keep any existing config you have
+  experimental: {
+    staleTimes: {
+      dynamic: 0,
+      static: 0,
+    },
+  },
 };
-
-// export default nextConfig;
-// const nextConfig: NextConfig = {
-//   /* config options here */
-//   images: {
-//     domains: ['drive.google.com'],
-//   },
-// };
 
 export default nextConfig;
