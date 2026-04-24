@@ -7,6 +7,7 @@ import ScrollTrigger from "gsap/ScrollTrigger";
 import AlbumCard from "./AlbumCard";
 import { useUser } from "@/lib/auth-client";
 import Modal from "@/components/ui/modal";
+import { toDriveThumbnail } from "@/app/(private)/lib/utils";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -184,11 +185,13 @@ const ListCard = memo(({
   index: number;
   isVisible: boolean;
 }) => {
-  const [user] = useUser(); // 👈 ADD
-  const [open, setOpen] = useState(false); // 👈 ADD
+  const [user] = useUser();
+  const [open, setOpen] = useState(false);
 
   const handleClick = useCallback(() => {
-    const isProtected = album.isauthentic;
+      const isProtected = album.isauthentic === true; // ← make explicit
+
+
 
     if (!isProtected) {
       if (album.albumUrl) {
@@ -204,7 +207,7 @@ const ListCard = memo(({
     } else {
       setOpen(true);
     }
-  }, [user, album]);
+  }, [user, album, album.isauthentic]);
 
   const date  = new Date(album.createdAt);
   const month = date.toLocaleString("en-US", { month: "short" });
@@ -214,7 +217,7 @@ const ListCard = memo(({
   return (
     <>
       <div
-        onClick={handleClick} 
+        onClick={handleClick}
         className="flex items-center gap-3 px-3 py-2.5 rounded-2xl border border-white/[0.08] bg-white/[0.03] cursor-pointer active:scale-[0.985] transition-transform duration-150"
         style={{
           opacity: isVisible ? 1 : 0,
@@ -222,10 +225,13 @@ const ListCard = memo(({
           transition: `opacity 0.3s ease ${index * 45}ms, transform 0.3s ease ${index * 45}ms`,
         }}
       >
-        {/* existing UI unchanged */}
         <div className="relative flex-none w-14 h-14 rounded-xl overflow-hidden bg-white/[0.04]">
           {album.thumbnailUrl ? (
-            <img src={album.thumbnailUrl} alt={album.name} className="w-full h-full object-cover object-center" />
+            <img
+              src={toDriveThumbnail(album.thumbnailUrl)}
+              alt={album.name}
+              className="w-full h-full object-cover object-center"
+            />
           ) : null}
         </div>
 
@@ -239,42 +245,41 @@ const ListCard = memo(({
         </div>
       </div>
 
-      {/* OPTIONAL: reuse modal */}
       <Modal
-              open={open}
-              close={() => setOpen(false)}
-              title="Sign in to view albums"
-              panelClassName="bg-[#050505] border border-white/10 text-white max-w-md"
+        open={open}
+        close={() => setOpen(false)}
+        title="Sign in to view albums"
+        panelClassName="bg-[#050505] border border-white/10 text-white max-w-md"
+      >
+        <div className="mt-4 space-y-4">
+          <p className="text-sm text-white/70 leading-relaxed">
+            These albums are reserved for faculty and students of the BIT Mesra
+            only. Sign in to unlock full-resolution galleries on our Drive.
+          </p>
+          <div className="flex items-center gap-3 text-xs text-white/40">
+            <span className="inline-flex h-10 items-center justify-center rounded-full border border-white/15 bg-white/5 px-2 font-mono uppercase tracking-[0.18em] text-center">
+              Private Collection
+            </span>
+            <span className="h-px w-10 bg-white/10" />
+            <span>Curated photo stories, behind the scenes & more.</span>
+          </div>
+          <div className="mt-6 flex items-center justify-between gap-3">
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              className="text-xs font-medium text-white/50 hover:text-white/80 transition-colors"
             >
-              <div className="mt-4 space-y-4">
-                <p className="text-sm text-white/70 leading-relaxed">
-                  These albums are reserved for faculty and students of the BIT Mesra
-                  only. Sign in to unlock full-resolution galleries on our Drive.
-                </p>
-                <div className="flex items-center gap-3 text-xs text-white/40">
-                  <span className="inline-flex h-10 items-center justify-center rounded-full border border-white/15 bg-white/5 px-2 font-mono uppercase tracking-[0.18em] text-center">
-                    Private Collection
-                  </span>
-                  <span className="h-px w-10 bg-white/10" />
-                  <span>Curated photo stories, behind the scenes & more.</span>
-                </div>
-                <div className="mt-6 flex items-center justify-between gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setOpen(false)}
-                    className="text-xs font-medium text-white/50 hover:text-white/80 transition-colors"
-                  >
-                    Maybe later
-                  </button>
-                  <a
-                    href="/login"
-                    className="inline-flex items-center gap-2 rounded-full bg-white text-black px-4 py-2 text-xs font-semibold tracking-[0.18em] uppercase hover:bg-white/90 transition-colors"
-                  >
-                    Sign in to continue
-                  </a>
-                </div>
-              </div>
-            </Modal>
+              Maybe later
+            </button>
+            <a
+              href="/login"
+              className="inline-flex items-center gap-2 rounded-full bg-white text-black px-4 py-2 text-xs font-semibold tracking-[0.18em] uppercase hover:bg-white/90 transition-colors"
+            >
+              Sign in to continue
+            </a>
+          </div>
+        </div>
+      </Modal>
     </>
   );
 });

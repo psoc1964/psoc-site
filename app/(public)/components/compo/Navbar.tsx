@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useState, useCallback, memo, useEffect, useRef } from "react";
 import { NAV_ITEMS, NavItem, Route } from "../../../../constants/routes";
 
@@ -129,6 +129,10 @@ export default function Navbar({
 }) {
   const router = useRouter();
   const [isRouteTransitioning, setIsRouteTransitioning] = useState(false);
+  const pathname = usePathname();                         // ← add this
+useEffect(() => {                                       // ← add this
+  setIsRouteTransitioning(false);
+}, [pathname]);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
@@ -147,14 +151,23 @@ export default function Navbar({
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const handleRouteNav = useCallback(
-    (routeKey: NavItem["route"]) => {
-      setIsRouteTransitioning(true);
-      setMobileOpen(false);
-      setTimeout(() => { router.push(Route[routeKey]); }, 300);
-    },
-    [router]
-  );
+ const handleRouteNav = useCallback(
+  (routeKey: NavItem["route"]) => {
+    const target = Route[routeKey];
+    setIsRouteTransitioning(true);
+    setMobileOpen(false);
+
+    if (window.location.pathname === target) {
+      setTimeout(() => {
+        router.refresh();
+        setIsRouteTransitioning(false); // clears navbar blur
+      }, 300);
+    } else {
+      setTimeout(() => { router.push(target); }, 300);
+    }
+  },
+  [router]
+);
 
   const handleScrollNav = useCallback(
     (targetId: string) => {

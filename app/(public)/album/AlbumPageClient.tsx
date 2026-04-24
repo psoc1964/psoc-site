@@ -18,43 +18,47 @@ export default function AlbumPageClient({ data, loading }: AlbumPageClientProps)
   const contentRef = useRef<HTMLDivElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const content = contentRef.current;
-    const overlay = overlayRef.current;
+ // ✅ Replace with this
+// ✅ No requestAnimationFrame wrapper
+useEffect(() => {
+  const content = contentRef.current;
+  const overlay = overlayRef.current;
 
-    if (content) content.style.willChange = "opacity, transform";
-    if (overlay) overlay.style.willChange = "opacity";
+  if (content) content.style.willChange = "opacity, transform";
+  if (overlay) overlay.style.willChange = "opacity";
 
-    requestAnimationFrame(() => {
-      const holdTimer = setTimeout(() => {
-        requestAnimationFrame(() => setPhase("inhale"));
-      }, 400);
+  const holdTimer = setTimeout(() => setPhase("inhale"), 400);
+  const settleTimer = setTimeout(() => {
+    setPhase("settled");
+    if (content) content.style.willChange = "auto";
+    if (overlay) overlay.style.willChange = "auto";
+  }, 1600);
 
-      const settleTimer = setTimeout(() => {
-        setPhase("settled");
-        requestAnimationFrame(() => {
-          if (content) content.style.willChange = "auto";
-          if (overlay) overlay.style.willChange = "auto";
-        });
-      }, 1600);
+  return () => {
+    clearTimeout(holdTimer);
+    clearTimeout(settleTimer);
+  };
+}, []);
 
-      return () => {
-        clearTimeout(holdTimer);
-        clearTimeout(settleTimer);
-      };
-    });
-  }, []);
-
-  const handleNavTransition = useCallback(
-    (targetId: string) => {
-      if (targetId === "album") {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-        return;
+ const handleNavTransition = useCallback(
+  (targetId: string) => {
+    if (targetId === "album") {
+      if (window.location.pathname === "/album") {
+        // ✅ instant scroll — overlay is black so user never sees it
+window.scrollTo(0, 0);
+        setPhase("hold");           // ← black overlay snaps back
+        router.refresh();
+        setTimeout(() => setPhase("inhale"),  300);   // ← fade in starts
+        setTimeout(() => setPhase("settled"), 1600);  // ← fully settled
+      } else {
+        router.push("/album");
       }
-      router.push(`/#${targetId}`);
-    },
-    [router],
-  );
+      return;
+    }
+    router.push(`/#${targetId}`);
+  },
+  [router],
+);
 
   const overlayStyle: React.CSSProperties = useMemo(
     () => ({
