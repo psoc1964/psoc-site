@@ -22,6 +22,7 @@ type CreateAlbumFormValues = {
   thumbnailUrl?: string;
   isPublished: boolean;
   featuredAlbum: boolean;
+  isauthentic: boolean;
 };
 
 type CreateAlbumPageClientProps = {
@@ -45,6 +46,7 @@ export default function CreateAlbumPageClient({
       thumbnailUrl: "",
       isPublished: false,
       featuredAlbum: false,
+      isauthentic: false,
     },
   });
 
@@ -61,16 +63,19 @@ export default function CreateAlbumPageClient({
       const { data } = await createAlbumMutation(values);
       if (!data) throw new Error("No data returned from server");
       //caching
-       // ← add this: warm the Drive CDN cache immediately after creation
-    if (values.thumbnailUrl) {
-      const fileMatch = values.thumbnailUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
-      const idMatch = values.thumbnailUrl.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-      const id = fileMatch?.[1] ?? idMatch?.[1];
-      if (id) {
-        fetch(`https://drive.google.com/thumbnail?id=${id}&sz=w800`, { method: "HEAD" })
-          .catch(() => {}); // fire and forget, non-critical
+      // ← add this: warm the Drive CDN cache immediately after creation
+      if (values.thumbnailUrl) {
+        const fileMatch = values.thumbnailUrl.match(
+          /\/file\/d\/([a-zA-Z0-9_-]+)/,
+        );
+        const idMatch = values.thumbnailUrl.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+        const id = fileMatch?.[1] ?? idMatch?.[1];
+        if (id) {
+          fetch(`https://drive.google.com/thumbnail?id=${id}&sz=w800`, {
+            method: "HEAD",
+          }).catch(() => {}); // fire and forget, non-critical
+        }
       }
-    }
       toast.success("Album created");
       form.reset();
       setCreatedOnce(true);
@@ -124,6 +129,17 @@ export default function CreateAlbumPageClient({
             />
             <label htmlFor="create-featuredAlbum" className="text-sm">
               Featured album
+            </label>
+          </div>
+          <div className="flex items-center gap-3">
+            <input
+              type="checkbox"
+              className="h-4 w-4 rounded border border-white/30 bg-transparent"
+              {...form.register("isauthentic")}
+              id="create-isauthentic"
+            />
+            <label htmlFor="create-isauthentic" className="text-sm">
+              Authentic
             </label>
           </div>
           <Button type="submit" className="mt-2 w-full" disabled={loading}>

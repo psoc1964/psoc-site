@@ -72,6 +72,7 @@ export const GET_ADMIN_ALBUMS = gql(`
       thumbnailUrl
       isPublished
       featuredAlbum
+      isauthentic
       createdAt
     }
     unpublished: getUnpublishedAlbums {
@@ -81,6 +82,7 @@ export const GET_ADMIN_ALBUMS = gql(`
       thumbnailUrl
       isPublished
       featuredAlbum
+      isauthentic
       createdAt
     }
   }

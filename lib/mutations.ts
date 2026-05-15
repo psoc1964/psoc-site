@@ -29,6 +29,7 @@ export const CREATE_ALBUM = gql(`
     $thumbnailUrl: String
     $isPublished: Boolean
     $featuredAlbum: Boolean
+    $isauthentic: Boolean
   ) {
     createAlbum(
       name: $name
@@ -36,6 +37,7 @@ export const CREATE_ALBUM = gql(`
       thumbnailUrl: $thumbnailUrl
       isPublished: $isPublished
       featuredAlbum: $featuredAlbum
+      isauthentic: $isauthentic
     ) {
       id
       name
@@ -43,6 +45,7 @@ export const CREATE_ALBUM = gql(`
       thumbnailUrl
       isPublished
       featuredAlbum
+      isauthentic
       createdAt
     }
   }
@@ -57,6 +60,7 @@ export const UPDATE_ALBUM = gql(`
     $thumbnailUrl: String
     $isPublished: Boolean
     $featuredAlbum: Boolean
+    $isauthentic: Boolean
   ) {
     updateAlbum(
       id: $id
@@ -65,6 +69,7 @@ export const UPDATE_ALBUM = gql(`
       thumbnailUrl: $thumbnailUrl
       isPublished: $isPublished
       featuredAlbum: $featuredAlbum
+      isauthentic: $isauthentic
     ) {
       id
       name
@@ -72,6 +77,7 @@ export const UPDATE_ALBUM = gql(`
       thumbnailUrl
       isPublished
       featuredAlbum
+      isauthentic
       createdAt
     }
   }

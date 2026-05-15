@@ -43,6 +43,7 @@ type Album = {
   thumbnailUrl?: string | null;
   isPublished: boolean;
   featuredAlbum: boolean;
+  isauthentic: boolean;
   createdAt: string;
 };
 
@@ -58,6 +59,7 @@ type UpdateAlbumFormValues = {
   thumbnailUrl?: string;
   isPublished?: boolean;
   featuredAlbum?: boolean;
+  isauthentic?: boolean;
 };
 
 type AdminPageClientProps = {
@@ -75,6 +77,7 @@ function mapAdminDataToAlbums(data?: GetAdminAlbumsQuery): Album[] {
     thumbnailUrl: a.thumbnailUrl ?? undefined,
     isPublished: a.isPublished,
     featuredAlbum: a.featuredAlbum,
+    isauthentic: a.isauthentic,
     createdAt: String(a.createdAt),
   }));
   const byId = new Map<number, Album>();
@@ -114,6 +117,7 @@ export default function AdminPageClient({
       thumbnailUrl: "",
       isPublished: undefined,
       featuredAlbum: undefined,
+      isauthentic: undefined,
     },
   });
 
@@ -128,6 +132,7 @@ export default function AdminPageClient({
       thumbnailUrl: selected.thumbnailUrl ?? "",
       isPublished: selected.isPublished,
       featuredAlbum: selected.featuredAlbum,
+      isauthentic: selected.isauthentic,
     });
     setIsDialogOpen(true);
   };
@@ -156,6 +161,7 @@ export default function AdminPageClient({
         thumbnailUrl: updated.thumbnailUrl ?? undefined,
         isPublished: updated.isPublished,
         featuredAlbum: updated.featuredAlbum,
+        isauthentic: updated.isauthentic,
         createdAt: String(updated.createdAt),
       };
       setAlbums((prev) => prev.map((a) => (a.id === mapped.id ? mapped : a)));
@@ -512,6 +518,10 @@ export default function AdminPageClient({
                   <span className="font-semibold">Featured:</span>{" "}
                   {selectedAlbum.featuredAlbum ? "Yes" : "No"}
                 </p>
+                <p>
+                  <span className="font-semibold">Authentic:</span>{" "}
+                  {selectedAlbum.isauthentic ? "Yes" : "No"}
+                </p>
               </div>
 
               <Form
@@ -554,6 +564,17 @@ export default function AdminPageClient({
                   />
                   <label htmlFor="update-featuredAlbum" className="text-sm">
                     Featured album
+                  </label>
+                </div>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4 rounded border border-white/30 bg-transparent"
+                    {...updateForm.register("isauthentic")}
+                    id="update-isauthentic"
+                  />
+                  <label htmlFor="update-isauthentic" className="text-sm">
+                    Authentic
                   </label>
                 </div>
                 <DialogFooter className="pt-2">

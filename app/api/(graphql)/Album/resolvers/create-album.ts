@@ -10,7 +10,12 @@ export async function handleCreateAlbum(
   ctx: AuthorizedContext,
   data: Pick<
     AlbumDBInsert,
-    "name" | "albumUrl" | "thumbnailUrl" | "isPublished" | "featuredAlbum"
+    | "name"
+    | "albumUrl"
+    | "thumbnailUrl"
+    | "isPublished"
+    | "featuredAlbum"
+    | "isauthentic"
   >,
 ): Promise<AlbumDB> {
   await ensureAdmin(ctx);
@@ -22,11 +27,10 @@ export async function handleCreateAlbum(
       .values({
         name: data.name,
         albumUrl: data.albumUrl,
-        thumbnailUrl: data.thumbnailUrl
-          ? data.thumbnailUrl
-          : undefined,
+        thumbnailUrl: data.thumbnailUrl ? data.thumbnailUrl : undefined,
         isPublished: data.isPublished ?? false,
         featuredAlbum: data.featuredAlbum ?? false,
+        isauthentic: data.isauthentic ?? false,
       })
       .returning();
   } catch (error: unknown) {

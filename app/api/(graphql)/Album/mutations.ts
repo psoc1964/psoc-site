@@ -16,6 +16,7 @@ export class AlbumMutationResolver {
     @Arg("thumbnailUrl", { nullable: true }) thumbnailUrl?: string,
     @Arg("isPublished", { nullable: true }) isPublished?: boolean,
     @Arg("featuredAlbum", { nullable: true }) featuredAlbum?: boolean,
+    @Arg("isauthentic", { nullable: true }) isauthentic?: boolean,
   ) {
     return handleCreateAlbum(ctx, {
       name,
@@ -23,6 +24,7 @@ export class AlbumMutationResolver {
       thumbnailUrl,
       isPublished,
       featuredAlbum,
+      isauthentic,
     } as any);
   }
 
@@ -36,6 +38,7 @@ export class AlbumMutationResolver {
     @Arg("thumbnailUrl", { nullable: true }) thumbnailUrl?: string,
     @Arg("isPublished", { nullable: true }) isPublished?: boolean,
     @Arg("featuredAlbum", { nullable: true }) featuredAlbum?: boolean,
+    @Arg("isauthentic", { nullable: true }) isauthentic?: boolean,
   ) {
     return handleUpdateAlbum(ctx, id, {
       name,
@@ -43,6 +46,7 @@ export class AlbumMutationResolver {
       thumbnailUrl,
       isPublished,
       featuredAlbum,
+      isauthentic,
     } as any);
   }
 }

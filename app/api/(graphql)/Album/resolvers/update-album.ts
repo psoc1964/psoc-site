@@ -13,7 +13,12 @@ export async function handleUpdateAlbum(
   data: Partial<
     Pick<
       AlbumDBInsert,
-      "name" | "albumUrl" | "thumbnailUrl" | "isPublished" | "featuredAlbum"
+      | "name"
+      | "albumUrl"
+      | "thumbnailUrl"
+      | "isPublished"
+      | "featuredAlbum"
+      | "isauthentic"
     >
   >,
 ): Promise<AlbumDB> {
@@ -28,6 +33,8 @@ export async function handleUpdateAlbum(
     values.isPublished = data.isPublished;
   if (typeof data.featuredAlbum === "boolean")
     values.featuredAlbum = data.featuredAlbum;
+  if (typeof data.isauthentic === "boolean")
+    values.isauthentic = data.isauthentic;
 
   if (Object.keys(values).length === 0) {
     throw GQLError(400, "No fields provided to update");
