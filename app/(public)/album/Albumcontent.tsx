@@ -225,7 +225,7 @@ const ListCard = memo(({
           transition: `opacity 0.3s ease ${index * 45}ms, transform 0.3s ease ${index * 45}ms`,
         }}
       >
-        <div className="relative flex-none w-14 h-14 rounded-xl overflow-hidden bg-white/[0.04]">
+        <div className="relative flex-none rounded-xl overflow-hidden bg-white/[0.04] aspect-[3/2] w-20 md:aspect-square md:w-14">
           {album.thumbnailUrl ? (
             <img
               src={toDriveThumbnail(album.thumbnailUrl)}
@@ -290,7 +290,7 @@ const ListSkeletonCard = memo(({ index }: { index: number }) => (
     className="flex items-center gap-3 px-3 py-2.5 rounded-2xl border border-white/[0.06] bg-white/[0.02]"
     style={{ animationDelay: `${index * 60}ms` }}
   >
-    <div className="skeleton-shimmer flex-none w-14 h-14 rounded-xl" />
+    <div className="skeleton-shimmer flex-none rounded-xl aspect-[3/2] w-20 md:aspect-square md:w-14" />
     <div className="flex-1 space-y-2">
       <div className="skeleton-shimmer h-3 w-2/3 rounded-full" />
       <div className="skeleton-shimmer h-2.5 w-1/3 rounded-full" />
