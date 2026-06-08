@@ -84,7 +84,7 @@ function AlbumCardInner({ album, index, isVisible }: AlbumCardProps) {
           willChange: "opacity, transform",
         }}
       >
-        <div className="relative aspect-[4/3] overflow-hidden bg-white/[0.03]">
+        <div className="relative aspect-[3/2] overflow-hidden bg-white/[0.03]">
           <AlbumThumbnail
             src={toDriveThumbnail(album.thumbnailUrl ?? "")}
             alt={album.name}

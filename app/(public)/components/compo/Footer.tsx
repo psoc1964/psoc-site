@@ -121,10 +121,12 @@ export default function Footer() {
                   size={14}
                   className="mt-1 flex-shrink-0 text-white/25 group-hover:text-white/50 transition-colors duration-300"
                 />
+                <a href="https://www.google.com/maps?sca_esv=0cefd7cacdd99c8f&rlz=1C1RXQR_en-GBIN1079IN1079&sxsrf=ANbL-n52COtNi6GD4r7gdKKWfmhiF7ZgFQ:1780941910655&biw=1536&bih=695&uact=5&gs_lp=Egxnd3Mtd2l6LXNlcnAiCmJpdCBtZXNyYSAyBBAjGCcyChAjGIAEGIoFGCcyBBAjGCcyChAAGIAEGBQYhwIyBRAAGIAEMgsQLhiABBixAxiDATILEC4YgAQYxwEYrwEyBRAAGIAEMg4QABiABBiKBRiRAhixAzIFEAAYgARIsw5QaFipCnABeAGQAQCYAaQBoAHODKoBBDAuMTG4AQPIAQD4AQGYAgSgAugDwgIKEAAYRxjWBBiwA8ICDhAAGOQCGNYEGLAD2AEBwgIXEC4Y3AYYuAYY2gYY2AIYyAMYsAPYAQHCAgYQABgWGB7CAgUQABjvBcICCBAAGIAEGKIEwgILEAAYgAQYigUYhgOYAwCIBgGQBg-6BgYIARABGAmSBwMxLjOgB5FMsgcDMC4zuAfbA8IHBTItMS4zyAcjgAgB&um=1&ie=UTF-8&fb=1&gl=in&sa=X&geocode=Ked7wvBT-_Q5MQTnxfMcDBhm&daddr=Mesra,+Jharkhand+835215">
                 <span className="leading-relaxed">
                   BIT Mesra, Ranchi <br />
                   Jharkhand, India — 835215
                 </span>
+                </a>
               </li>
 
               <li className="flex items-center gap-2 text-white/45 text-sm hover:text-white/75 transition-colors duration-300 group">

@@ -112,7 +112,7 @@ useEffect(() => {
         <div className={`absolute -bottom-3 -right-3 sm:-bottom-4 sm:-right-4 w-14 sm:w-20 h-14 sm:h-20 border-r-2 border-b-2 ${meta.cornerB} rounded-br-2xl z-10 pointer-events-none`} />
 
         <div className="relative rounded-[20px] sm:rounded-[24px] overflow-hidden border border-white/[0.08] bg-black shadow-[0_24px_60px_rgba(0,0,0,0.7)]">
-          <div className="relative w-full aspect-[4/3] overflow-hidden bg-white/[0.03]">
+          <div className="relative w-full aspect-[3/2] overflow-hidden bg-white/[0.03]">
             <div className="skeleton-shimmer absolute inset-0" style={{ opacity: loaded ? 0 : 1, transition: "opacity 0.5s" }} />
 {imgSrc && (
   <img

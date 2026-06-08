@@ -164,7 +164,7 @@ const SkeletonCard = memo(({ index }: { index: number }) => (
     className="rounded-2xl overflow-hidden border border-white/[0.06] bg-white/[0.02]"
     style={{ animationDelay: `${index * 80}ms` }}
   >
-    <div className="relative aspect-[4/3] overflow-hidden bg-white/[0.03]">
+    <div className="relative aspect-[3/2] overflow-hidden bg-white/[0.03]">
       <div className="skeleton-shimmer absolute inset-0" />
     </div>
     <div className="p-5 space-y-3">
