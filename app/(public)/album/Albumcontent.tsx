@@ -284,6 +284,7 @@ const ListCard = memo(({
   );
 });
 
+
 // ─── Mobile list skeleton card ──────────────────────────────────────────────
 const ListSkeletonCard = memo(({ index }: { index: number }) => (
   <div
