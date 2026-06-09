@@ -40,10 +40,11 @@ export default function LoginForm({
     setIsLoading(true);
     const error = await loginWithEmail(data.email.toLowerCase(), data.password);
     if (error === null) {
-      setSuccess(true);
-      router.push(redirectURL);
-      router.refresh();
-    } else {
+  setSuccess(true);
+  const separator = redirectURL.includes("?") ? "&" : "?";
+  router.push(`${redirectURL}${separator}loggedin=true`);
+  router.refresh();
+} else {
       toast.error(error || "Invalid credentials");
       setIsLoading(false);
     }

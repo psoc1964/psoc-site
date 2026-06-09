@@ -6,7 +6,7 @@ import ScrollTrigger from "gsap/ScrollTrigger";
 import SplitType from "split-type";
 import { useLazyQuery } from "@apollo/client";
 import { GET_FEATURED_ALBUMS } from "@/lib/queries";
-
+import { toast } from "react-hot-toast";
 import Modal from "@/components/ui/modal";
 import { useUser } from "@/lib/auth-client";
 
@@ -66,6 +66,9 @@ const EventImage = memo(({
   meta:  typeof EVENT_META[number];
 }) => {
   const [user] = useUser();
+  const [currentPath] = useState(() => 
+            typeof window !== "undefined" ? window.location.pathname : "/"
+            );
   const [open, setOpen] = useState(false);
 
   // ✅ isGated comes from the DB's isauthentic column — no hardcoded list needed
@@ -175,8 +178,9 @@ useEffect(() => {
             >
               Maybe later
             </button>
+            
             <a
-              href="/login"
+              href={`/login?redirectURL=${encodeURIComponent(currentPath)}`}
               className="inline-flex items-center gap-2 rounded-full bg-white text-black px-4 py-2 text-xs font-semibold tracking-[0.18em] uppercase hover:bg-white/90 transition-colors"
             >
               Sign in to continue
@@ -195,6 +199,14 @@ export default function About() {
   const [fetchAlbums, { data }] = useLazyQuery(GET_FEATURED_ALBUMS, {
     fetchPolicy: "network-only",
   });
+
+  useEffect(() => {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("loggedin") === "true") {
+    toast.success("You're logged in! You can now view the album.");
+    window.history.replaceState({}, "", window.location.pathname);
+  }
+}, []);
 
   useEffect(() => { void fetchAlbums(); }, [fetchAlbums]);
 

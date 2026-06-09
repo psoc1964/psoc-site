@@ -21,25 +21,28 @@ export const GET = async (req: NextRequest) => {
   const code = req.nextUrl.searchParams.get("code");
   const error = req.nextUrl.searchParams.get("error");
 
-  if (!code && !error) {
-    const state = v4();
-    const authorizationUrl = oauth2Client.generateAuthUrl({
-      scope: [
-        "https://www.googleapis.com/auth/userinfo.profile",
-        "https://www.googleapis.com/auth/userinfo.email",
-      ],
-      state,
-      include_granted_scopes: true,
-      prompt: "consent",
-      redirect_uri: `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/google`,
-    });
-    const res = NextResponse.redirect(authorizationUrl);
-    res.cookies.set("state", state, {
-      httpOnly: true,
-      secure: true,
-    });
-    return res;
+ if (!code && !error) {
+  const redirectURL = req.nextUrl.searchParams.get("redirectURL");
+  console.log("🔵 redirectURL from query:", redirectURL);   // ← here
+    console.log("🔵 full URL:", req.nextUrl.toString());   
+  const state = v4();
+  const authorizationUrl = oauth2Client.generateAuthUrl({
+    scope: [
+      "https://www.googleapis.com/auth/userinfo.profile",
+      "https://www.googleapis.com/auth/userinfo.email",
+    ],
+    state,
+    include_granted_scopes: true,
+    prompt: "consent",
+    redirect_uri: `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}/google`,
+  });
+  const res = NextResponse.redirect(authorizationUrl);
+  res.cookies.set("state", state, { httpOnly: true, secure: true });
+  if (redirectURL) {
+    res.cookies.set("redirectAfterLogin", redirectURL, { httpOnly: true, secure: true,sameSite: "lax", });
   }
+  return res;
+}
   if (error) {
     return errorResponse(getRoute("SignUp"));
   }
@@ -58,7 +61,7 @@ export const GET = async (req: NextRequest) => {
       .userinfo.get();
 
     const user = userInfoRequest.data;
-    if (user.email) {
+    if (user.email && user.email.endsWith("@bitmesra.ac.in")) {
       const [existingUser] = await db
         .update(UserTable)
         .set({ emailVerified: true })
@@ -80,18 +83,27 @@ export const GET = async (req: NextRequest) => {
         }
       }
 
-      const res = NextResponse.redirect(getRoute("Home"));
-      if (refreshToken)
-        res.cookies.set("refresh", refreshToken, {
-          httpOnly: true,
-          secure: true,
-        });
-      res.cookies.set("state", "", {
-        httpOnly: true,
-        secure: true,
-        maxAge: 0,
-      });
-      return res;
+      const redirectTo = req.cookies.get("redirectAfterLogin")?.value || getRoute("Home");
+      console.log("🟢 redirectAfterLogin cookie:", redirectTo);  
+const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+const separator = redirectTo.includes("?") ? "&" : "?";
+const absoluteURL = redirectTo.startsWith("http")
+  ? `${redirectTo}${separator}loggedin=true`
+  : `${baseURL}${redirectTo}${separator}loggedin=true`;
+
+const res = NextResponse.redirect(absoluteURL);
+res.cookies.set("redirectAfterLogin", "", { maxAge: 0 ,sameSite: "lax" });
+if (refreshToken)
+  res.cookies.set("refresh", refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+  });
+res.cookies.set("state", "", {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  maxAge: 0,
+});
+return res;
     }
   }
   return errorResponse(getRoute("SignUp"));

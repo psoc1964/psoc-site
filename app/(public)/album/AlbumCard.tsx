@@ -132,7 +132,7 @@ function AlbumCardInner({ album, index, isVisible }: AlbumCardProps) {
               Maybe later
             </button>
             <a
-              href="/login"
+              href={`/login?redirectURL=${encodeURIComponent(window.location.pathname)}`}
               className="inline-flex items-center gap-2 rounded-full bg-white text-black px-4 py-2 text-xs font-semibold tracking-[0.18em] uppercase hover:bg-white/90 transition-colors"
             >
               Sign in to continue
