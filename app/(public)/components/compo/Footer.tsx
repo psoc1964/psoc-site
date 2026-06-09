@@ -89,7 +89,7 @@ export default function Footer() {
 
             <div className="flex gap-2 sm:gap-2.5">
               <SocialLink
-                href="https://www.linkedin.com/company/photographic-society-bit-mesra/posts/?feedView=all"
+                href="https://www.linkedin.com/company/photographic-society-bit-mesra/"
                 icon={Linkedin}
               />
               <SocialLink
