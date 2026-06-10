@@ -38,6 +38,7 @@ export default function CreateAlbumPageClient({
   >(CreateAlbumDocument);
 
   const [createdOnce, setCreatedOnce] = useState(false);
+  const [notifying, setNotifying] = useState(false); 
 
   const form = useForm<CreateAlbumFormValues>({
     defaultValues: {
@@ -59,32 +60,55 @@ export default function CreateAlbumPageClient({
   }
 
   const handleCreate = async (values: CreateAlbumFormValues) => {
-    try {
-      const { data } = await createAlbumMutation(values);
-      if (!data) throw new Error("No data returned from server");
-      //caching
-      // ← add this: warm the Drive CDN cache immediately after creation
-      if (values.thumbnailUrl) {
-        const fileMatch = values.thumbnailUrl.match(
-          /\/file\/d\/([a-zA-Z0-9_-]+)/,
-        );
-        const idMatch = values.thumbnailUrl.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-        const id = fileMatch?.[1] ?? idMatch?.[1];
-        if (id) {
-          fetch(`https://drive.google.com/thumbnail?id=${id}&sz=w800`, {
-            method: "HEAD",
-          }).catch(() => {}); // fire and forget, non-critical
-        }
+  try {
+    const { data } = await createAlbumMutation(values);
+    if (!data) throw new Error("No data returned from server");
+
+    // warm the Drive CDN cache
+    if (values.thumbnailUrl) {
+      const fileMatch = values.thumbnailUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+      const idMatch = values.thumbnailUrl.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+      const id = fileMatch?.[1] ?? idMatch?.[1];
+      if (id) {
+        fetch(`https://drive.google.com/thumbnail?id=${id}&sz=w800`, {
+          method: "HEAD",
+        }).catch(() => {});
       }
-      toast.success("Album created");
-      form.reset();
-      setCreatedOnce(true);
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Failed to create album";
-      toast.error(message);
     }
-  };
+
+    // send email notifications if published
+    if (values.isPublished) {
+    setNotifying(true);
+    try {
+    const res = await fetch('/api/notify-album', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        albumName: values.name,
+        albumUrl: `${process.env.NEXT_PUBLIC_BASE_URL}/album`,
+        // thumbnailUrl: values.thumbnailUrl ?? '',
+      }),
+    });
+    const result = await res.json();
+    if (result.success) {
+      toast.success(`Notified ${result.sent} subscriber${result.sent !== 1 ? 's' : ''}`);
+    }
+  } catch {
+    toast.error('Failed to notify subscribers');
+  } finally {
+    setNotifying(false);
+  }
+}
+
+    toast.success("Album created");
+    form.reset();
+    setCreatedOnce(true);
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Failed to create album";
+    toast.error(message);
+  }
+};
 
   return (
     <main className="min-h-screen bg-black text-white px-4 py-8 md:px-8">
@@ -117,7 +141,7 @@ export default function CreateAlbumPageClient({
               id="create-isPublished"
             />
             <label htmlFor="create-isPublished" className="text-sm">
-              Published
+              Published<span className="text-muted-foreground">(notifies subscribers)</span>
             </label>
           </div>
           <div className="flex items-center gap-3">
@@ -142,8 +166,8 @@ export default function CreateAlbumPageClient({
               Authentic
             </label>
           </div>
-          <Button type="submit" className="mt-2 w-full" disabled={loading}>
-            {loading ? "Creating..." : "Create Album"}
+          <Button type="submit" className="mt-2 w-full" disabled={loading || notifying}>
+              {loading ? "Creating..." : notifying ? "Notifying subscribers..." : "Create Album"}
           </Button>
         </Form>
 
