@@ -84,4 +84,5 @@ export default function RootLayout({ children }: PropsWithChildren) {
       </body>
     </html>
   );
+  
 }
