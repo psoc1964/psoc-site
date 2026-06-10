@@ -1,5 +1,5 @@
 import "./globals.css";
-
+import { Analytics } from '@vercel/analytics/react'
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { cookies } from "next/headers";
@@ -80,6 +80,7 @@ export default function RootLayout({ children }: PropsWithChildren) {
         </ApolloWrapper>
         {/* </ThemeProvider> */}
         <SpeedInsights />
+        <Analytics />
       </body>
     </html>
   );
