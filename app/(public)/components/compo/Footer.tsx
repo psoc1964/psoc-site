@@ -150,7 +150,7 @@ export default function Footer() {
 
         <div className="footer-item py-5 sm:py-6 md:py-7 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 text-center sm:text-left">
           <p className="text-white/20 text-[10px] sm:text-xs leading-relaxed">
-            © {new Date().getFullYear()} PSOC · Photographic Society, Birla Institute of Technology, Mesra
+            © {new Date().getFullYear()} PSoc · Photographic Society, Birla Institute of Technology, Mesra
           </p>
         </div>
 

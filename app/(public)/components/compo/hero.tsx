@@ -225,7 +225,7 @@ export default function Hero({ ready }: HeroProps) {
           <div className="flex flex-col gap-2.5">
             <div className="w-6 h-px bg-white/30 rounded-full" />
             <p className="text-[9px] sm:text-[10px] md:text-[11px] tracking-[0.5em] uppercase text-white/40 font-medium">
-              PSOC · BIT Mesra
+              PSoc · BIT Mesra
             </p>
           </div>
 
@@ -251,7 +251,7 @@ export default function Hero({ ready }: HeroProps) {
             className="text-white/60 leading-[1.75] text-[13px] max-w-[290px] sm:text-[14px] sm:max-w-sm"
             style={{ textShadow: "0 1px 12px rgba(0,0,0,0.8)" }}
           >
-            PSOC is a community of visual storytellers dedicated to capturing
+            PSoc is a community of visual storytellers dedicated to capturing
             moments with intention, clarity, and creative vision.
           </p>
           <LearnMoreLink />
@@ -263,7 +263,7 @@ export default function Hero({ ready }: HeroProps) {
             className="text-white/55 leading-[1.75] text-base max-w-md"
             style={{ textShadow: "0 1px 12px rgba(0,0,0,0.8)" }}
           >
-            PSOC is a community of visual storytellers dedicated to capturing
+            PSoc is a community of visual storytellers dedicated to capturing
             moments with intention, clarity, and creative vision.
           </p>
           <LearnMoreLink />

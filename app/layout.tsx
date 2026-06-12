@@ -29,32 +29,54 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "PSOC · Photographic Society, BIT Mesra",
+  title: "PSoc · Photographic Society, BIT Mesra",
   description: "The official Photographic Society of Birla Institute of Technology, Mesra — dedicated to visual storytelling, photography, and preserving moments.",
   openGraph: {
-    title: "PSOC · Photographic Society, BIT Mesra",
+    title: "PSoc · Photographic Society, BIT Mesra",
     description: "The official Photographic Society of Birla Institute of Technology, Mesra — dedicated to visual storytelling, photography, and preserving moments.",
     url: "https://psocbitm.com",
-    siteName: "PSOC - Photographic Society, BIT Mesra",
+    siteName: "PSoc - Photographic Society, BIT Mesra",
+    type: "website",
     images: [
       {
         url: "https://psocbitm.com/psoc-metadata-logo.png",
+        width: 1200,
+        height: 630,
+        alt: "PSoc - Photographic Society, BIT Mesra",
       },
     ],
   },
+  twitter: {
+    card: "summary_large_image",
+    title: "PSoc · Photographic Society, BIT Mesra",
+    description: "The official Photographic Society of Birla Institute of Technology, Mesra — dedicated to visual storytelling, photography, and preserving moments.",
+    images: ["https://psocbitm.com/psoc-metadata-logo.png"],
+  },
+};
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "PSoc - Photographic Society, BIT Mesra",
+  url: "https://psocbitm.com",
+  logo: "https://psocbitm.com/psoc-metadata-logo.png",
+  image: "https://psocbitm.com/psoc-metadata-logo.png",
+  description:
+    "The official Photographic Society of Birla Institute of Technology, Mesra — dedicated to visual storytelling, photography, and preserving moments.",
 };
 
 export default function RootLayout({ children }: PropsWithChildren) {
   return (
     <html className="scroll-smooth no-scrollbar" lang="en">
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} flex flex-col bg-black text-white overflow-x-hidden film-grain`}
       >
-        {/* <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          enableSystem={false}
-        > */}
         <Toaster />
         <ApolloWrapper>
           <GlobalStateWrapper>
@@ -89,11 +111,9 @@ export default function RootLayout({ children }: PropsWithChildren) {
             <SmoothScroll>{children}</SmoothScroll>
           </GlobalStateWrapper>
         </ApolloWrapper>
-        {/* </ThemeProvider> */}
         <SpeedInsights />
         <Analytics />
       </body>
     </html>
   );
-  
 }

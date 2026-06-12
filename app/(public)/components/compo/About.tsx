@@ -37,7 +37,7 @@ const EVENT_META = [
     cornerT:     "border-red-500/40",
     cornerB:     "border-orange-500/40",
     badgeLabel:  "Annual Event",
-    description: "Utkrisht is PSOC's annual photography exhibition — a curated showcase of the society's most compelling visual narratives. Each frame tells a story, each composition captures a moment frozen in time.",
+    description: "Utkrisht is PSoc's annual photography exhibition — a curated showcase of the society's most compelling visual narratives. Each frame tells a story, each composition captures a moment frozen in time.",
     stats:       [{ value: "500+", label: "Photographs" }, { value: "5K+", label: "Visitors" }],
     imageOnLeft: true,
   },
@@ -52,7 +52,7 @@ const EVENT_META = [
     cornerT:     "border-cyan-500/40",
     cornerB:     "border-blue-500/40",
     badgeLabel:  "Tradition",
-    description: "A timeless PSOC tradition capturing graduating batches — preserving memories long after campus life ends. These portraits become heirlooms, connecting generations of BITians.",
+    description: "A timeless PSoc tradition capturing graduating batches — preserving memories long after campus life ends. These portraits become heirlooms, connecting generations of BITians.",
     stats:       [{ value: "50+", label: "Batches" }, { value: "10K+", label: "Students" }],
     imageOnLeft: false,
   },
@@ -332,7 +332,7 @@ export default function About() {
             The Photographic Society
           </h2>
           <p className="reveal-up max-w-xl sm:max-w-2xl text-white/65 leading-relaxed text-sm sm:text-base md:text-lg">
-            PSOC is the official Photographic Society of Birla Institute of Technology, Mesra — a collective of visual storytellers who believe photography is more than an image.
+            PSoc is the official Photographic Society of Birla Institute of Technology, Mesra — a collective of visual storytellers who believe photography is more than an image.
           </p>
         </div>
 
