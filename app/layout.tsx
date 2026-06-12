@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     siteName: "PSOC - Photographic Society, BIT Mesra",
     images: [
       {
-        url: "https://psocbitm.com/psoc-logo-white.png",
+        url: "https://psocbitm.com/psoc-metadata-logo",
       },
     ],
   },
