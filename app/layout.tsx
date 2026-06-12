@@ -29,8 +29,19 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "PSOC",
-  description: "",
+  title: "PSOC · Photographic Society, BIT Mesra",
+  description: "The official Photographic Society of Birla Institute of Technology, Mesra — dedicated to visual storytelling, photography, and preserving moments.",
+  openGraph: {
+    title: "PSOC · Photographic Society, BIT Mesra",
+    description: "The official Photographic Society of Birla Institute of Technology, Mesra — dedicated to visual storytelling, photography, and preserving moments.",
+    url: "https://psocbitm.com",
+    siteName: "PSOC - Photographic Society, BIT Mesra",
+    images: [
+      {
+        url: "https://psocbitm.com/psoc-logo-white.png",
+      },
+    ],
+  },
 };
 
 export default function RootLayout({ children }: PropsWithChildren) {
