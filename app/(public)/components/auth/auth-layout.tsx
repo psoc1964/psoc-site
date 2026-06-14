@@ -25,11 +25,11 @@ export default function AuthLayout({ title, bottomHeading, children, redirectURL
           {children}
           {redirectURL && (
             <>
-              <div className="flex items-center gap-3 py-1">
+              {/* <div className="flex items-center gap-3 py-1">
                 <div className="flex-1 h-px bg-white/[0.08]" />
                 <span className="text-[10px] sm:text-[11px] tracking-[0.2em] uppercase text-white/20">or</span>
                 <div className="flex-1 h-px bg-white/[0.08]" />
-              </div>
+              </div> */}
               <SocialBar redirectURL={redirectURL} />
               
             </>
