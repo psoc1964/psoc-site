@@ -1,13 +1,11 @@
 "use client";
 
-import { memo, useCallback, useMemo, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 
 import Modal from "@/components/ui/modal";
 import { useUser } from "@/lib/auth-client";
 import { toDriveThumbnail } from "@/app/(private)/lib/utils";
-
-const NEXT_PUBLIC_BACKEND_BASE_URL =
-  process.env.NEXT_PUBLIC_BACKEND_BASE_URL || "";
+import { useLazyVisible } from "@/app/(private)/lib/useLazyVisible";
 
 type Album = {
   id: number;
@@ -24,18 +22,37 @@ type AlbumCardProps = {
   isVisible: boolean;
 };
 
-const AlbumThumbnail = memo(({ src, alt }: { src: string; alt: string }) => {
-  const [imgSrc, setImgSrc] = useState(src);
+const AlbumThumbnail = memo(({ src, alt }: { src?: string; alt: string }) => {
+  // Shared hook: same IO logic as the mobile ListCard, with a built-in
+  // fallback for browsers without IntersectionObserver support.
+  const { ref, visible } = useLazyVisible();
+  const [errored, setErrored] = useState(false);
+
+  // Reset the error flag whenever the underlying src actually changes,
+  // instead of seeding a one-time `useState(src)` that goes stale.
+  useEffect(() => {
+    setErrored(false);
+  }, [src]);
+
+  const showImage = visible && !!src;
 
   return (
-    <img
-      src={imgSrc}
-      alt={alt}
-      className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.06]"
-      loading="lazy"
-      decoding="async"
-      onError={() => setImgSrc("/fallback.jpg")}
-    />
+    <div ref={ref} className="w-full h-full relative">
+      {showImage ? (
+        <img
+          src={errored ? "/fallback.jpg" : src}
+          alt={alt}
+          loading="lazy"
+          decoding="async"
+          className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.06]"
+          onError={() => setErrored(true)}
+        />
+      ) : (
+        // Also covers the "no thumbnailUrl at all" case — no broken
+        // image icon, just a quiet placeholder.
+        <div className="skeleton-shimmer absolute inset-0" />
+      )}
+    </div>
   );
 });
 AlbumThumbnail.displayName = "AlbumThumbnail";
@@ -50,7 +67,7 @@ function AlbumCardInner({ album, index, isVisible }: AlbumCardProps) {
         month: "long",
         year: "numeric",
       }),
-    [album.createdAt],
+    [album.createdAt]
   );
 
   const delay = Math.min(index * 60, 540);
@@ -60,15 +77,11 @@ function AlbumCardInner({ album, index, isVisible }: AlbumCardProps) {
 
     if (!isGated || user) {
       if (album.albumUrl)
-        window.open(
-          album.albumUrl,
-          "_blank",
-          "noopener,noreferrer",
-        );
+        window.open(album.albumUrl, "_blank", "noopener,noreferrer");
       return;
     }
     setOpen(true);
-  }, [user, album.albumUrl, album.name, album.isauthentic]);
+  }, [user, album.albumUrl, album.isauthentic]);
 
   return (
     <>
@@ -86,7 +99,7 @@ function AlbumCardInner({ album, index, isVisible }: AlbumCardProps) {
       >
         <div className="relative aspect-[3/2] overflow-hidden bg-white/[0.03]">
           <AlbumThumbnail
-            src={toDriveThumbnail(album.thumbnailUrl ?? "")}
+            src={album.thumbnailUrl ? toDriveThumbnail(album.thumbnailUrl) : undefined}
             alt={album.name}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
