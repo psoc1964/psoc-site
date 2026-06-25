@@ -1,6 +1,13 @@
 "use client";
 import { toast } from "react-hot-toast";
-import { useEffect, useRef, useState, useMemo, memo, useCallback } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  useMemo,
+  memo,
+  useCallback,
+} from "react";
 import { createPortal } from "react-dom";
 import gsap from "gsap";
 import ScrollTrigger from "gsap/ScrollTrigger";
@@ -8,6 +15,7 @@ import AlbumCard from "./AlbumCard";
 import { useUser } from "@/lib/auth-client";
 import Modal from "@/components/ui/modal";
 import { toDriveThumbnail } from "@/app/(private)/lib/utils";
+import { useLazyVisible } from "@/app/(private)/lib/useLazyVisible";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -15,6 +23,8 @@ const ALL_MONTHS = [
   "January", "February", "March", "April", "May", "June",
   "July", "August", "September", "October", "November", "December",
 ] as const;
+
+const INITIAL_YEAR_COUNT = 3;
 
 type Album = {
   id: number;
@@ -25,6 +35,7 @@ type Album = {
   isauthentic: boolean;
 };
 
+// ─── Dropdown ────────────────────────────────────────────────────────────────
 const Dropdown = memo(({
   value, onChange, options, placeholder, width = "w-40",
 }: {
@@ -158,7 +169,7 @@ const Dropdown = memo(({
 });
 Dropdown.displayName = "Dropdown";
 
-// ─── Desktop skeleton card ──────────────────────────────────────────────────
+// ─── Desktop skeleton card ───────────────────────────────────────────────────
 const SkeletonCard = memo(({ index }: { index: number }) => (
   <div
     className="rounded-2xl overflow-hidden border border-white/[0.06] bg-white/[0.02]"
@@ -175,7 +186,22 @@ const SkeletonCard = memo(({ index }: { index: number }) => (
 ));
 SkeletonCard.displayName = "SkeletonCard";
 
-// ─── Mobile list card ───────────────────────────────────────────────────────
+// ─── Mobile list skeleton card ───────────────────────────────────────────────
+const ListSkeletonCard = memo(({ index }: { index: number }) => (
+  <div
+    className="flex items-center gap-3 px-3 py-2.5 rounded-2xl border border-white/[0.06] bg-white/[0.02]"
+    style={{ animationDelay: `${index * 60}ms` }}
+  >
+    <div className="skeleton-shimmer flex-none rounded-xl aspect-[3/2] w-20 md:aspect-square md:w-14" />
+    <div className="flex-1 space-y-2">
+      <div className="skeleton-shimmer h-3 w-2/3 rounded-full" />
+      <div className="skeleton-shimmer h-2.5 w-1/3 rounded-full" />
+    </div>
+  </div>
+));
+ListSkeletonCard.displayName = "ListSkeletonCard";
+
+// ─── Mobile list card ────────────────────────────────────────────────────────
 const ListCard = memo(({
   album,
   index,
@@ -188,26 +214,23 @@ const ListCard = memo(({
   const [user] = useUser();
   const [open, setOpen] = useState(false);
 
+  // Lazy-load the thumbnail once it's near (or in) the viewport.
+  // Shared hook so this behaves identically to the desktop AlbumCard,
+  // and falls back to "always visible" on browsers without IO support.
+  const { ref: thumbRef, visible: shouldLoad } = useLazyVisible();
+
   const handleClick = useCallback(() => {
-      const isProtected = album.isauthentic === true; // ← make explicit
-
-
-
+    const isProtected = album.isauthentic === true;
     if (!isProtected) {
-      if (album.albumUrl) {
-        window.open(album.albumUrl, "_blank", "noopener,noreferrer");
-      }
+      if (album.albumUrl) window.open(album.albumUrl, "_blank", "noopener,noreferrer");
       return;
     }
-
     if (user) {
-      if (album.albumUrl) {
-        window.open(album.albumUrl, "_blank", "noopener,noreferrer");
-      }
+      if (album.albumUrl) window.open(album.albumUrl, "_blank", "noopener,noreferrer");
     } else {
       setOpen(true);
     }
-  }, [user, album, album.isauthentic]);
+  }, [user, album]);
 
   const date  = new Date(album.createdAt);
   const month = date.toLocaleString("en-US", { month: "short" });
@@ -225,14 +248,22 @@ const ListCard = memo(({
           transition: `opacity 0.3s ease ${index * 45}ms, transform 0.3s ease ${index * 45}ms`,
         }}
       >
-        <div className="relative flex-none rounded-xl overflow-hidden bg-white/[0.04] aspect-[3/2] w-20 md:aspect-square md:w-14">
-          {album.thumbnailUrl ? (
+        {/* Lazy thumbnail */}
+        <div
+          ref={thumbRef}
+          className="relative flex-none rounded-xl overflow-hidden bg-white/[0.04] aspect-[3/2] w-20 md:aspect-square md:w-14"
+        >
+          {shouldLoad && album.thumbnailUrl ? (
             <img
               src={toDriveThumbnail(album.thumbnailUrl)}
               alt={album.name}
+              loading="lazy"
+              decoding="async"
               className="w-full h-full object-cover object-center"
             />
-          ) : null}
+          ) : (
+            <div className="skeleton-shimmer absolute inset-0 rounded-xl" />
+          )}
         </div>
 
         <div className="flex-1 min-w-0">
@@ -283,24 +314,9 @@ const ListCard = memo(({
     </>
   );
 });
+ListCard.displayName = "ListCard";
 
-
-// ─── Mobile list skeleton card ──────────────────────────────────────────────
-const ListSkeletonCard = memo(({ index }: { index: number }) => (
-  <div
-    className="flex items-center gap-3 px-3 py-2.5 rounded-2xl border border-white/[0.06] bg-white/[0.02]"
-    style={{ animationDelay: `${index * 60}ms` }}
-  >
-    <div className="skeleton-shimmer flex-none rounded-xl aspect-[3/2] w-20 md:aspect-square md:w-14" />
-    <div className="flex-1 space-y-2">
-      <div className="skeleton-shimmer h-3 w-2/3 rounded-full" />
-      <div className="skeleton-shimmer h-2.5 w-1/3 rounded-full" />
-    </div>
-  </div>
-));
-ListSkeletonCard.displayName = "ListSkeletonCard";
-
-// ─── Year section heading ───────────────────────────────────────────────────
+// ─── Year section heading ─────────────────────────────────────────────────────
 const YearHeading = memo(({ year, count }: { year: number; count: number }) => (
   <div className="flex items-center gap-5 mb-6 mt-4">
     <div className="flex items-baseline gap-3">
@@ -316,6 +332,7 @@ const YearHeading = memo(({ year, count }: { year: number; count: number }) => (
 ));
 YearHeading.displayName = "YearHeading";
 
+// ─── Main component ───────────────────────────────────────────────────────────
 export default function AlbumContent({
   albums,
   loading,
@@ -323,16 +340,26 @@ export default function AlbumContent({
   albums: Album[];
   loading: boolean;
 }) {
-  const sectionRef = useRef<HTMLElement | null>(null);
-  const gridRef    = useRef<HTMLDivElement | null>(null);
-  const headerRef  = useRef<HTMLDivElement | null>(null);
+  const sectionRef  = useRef<HTMLElement | null>(null);
+  const gridRef     = useRef<HTMLDivElement | null>(null);
+  const headerRef   = useRef<HTMLDivElement | null>(null);
+  // Tracked via state (callback ref) rather than a plain useRef.
+  // The sentinel only exists in the DOM once `loading`/`cardsVisible`
+  // flips to show real content — a plain ref's value changing doesn't
+  // re-run an effect, so an observer set up against `sentinelRef.current`
+  // before that point would attach to `null` and never fire again. Using
+  // state means the effect below re-runs the instant the node mounts.
+  const [sentinelEl, setSentinelEl] = useState<HTMLDivElement | null>(null);
 
-  const [searchQuery,   setSearchQuery]   = useState<string>("");
-  const [selectedYear,  setSelectedYear]  = useState<string>("all");
-  const [selectedMonth, setSelectedMonth] = useState<string>("all");
-  const [cardsVisible,  setCardsVisible]  = useState(false);
-  const [searchFocused, setSearchFocused] = useState(false);
+  const [searchQuery,    setSearchQuery]    = useState<string>("");
+  const [selectedYear,   setSelectedYear]   = useState<string>("all");
+  const [selectedMonth,  setSelectedMonth]  = useState<string>("all");
+  const [cardsVisible,   setCardsVisible]   = useState(false);
+  const [searchFocused,  setSearchFocused]  = useState(false);
+  // Pagination is by year — always show complete year sections
+  const [visibleYearCount, setVisibleYearCount] = useState(INITIAL_YEAR_COUNT);
 
+  // ── Initial card reveal ──────────────────────────────────────────────────
   useEffect(() => {
     if (albums.length > 0) {
       const id = setTimeout(() => setCardsVisible(true), 400);
@@ -340,22 +367,26 @@ export default function AlbumContent({
     }
   }, [albums]);
 
+  // ── Login toast ──────────────────────────────────────────────────────────
   useEffect(() => {
-  const params = new URLSearchParams(window.location.search);
-  if (params.get("loggedin") === "true") {
-    toast.success("You're logged in! You can now view the album.");
-    window.history.replaceState({}, "", window.location.pathname);
-  }
-}, []);
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("loggedin") === "true") {
+      toast.success("You're logged in! You can now view the album.");
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+  }, []);
 
+  // ── Reset on filter change ───────────────────────────────────────────────
   const prevFilter = useRef({ searchQuery, selectedYear, selectedMonth });
   useEffect(() => {
     const prev = prevFilter.current;
     const changed =
-      prev.searchQuery    !== searchQuery    ||
-      prev.selectedYear   !== selectedYear   ||
-      prev.selectedMonth  !== selectedMonth;
+      prev.searchQuery   !== searchQuery   ||
+      prev.selectedYear  !== selectedYear  ||
+      prev.selectedMonth !== selectedMonth;
+
     if (changed) {
+      setVisibleYearCount(INITIAL_YEAR_COUNT); // ← reset to first 3 years
       setCardsVisible(false);
       const id = setTimeout(() => setCardsVisible(true), 80);
       prevFilter.current = { searchQuery, selectedYear, selectedMonth };
@@ -363,6 +394,7 @@ export default function AlbumContent({
     }
   }, [searchQuery, selectedYear, selectedMonth]);
 
+  // ── Header animation ─────────────────────────────────────────────────────
   useEffect(() => {
     if (!headerRef.current || loading) return;
     gsap.fromTo(
@@ -372,25 +404,50 @@ export default function AlbumContent({
     );
   }, [loading]);
 
+  // ── Infinite scroll sentinel — loads 2 more years per batch ─────────────
+  useEffect(() => {
+    if (!sentinelEl) return;
+
+    const margin = window.innerWidth < 768 ? "200px" : "400px";
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting) {
+          setVisibleYearCount((prev) => prev + 2);
+        }
+      },
+      { rootMargin: margin }
+    );
+
+    observer.observe(sentinelEl);
+    return () => observer.disconnect();
+    // Re-run only when the sentinel DOM node itself changes (mounts when
+    // `hasMore` first becomes true, unmounts to null when it becomes
+    // false). One observer instance keeps firing on every subsequent
+    // intersection — no need to recreate it per batch.
+  }, [sentinelEl]);
+
+  // ── Available year options for dropdown ──────────────────────────────────
   const availableYears = useMemo(() => {
     if (albums.length === 0) return [];
     const years = albums.map((a) => new Date(a.createdAt).getFullYear());
-    const minYear = Math.min(...years);
-    const maxYear = Math.max(...years);
+    const min = Math.min(...years);
+    const max = Math.max(...years);
     const result: string[] = [];
-    for (let y = maxYear; y >= minYear; y--) result.push(String(y));
+    for (let y = max; y >= min; y--) result.push(String(y));
     return result;
   }, [albums]);
 
+  // ── Filter operates on FULL dataset — never paginated ───────────────────
   const filteredAlbums = useMemo(() => {
     let filtered = albums;
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
-      filtered = filtered.filter((a) => a.name.toLowerCase().startsWith(q));
+      filtered = filtered.filter((a) => a.name.toLowerCase().includes(q));
     }
     if (selectedYear !== "all") {
       filtered = filtered.filter(
-        (a) => new Date(a.createdAt).getFullYear() === Number(selectedYear),
+        (a) => new Date(a.createdAt).getFullYear() === Number(selectedYear)
       );
     }
     if (selectedMonth !== "all") {
@@ -402,7 +459,8 @@ export default function AlbumContent({
     return filtered;
   }, [albums, searchQuery, selectedYear, selectedMonth]);
 
-  const albumsByYear = useMemo(() => {
+  // ── Group ALL filtered albums by year (complete groups, never split) ─────
+  const allAlbumsByYear = useMemo(() => {
     const map = new Map<number, Album[]>();
     for (const album of filteredAlbums) {
       const year = new Date(album.createdAt).getFullYear();
@@ -414,12 +472,21 @@ export default function AlbumContent({
       .map(([year, yearAlbums]) => [
         year,
         [...yearAlbums].sort(
-          (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+          (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
         ),
       ] as [number, Album[]]);
   }, [filteredAlbums]);
 
-  const hasActiveFilters = selectedYear !== "all" || selectedMonth !== "all" || searchQuery.trim() !== "";
+  // ── Slice by year count — always shows complete year sections ────────────
+  const albumsByYear = useMemo(
+    () => allAlbumsByYear.slice(0, visibleYearCount),
+    [allAlbumsByYear, visibleYearCount]
+  );
+
+  const hasMore = visibleYearCount < allAlbumsByYear.length;
+
+  const hasActiveFilters =
+    selectedYear !== "all" || selectedMonth !== "all" || searchQuery.trim() !== "";
 
   const clearFilters = useCallback(() => {
     setSearchQuery("");
@@ -480,6 +547,7 @@ export default function AlbumContent({
       >
         <div className="max-w-7xl mx-auto px-6">
           <div ref={headerRef}>
+
             {/* ── Page title ── */}
             <div className="mb-16" style={{ opacity: 0 }}>
               <p className="text-[10px] tracking-[0.55em] uppercase text-white/25 mb-5 font-medium">
@@ -595,18 +663,21 @@ export default function AlbumContent({
                   <div className="skeleton-shimmer h-12 w-32 rounded-lg" />
                   <div className="flex-1 h-px bg-white/[0.06]" />
                 </div>
-                {/* Skeleton list on mobile */}
+                {/* Mobile skeleton */}
                 <div className="md:hidden flex flex-col gap-2">
                   {Array.from({ length: 5 }).map((_, i) => (
                     <ListSkeletonCard key={i} index={i} />
                   ))}
                 </div>
-                {/* Skeleton grid on desktop */}
+                {/* Desktop skeleton */}
                 <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-                  {Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} index={i} />)}
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <SkeletonCard key={i} index={i} />
+                  ))}
                 </div>
               </div>
             </div>
+
           ) : albumsByYear.length > 0 ? (
             <div ref={gridRef} className="space-y-0">
               {albumsByYear.map(([year, yearAlbums]) => (
@@ -628,7 +699,7 @@ export default function AlbumContent({
                     })}
                   </div>
 
-                  {/* ── DESKTOP: standard 3-col grid ── */}
+                  {/* ── DESKTOP: 3-col grid ── */}
                   <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
                     {yearAlbums.map((album) => {
                       const idx = globalCardIndex++;
@@ -644,10 +715,41 @@ export default function AlbumContent({
                   </div>
                 </div>
               ))}
+
+              {/* ── Infinite scroll sentinel ── */}
+              {hasMore && (
+                <>
+                  <div ref={setSentinelEl} className="h-4" aria-hidden="true" />
+                  <div className="mt-6">
+                    {/* Mobile loading skeletons */}
+                    <div className="md:hidden flex flex-col gap-2">
+                      {Array.from({ length: 3 }).map((_, i) => (
+                        <ListSkeletonCard key={i} index={i} />
+                      ))}
+                    </div>
+                    {/* Desktop loading skeletons */}
+                    <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                      {Array.from({ length: 3 }).map((_, i) => (
+                        <SkeletonCard key={i} index={i} />
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* ── End of results ── */}
+              {/* {!hasMore && allAlbumsByYear.length > INITIAL_YEAR_COUNT && (
+                <p className="text-center text-white/15 text-xs tracking-[0.3em] uppercase py-16">
+                  All {filteredAlbums.length} albums loaded
+                </p>
+              )} */}
             </div>
+
           ) : (
             <div className="text-center py-32">
-              <p className="text-white/15 text-sm tracking-[0.3em] uppercase">No albums found</p>
+              <p className="text-white/15 text-sm tracking-[0.3em] uppercase">
+                No albums found
+              </p>
             </div>
           )}
         </div>
