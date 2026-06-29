@@ -17,6 +17,7 @@ export class AlbumMutationResolver {
     @Arg("isPublished", { nullable: true }) isPublished?: boolean,
     @Arg("featuredAlbum", { nullable: true }) featuredAlbum?: boolean,
     @Arg("isauthentic", { nullable: true }) isauthentic?: boolean,
+    @Arg("sendEmail", { nullable: true }) sendEmail?: string,
   ) {
     return handleCreateAlbum(ctx, {
       name,
@@ -25,7 +26,8 @@ export class AlbumMutationResolver {
       isPublished,
       featuredAlbum,
       isauthentic,
-    } as any);
+      sendEmail,
+    });
   }
 
   @Authorized()
