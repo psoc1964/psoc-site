@@ -73,14 +73,6 @@ export const getRenderedTemplate = (
     [
       getTemplateLayout(
         [
-          // getComponentHTML({
-          //   type: EmailComponentType.IMAGE,
-          //   url: "https://sociocube.com/icon1.png",
-          //   width: 50,
-          //   options: {
-          //     align: "center",
-          //   },
-          // }),
           getTemplateLayout(heading, {
             align: "center",
             style:
@@ -94,7 +86,7 @@ export const getRenderedTemplate = (
             "padding:40px 20px;background-color:#ffffff;border-radius:12px;",
         },
       ),
-      getTemplateLayout("Sociocube", {
+      getTemplateLayout("PSOC", {
         align: "center",
       }),
     ],
