@@ -20,7 +20,7 @@ const rows = activeSubscribers as { email: string; name: string }[];
 
   await resend.batch.send(
     rows.map(({ email, name }) => ({
-      from: 'noreply@psocbitm.com',
+      from: 'team@psocbitm.com',
       to: email,
       subject: `New Album: ${albumName}`,
       html: `
