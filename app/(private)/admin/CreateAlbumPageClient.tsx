@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-hot-toast";
 import Link from "next/link";
@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import Form from "@/components/form";
 import Input from "@/components/input/input";
 import { useAuthMutation } from "@/lib/apollo-client";
+import { EMAIL_REGEX } from "@/constants/validations";
 import {
   type CreateAlbumMutation,
   type CreateAlbumMutationVariables,
@@ -23,7 +24,33 @@ type CreateAlbumFormValues = {
   isPublished: boolean;
   featuredAlbum: boolean;
   isauthentic: boolean;
+  sendEmail: string;
 };
+
+const MAX_BATCH_EMAIL_RECIPIENTS = 50;
+
+function validateRecipientList(value: string) {
+  const recipients = value
+    .split(/[\n,;]+/)
+    .map((recipient) => recipient.trim())
+    .filter(Boolean);
+
+  if (recipients.length === 0) {
+    return true;
+  }
+
+  if (recipients.length > MAX_BATCH_EMAIL_RECIPIENTS) {
+    return `You can notify at most ${MAX_BATCH_EMAIL_RECIPIENTS} recipients at once`;
+  }
+
+  for (const recipient of recipients) {
+    if (!EMAIL_REGEX.test(recipient)) {
+      return "Enter only valid BIT Mesra email addresses, separated by commas, semicolons, or new lines";
+    }
+  }
+
+  return true;
+}
 
 type CreateAlbumPageClientProps = {
   user: GetCurrentUserQuery["user"];
@@ -38,7 +65,6 @@ export default function CreateAlbumPageClient({
   >(CreateAlbumDocument);
 
   const [createdOnce, setCreatedOnce] = useState(false);
-  const [notifying, setNotifying] = useState(false); 
 
   const form = useForm<CreateAlbumFormValues>({
     defaultValues: {
@@ -48,8 +74,21 @@ export default function CreateAlbumPageClient({
       isPublished: false,
       featuredAlbum: false,
       isauthentic: false,
+      sendEmail: "",
     },
   });
+  const isPublished = form.watch("isPublished");
+
+  useEffect(() => {
+    if (!isPublished && form.getValues("sendEmail")) {
+      form.setValue("sendEmail", "", {
+        shouldDirty: true,
+        shouldTouch: true,
+        shouldValidate: true,
+      });
+      form.clearErrors("sendEmail");
+    }
+  }, [form, isPublished]);
 
   if (!user || user.role !== "admin") {
     return (
@@ -60,55 +99,37 @@ export default function CreateAlbumPageClient({
   }
 
   const handleCreate = async (values: CreateAlbumFormValues) => {
-  try {
-    const { data } = await createAlbumMutation(values);
-    if (!data) throw new Error("No data returned from server");
-
-    // warm the Drive CDN cache
-    if (values.thumbnailUrl) {
-      const fileMatch = values.thumbnailUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
-      const idMatch = values.thumbnailUrl.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-      const id = fileMatch?.[1] ?? idMatch?.[1];
-      if (id) {
-        fetch(`https://drive.google.com/thumbnail?id=${id}&sz=w800`, {
-          method: "HEAD",
-        }).catch(() => {});
-      }
-    }
-
-    // send email notifications if published
-    if (values.isPublished) {
-    setNotifying(true);
     try {
-    const res = await fetch('/api/notify-album', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        albumName: values.name,
-        albumUrl: `${process.env.NEXT_PUBLIC_BASE_URL}/album`,
-        // thumbnailUrl: values.thumbnailUrl ?? '',
-      }),
-    });
-    const result = await res.json();
-    if (result.success) {
-      toast.success(`Notified ${result.sent} subscriber${result.sent !== 1 ? 's' : ''}`);
-    }
-  } catch {
-    toast.error('Failed to notify subscribers');
-  } finally {
-    setNotifying(false);
-  }
-}
+      const { sendEmail, ...albumValues } = values;
+      const { data } = await createAlbumMutation({
+        ...albumValues,
+        sendEmail: albumValues.isPublished ? sendEmail.trim() || null : null,
+      });
+      if (!data) throw new Error("No data returned from server");
 
-    toast.success("Album created");
-    form.reset();
-    setCreatedOnce(true);
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Failed to create album";
-    toast.error(message);
-  }
-};
+      // warm the Drive CDN cache
+      if (values.thumbnailUrl) {
+        const fileMatch = values.thumbnailUrl.match(
+          /\/file\/d\/([a-zA-Z0-9_-]+)/,
+        );
+        const idMatch = values.thumbnailUrl.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+        const id = fileMatch?.[1] ?? idMatch?.[1];
+        if (id) {
+          fetch(`https://drive.google.com/thumbnail?id=${id}&sz=w800`, {
+            method: "HEAD",
+          }).catch(() => {});
+        }
+      }
+
+      toast.success("Album created");
+      form.reset();
+      setCreatedOnce(true);
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Failed to create album";
+      toast.error(message);
+    }
+  };
 
   return (
     <main className="min-h-screen bg-black text-white px-4 py-8 md:px-8">
@@ -141,9 +162,18 @@ export default function CreateAlbumPageClient({
               id="create-isPublished"
             />
             <label htmlFor="create-isPublished" className="text-sm">
-              Published<span className="text-muted-foreground">(notifies subscribers)</span>
+              Published
             </label>
           </div>
+          <Input
+            name="sendEmail"
+            label="Send emails"
+            placeholder="btech12345.67@bitmesra.ac.in, btech23456.78@bitmesra.ac.in"
+            disabled={!isPublished}
+            rules={{
+              validate: (value) => !isPublished || validateRecipientList(value),
+            }}
+          />
           <div className="flex items-center gap-3">
             <input
               type="checkbox"
@@ -166,8 +196,8 @@ export default function CreateAlbumPageClient({
               Authentic
             </label>
           </div>
-          <Button type="submit" className="mt-2 w-full" disabled={loading || notifying}>
-              {loading ? "Creating..." : notifying ? "Notifying subscribers..." : "Create Album"}
+          <Button type="submit" className="mt-2 w-full" disabled={loading}>
+            {loading ? "Creating..." : "Create Album"}
           </Button>
         </Form>
 

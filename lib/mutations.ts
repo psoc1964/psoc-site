@@ -30,6 +30,7 @@ export const CREATE_ALBUM = gql(`
     $isPublished: Boolean
     $featuredAlbum: Boolean
     $isauthentic: Boolean
+    $sendEmail: String
   ) {
     createAlbum(
       name: $name
@@ -38,6 +39,7 @@ export const CREATE_ALBUM = gql(`
       isPublished: $isPublished
       featuredAlbum: $featuredAlbum
       isauthentic: $isauthentic
+      sendEmail: $sendEmail
     ) {
       id
       name
