@@ -4,6 +4,9 @@ import { memo, useCallback, useEffect, useMemo, useState } from "react";
 
 import Modal from "@/components/ui/modal";
 import { useUser } from "@/lib/auth-client";
+import { SEND_VERIFICATION_EMAIL } from "@/lib/mutations";
+import { useAuthMutation, handleGQLErrors } from "@/lib/apollo-client";
+import { toast } from "react-hot-toast";
 import { toDriveThumbnail } from "@/app/(private)/lib/utils";
 import { useLazyVisible } from "@/app/(private)/lib/useLazyVisible";
 
@@ -60,6 +63,8 @@ AlbumThumbnail.displayName = "AlbumThumbnail";
 function AlbumCardInner({ album, index, isVisible }: AlbumCardProps) {
   const [user] = useUser();
   const [open, setOpen] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
 
   const dateLabel = useMemo(
     () =>
@@ -67,7 +72,7 @@ function AlbumCardInner({ album, index, isVisible }: AlbumCardProps) {
         month: "long",
         year: "numeric",
       }),
-    [album.createdAt]
+    [album.createdAt],
   );
 
   const delay = Math.min(index * 60, 540);
@@ -75,13 +80,31 @@ function AlbumCardInner({ album, index, isVisible }: AlbumCardProps) {
   const handleClick = useCallback(() => {
     const isGated = album.isauthentic === true;
 
-    if (!isGated || user) {
+    if (!isGated || user?.emailVerified) {
       if (album.albumUrl)
         window.open(album.albumUrl, "_blank", "noopener,noreferrer");
       return;
     }
     setOpen(true);
   }, [user, album.albumUrl, album.isauthentic]);
+
+  const [sendVerification] = useAuthMutation(SEND_VERIFICATION_EMAIL as any);
+  const handleSendVerification = useCallback(async () => {
+    setSending(true);
+    setSent(false);
+    try {
+      await sendVerification();
+      setSent(true);
+      toast.success("Verification email sent");
+    } catch (err: any) {
+      const gqlErr = err?.graphQLErrors?.[0];
+      handleGQLErrors(gqlErr);
+      if (!gqlErr)
+        toast.error(err?.message || "Failed to send verification email");
+    } finally {
+      setSending(false);
+    }
+  }, [sendVerification]);
 
   return (
     <>
@@ -99,7 +122,11 @@ function AlbumCardInner({ album, index, isVisible }: AlbumCardProps) {
       >
         <div className="relative aspect-[3/2] overflow-hidden bg-white/[0.03]">
           <AlbumThumbnail
-            src={album.thumbnailUrl ? toDriveThumbnail(album.thumbnailUrl) : undefined}
+            src={
+              album.thumbnailUrl
+                ? toDriveThumbnail(album.thumbnailUrl)
+                : undefined
+            }
             alt={album.name}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
@@ -121,37 +148,77 @@ function AlbumCardInner({ album, index, isVisible }: AlbumCardProps) {
       <Modal
         open={open}
         close={() => setOpen(false)}
-        title="Sign in to view albums"
+        title={
+          user && !user.emailVerified
+            ? "Verify your email"
+            : "Sign in to view albums"
+        }
         panelClassName="bg-[#050505] border border-white/10 text-white max-w-md"
       >
-        <div className="mt-4 space-y-4">
-          <p className="text-sm text-white/70 leading-relaxed">
-            These albums are reserved for faculty and students of the BIT Mesra
-            only. Sign in to unlock full-resolution galleries on our Drive.
-          </p>
-          <div className="flex items-center gap-3 text-xs text-white/40">
-            <span className="inline-flex h-10 items-center justify-center rounded-full border border-white/15 bg-white/5 px-2 font-mono uppercase tracking-[0.18em] text-center">
-              Private Collection
-            </span>
-            <span className="h-px w-10 bg-white/10" />
-            <span>Curated photo stories, behind the scenes & more.</span>
+        {user && !user.emailVerified ? (
+          <div className="mt-4 space-y-4">
+            <p className="text-sm text-white/70 leading-relaxed">
+              You need to verify your email to view this album. A verification
+              link will be sent to{" "}
+              <strong className="text-white">{user.email}</strong>.
+            </p>
+            <div className="mt-4">
+              <button
+                type="button"
+                onClick={handleSendVerification}
+                disabled={sending || sent}
+                className="inline-flex items-center gap-2 rounded-full bg-white text-black px-4 py-2 text-xs font-semibold tracking-[0.18em] uppercase hover:bg-white/90 transition-colors disabled:opacity-50"
+              >
+                {sending ? "Sending..." : sent ? "Sent" : "Resend verification"}
+              </button>
+            </div>
+            <div className="mt-6 flex items-center justify-between gap-3">
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                className="text-xs font-medium text-white/50 hover:text-white/80 transition-colors"
+              >
+                Maybe later
+              </button>
+              <a
+                href={`/login?redirectURL=${encodeURIComponent(window.location.pathname)}`}
+                className="inline-flex items-center gap-2 rounded-full bg-white/5 text-white px-4 py-2 text-xs font-semibold tracking-[0.18em] uppercase hover:bg-white/10 transition-colors"
+              >
+                Switch account
+              </a>
+            </div>
           </div>
-          <div className="mt-6 flex items-center justify-between gap-3">
-            <button
-              type="button"
-              onClick={() => setOpen(false)}
-              className="text-xs font-medium text-white/50 hover:text-white/80 transition-colors"
-            >
-              Maybe later
-            </button>
-            <a
-              href={`/login?redirectURL=${encodeURIComponent(window.location.pathname)}`}
-              className="inline-flex items-center gap-2 rounded-full bg-white text-black px-4 py-2 text-xs font-semibold tracking-[0.18em] uppercase hover:bg-white/90 transition-colors"
-            >
-              Sign in to continue
-            </a>
+        ) : (
+          <div className="mt-4 space-y-4">
+            <p className="text-sm text-white/70 leading-relaxed">
+              These albums are reserved for faculty and students of the BIT
+              Mesra only. Sign in to unlock full-resolution galleries on our
+              Drive.
+            </p>
+            <div className="flex items-center gap-3 text-xs text-white/40">
+              <span className="inline-flex h-10 items-center justify-center rounded-full border border-white/15 bg-white/5 px-2 font-mono uppercase tracking-[0.18em] text-center">
+                Private Collection
+              </span>
+              <span className="h-px w-10 bg-white/10" />
+              <span>Curated photo stories, behind the scenes & more.</span>
+            </div>
+            <div className="mt-6 flex items-center justify-between gap-3">
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                className="text-xs font-medium text-white/50 hover:text-white/80 transition-colors"
+              >
+                Maybe later
+              </button>
+              <a
+                href={`/login?redirectURL=${encodeURIComponent(window.location.pathname)}`}
+                className="inline-flex items-center gap-2 rounded-full bg-white text-black px-4 py-2 text-xs font-semibold tracking-[0.18em] uppercase hover:bg-white/90 transition-colors"
+              >
+                Sign in to continue
+              </a>
+            </div>
           </div>
-        </div>
+        )}
       </Modal>
     </>
   );

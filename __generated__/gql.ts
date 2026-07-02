@@ -14,6 +14,8 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  * Learn more about it here: https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#reducing-bundle-size
  */
 type Documents = {
+    "\n  #graphql\n  mutation SendResetPasswordEmail($email:String!) {\n    sendResetPasswordEmail(email: $email)\n  }\n": typeof types.SendResetPasswordEmailDocument,
+    "\n  #graphql\n  mutation SendVerificationEmail {\n    sendVerificationEmail\n  }\n": typeof types.SendVerificationEmailDocument,
     "\n  #graphql\n  mutation ResetPassword($newPassword:String!, $token:String!) {\n    resetPassword(newPassword: $newPassword, token:$token)  \n  }\n": typeof types.ResetPasswordDocument,
     "\n  #graphql\n  mutation CreateAlbum(\n    $name: String!\n    $albumUrl: String\n    $thumbnailUrl: String\n    $isPublished: Boolean\n    $featuredAlbum: Boolean\n    $isauthentic: Boolean\n    $sendEmail: String\n  ) {\n    createAlbum(\n      name: $name\n      albumUrl: $albumUrl\n      thumbnailUrl: $thumbnailUrl\n      isPublished: $isPublished\n      featuredAlbum: $featuredAlbum\n      isauthentic: $isauthentic\n      sendEmail: $sendEmail\n    ) {\n      id\n      name\n      albumUrl\n      thumbnailUrl\n      isPublished\n      featuredAlbum\n      isauthentic\n      createdAt\n    }\n  }\n": typeof types.CreateAlbumDocument,
     "\n  #graphql\n  mutation UpdateAlbum(\n    $id: Float!\n    $name: String\n    $albumUrl: String\n    $thumbnailUrl: String\n    $isPublished: Boolean\n    $featuredAlbum: Boolean\n    $isauthentic: Boolean\n  ) {\n    updateAlbum(\n      id: $id\n      name: $name\n      albumUrl: $albumUrl\n      thumbnailUrl: $thumbnailUrl\n      isPublished: $isPublished\n      featuredAlbum: $featuredAlbum\n      isauthentic: $isauthentic\n    ) {\n      id\n      name\n      albumUrl\n      thumbnailUrl\n      isPublished\n      featuredAlbum\n      isauthentic\n      createdAt\n    }\n  }\n": typeof types.UpdateAlbumDocument,
@@ -25,6 +27,8 @@ type Documents = {
     "\n  #graphql\n  query GetAdminAlbums {\n    published: getPublishedAlbums {\n      id\n      name\n      albumUrl\n      thumbnailUrl\n      isPublished\n      featuredAlbum\n      isauthentic\n      createdAt\n    }\n    unpublished: getUnpublishedAlbums {\n      id\n      name\n      albumUrl\n      thumbnailUrl\n      isPublished\n      featuredAlbum\n      isauthentic\n      createdAt\n    }\n  }\n": typeof types.GetAdminAlbumsDocument,
 };
 const documents: Documents = {
+    "\n  #graphql\n  mutation SendResetPasswordEmail($email:String!) {\n    sendResetPasswordEmail(email: $email)\n  }\n": types.SendResetPasswordEmailDocument,
+    "\n  #graphql\n  mutation SendVerificationEmail {\n    sendVerificationEmail\n  }\n": types.SendVerificationEmailDocument,
     "\n  #graphql\n  mutation ResetPassword($newPassword:String!, $token:String!) {\n    resetPassword(newPassword: $newPassword, token:$token)  \n  }\n": types.ResetPasswordDocument,
     "\n  #graphql\n  mutation CreateAlbum(\n    $name: String!\n    $albumUrl: String\n    $thumbnailUrl: String\n    $isPublished: Boolean\n    $featuredAlbum: Boolean\n    $isauthentic: Boolean\n    $sendEmail: String\n  ) {\n    createAlbum(\n      name: $name\n      albumUrl: $albumUrl\n      thumbnailUrl: $thumbnailUrl\n      isPublished: $isPublished\n      featuredAlbum: $featuredAlbum\n      isauthentic: $isauthentic\n      sendEmail: $sendEmail\n    ) {\n      id\n      name\n      albumUrl\n      thumbnailUrl\n      isPublished\n      featuredAlbum\n      isauthentic\n      createdAt\n    }\n  }\n": types.CreateAlbumDocument,
     "\n  #graphql\n  mutation UpdateAlbum(\n    $id: Float!\n    $name: String\n    $albumUrl: String\n    $thumbnailUrl: String\n    $isPublished: Boolean\n    $featuredAlbum: Boolean\n    $isauthentic: Boolean\n  ) {\n    updateAlbum(\n      id: $id\n      name: $name\n      albumUrl: $albumUrl\n      thumbnailUrl: $thumbnailUrl\n      isPublished: $isPublished\n      featuredAlbum: $featuredAlbum\n      isauthentic: $isauthentic\n    ) {\n      id\n      name\n      albumUrl\n      thumbnailUrl\n      isPublished\n      featuredAlbum\n      isauthentic\n      createdAt\n    }\n  }\n": types.UpdateAlbumDocument,
@@ -50,6 +54,14 @@ const documents: Documents = {
  */
 export function gql(source: string): unknown;
 
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  #graphql\n  mutation SendResetPasswordEmail($email:String!) {\n    sendResetPasswordEmail(email: $email)\n  }\n"): (typeof documents)["\n  #graphql\n  mutation SendResetPasswordEmail($email:String!) {\n    sendResetPasswordEmail(email: $email)\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  #graphql\n  mutation SendVerificationEmail {\n    sendVerificationEmail\n  }\n"): (typeof documents)["\n  #graphql\n  mutation SendVerificationEmail {\n    sendVerificationEmail\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

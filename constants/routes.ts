@@ -5,6 +5,7 @@ export enum Route {
   SignUp = "/join",
   Album = "/album",
   Admin = "/admin",
+  Verify = "/verify",
 }
 
 export function getRoute(route: keyof typeof Route) {
