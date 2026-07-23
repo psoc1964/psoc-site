@@ -1,4 +1,4 @@
-import { getRenderedTemplate } from "@backend/lib/email/html";
+import { getRenderedVerifyTemplate } from "@backend/lib/email/html-verify";
 import { getRenderedTemplateText } from "@backend/lib/email/text";
 import { EmailComponent } from "@backend/lib/email/types";
 
@@ -56,9 +56,9 @@ export function getTemplate<T extends keyof typeof Template>(
         method.title || method.subject,
         method.components,
       ),
-      html: getRenderedTemplate(
-        method.title || method.subject,
-        method.components,
+      html: getRenderedVerifyTemplate(
+      method.title || method.subject,
+      method.components,
       ),
     };
   });
