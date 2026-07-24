@@ -42,7 +42,7 @@ export function getRenderedVerifyTemplate(
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <style>
 body{margin:0;background:#000;font-family:Helvetica,Arial,sans-serif;}
-.card{max-width:600px;margin:40px auto;background:#111;border:1px solid #2b2b2b;border-radius:24px;padding:40px;}
+.card{max-width:680px;margin:40px auto;background:#111;border:1px solid #2b2b2b;border-radius:24px;padding:40px;}
 .logo{font-size:28px;color:#fff;font-weight:800;text-align:center}
 .sub{color:#9ca3af;text-align:center;margin-top:6px;margin-bottom:32px}
 .footer{color:#777;text-align:center;font-size:13px;padding:24px}
@@ -61,16 +61,24 @@ a{display:block!important}
     <img
         src="/psoc-logo-white.png"
         alt="PSOC Logo"
-        width="90"
+        width="120"
         style="display:block;margin:0 auto 15px auto;"
     />
-    <div style="
-        color:#b3b3b3;
-        font-size:15px;
-        letter-spacing:1px;
-    ">
-        Photographic Society • BIT Mesra
-    </div>
+    <div
+    style="
+        color:rgba(255,255,255,.35);
+        font-size:12px;
+        font-family:Inter, Arial, Helvetica, sans-serif;
+        text-transform:uppercase;
+        letter-spacing:0.55em;
+        font-weight:500;
+        text-align:center;
+        margin-top:16px;
+        margin-bottom:36px;
+    "
+    >
+    PHOTOGRAPHIC SOCIETY • BIT MESRA
+</div>
 </div>
 ${wrap(`<h1 style="color:#fff;text-align:center;font-size:38px;margin:0 0 28px;">${heading}</h1>`)}
 ${body}

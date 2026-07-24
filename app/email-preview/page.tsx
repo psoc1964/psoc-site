@@ -4,7 +4,7 @@ import { getRenderedVerifyTemplate } from "@/app/api/lib/email/html-verify";
 export default function EmailPreview() {
   const email = VerifyEmail({
     firstName: "Anshuman",
-    link: "https://psoc.co.in/verify",
+    link: "https://psocbitm.com",
   });
 
   const html = getRenderedVerifyTemplate(
