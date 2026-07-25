@@ -6,7 +6,7 @@ import { sendEmail } from "./driver";
 // import { DeleteUser } from "./templates/delete-user";
 import { AlbumReleaseEmail } from "./templates/album-release";
 // import { PasswordChange } from "./templates/password-change";
-// import { ResetPassword } from "./templates/reset-password";
+import { ResetPassword } from "./templates/reset-password";
 import { VerifyEmail } from "./templates/verify";
 // import { WelcomeUser } from "./templates/welcome";
 
@@ -14,7 +14,7 @@ export const Template = {
   // WelcomeUser,
   // DeleteUser,
   VerifyEmail,
-  // ResetPassword,
+  ResetPassword,
   // PasswordChange,
   AlbumReleaseEmail,
 };

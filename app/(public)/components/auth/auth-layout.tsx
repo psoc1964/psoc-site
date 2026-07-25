@@ -25,24 +25,27 @@ export default function AuthLayout({ title, bottomHeading, children, redirectURL
           {children}
           {redirectURL && (
             <>
-              {/* <div className="flex items-center gap-3 py-1">
+              <div className="flex items-center gap-3 py-1">
                 <div className="flex-1 h-px bg-white/[0.08]" />
                 <span className="text-[10px] sm:text-[11px] tracking-[0.2em] uppercase text-white/20">or</span>
                 <div className="flex-1 h-px bg-white/[0.08]" />
-              </div> */}
+              </div>
               <SocialBar redirectURL={redirectURL} />
               
             </>
           )}
         </div>
-        {bottomHeading && (
-          <p className="mt-6 sm:mt-8 text-center text-[11px] sm:text-[12px] text-white/22">
+        {bottomHeading ? (
+          <p className="mt-4 text-center text-sm text-gray-500">
             {bottomHeading.question}&nbsp;
-            <Link className="text-white/50 border-b border-white/20 pb-px hover:text-white/70 transition-colors" href={bottomHeading.link}>
+            <Link
+              className="link-accent font-semibold leading-6"
+              href={bottomHeading.link}
+            >
               {bottomHeading.answer}
             </Link>
           </p>
-        )}
+        ) : null}
       </div>
     </section>
   );
