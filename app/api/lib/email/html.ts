@@ -3,6 +3,12 @@ import {
   EmailComponentType,
   TemplateLayoutOptions,
 } from "@backend/lib/email/types";
+import { Resend } from "resend";
+
+// Safe Resend initialization: prevents Next.js/Vercel build crashes if the env var is missing during static analysis
+const resend = new Resend(
+  process.env.RESEND_API_KEY || "re_dummy_key_for_build"
+);
 
 function getTemplateLayout(
   content: string[] | string,
@@ -148,9 +154,6 @@ function buildTemplate(components: EmailComponent[]) {
   );
 }
 
-
-
-
 function buildEditorialAlbumTemplate(
   albumTitle: string,
   albumCoverUrl: string,
@@ -166,10 +169,7 @@ function buildEditorialAlbumTemplate(
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <style>
-        
-        @import url('https:
-        
-        
+        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&display=swap');
         
         .group-container {
           position: relative;
@@ -267,7 +267,6 @@ function buildEditorialAlbumTemplate(
           transform: translateX(0);
         }
 
-        
         .pill-button-wrapper {
           display: block;
           text-align: center;
@@ -289,7 +288,6 @@ function buildEditorialAlbumTemplate(
           box-shadow: none;
         }
 
-        
         .glow-pill-button:hover {
           border-color: #ffffff;
           box-shadow: 0 0 12px rgba(255, 255, 255, 0.45), 0 0 22px rgba(255, 255, 255, 0.2), inset 0 0 6px rgba(255, 255, 255, 0.15);
@@ -298,7 +296,6 @@ function buildEditorialAlbumTemplate(
           transform: translateY(-1px);
         }
 
-        
         .arrow-single {
           display: inline-block;
           transition: opacity 0.3s ease;
@@ -317,14 +314,12 @@ function buildEditorialAlbumTemplate(
           display: inline-block;
         }
 
-        
         @media only screen and (max-width: 1024px) {
           .title-text { font-size: 90px !important; }
           .status-text { font-size: 30px !important; margin-top: 35px !important; }
           .header-gap { height: 40px !important; font-size: 40px !important; line-height: 40px !important; }
         }
 
-        
         @media only screen and (max-width: 768px) {
           .inner-container { padding: 20px 0 !important; }
           .mobile-stack {
@@ -449,7 +444,7 @@ function buildEditorialAlbumTemplate(
                           <a href="${albumUrl}" target="_blank" class="glow-pill-button">
                             <span>View Album</span>
                             <span class="arrow-single">&nbsp;&#8250;</span>
-                            <span class="arrow-triple">&nbsp;&#8250;</span>
+                            <span class="arrow-triple">&nbsp;&#8250;&#8250;&#8250;</span>
                           </a>
                         </div>
 
@@ -473,7 +468,6 @@ export const getRenderedTemplate = (
   heading: string,
   components: EmailComponent[],
 ) => {
-  
   const firstComponent = components[0];
 
   if (
@@ -489,11 +483,10 @@ export const getRenderedTemplate = (
       data.collectionName || "",
       data.year || "",
       data.status || "",
-      data.albumUrl || "https:
+      data.albumUrl || "#"
     );
   }
 
-  
   const content = buildTemplate(components);
 
   const emailBody = getTemplateLayout(
@@ -540,7 +533,7 @@ export const getRenderedTemplate = (
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <style>
-        @import url('https:
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&display=swap');
       </style>
     </head>
     <body style="margin: 0; padding: 0; background-color: #000000; height: 100%; width: 100%;">
