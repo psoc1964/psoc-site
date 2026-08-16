@@ -2,7 +2,6 @@ import type { AuthorizedContext } from "@backend/lib/auth/context";
 import GQLError from "@backend/lib/constants/errors";
 import {
   sendBatchTemplateEmail,
-  sendTemplateEmail,
 } from "@backend/lib/email/send-template";
 import { EMAIL_REGEX } from "@/constants/validations";
 import { db } from "@/app/api/lib/db";
@@ -54,6 +53,7 @@ export async function handleCreateAlbum(
   data: CreateAlbumInput,
 ): Promise<AlbumDB> {
   await ensureAdmin(ctx);
+  
   // Validate recipient emails first. If invalid, we'll still insert the album
   // but persist it as unpublished (isPublished = false) per user request.
   let emailsValid = true;
@@ -95,17 +95,26 @@ export async function handleCreateAlbum(
     throw GQLError(500);
   }
 
+  // --- DYNAMIC EMAIL TRIGGER ---
   if (shouldPublish && parsedRecipientEmails.length > 0) {
-    const albumUrl =
-      album.albumUrl || `${process.env.NEXT_PUBLIC_BASE_URL || ""}/album`;
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+    const rawDriveUrl = album.albumUrl || `${baseUrl}/album`;
+    
+    // Wrap the Drive link inside your Verification Access route
+    const secureAlbumUrl = `${baseUrl}/api/album/access?redirect=${encodeURIComponent(rawDriveUrl)}`;
+
     try {
       await sendBatchTemplateEmail(
         "AlbumReleaseEmail",
         parsedRecipientEmails.map((recipientEmail) => ({
           to: recipientEmail,
           meta: {
-            albumName: album.name,
-            albumUrl,
+            albumTitle: album.name,
+            albumCoverUrl: album.thumbnailUrl || `${baseUrl}/meet1.png`,
+            albumUrl: secureAlbumUrl,
+            collectionName: album.name.toUpperCase(),
+            year: new Date(album.createdAt).getFullYear().toString(),
+            status: "NOW LIVE",
           },
         })),
       );
