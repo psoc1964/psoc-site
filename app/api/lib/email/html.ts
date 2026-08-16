@@ -424,3 +424,4 @@ ${body}
 
 // Backwards compatibility alias if getRenderedVerifyTemplate is explicitly imported elsewhere
 export const getRenderedVerifyTemplate = getRenderedTemplate;
+
