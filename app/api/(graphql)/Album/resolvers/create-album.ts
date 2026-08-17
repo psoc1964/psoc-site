@@ -110,11 +110,11 @@ export async function handleCreateAlbum(
           to: recipientEmail,
           meta: {
             albumTitle: album.name,
-            albumCoverUrl: album.thumbnailUrl || `${baseUrl}/meet1.png`,
+            albumCoverUrl: album.thumbnailUrl || `${baseUrl}`,
             albumUrl: secureAlbumUrl,
             collectionName: album.name.toUpperCase(),
             year: new Date(album.createdAt).getFullYear().toString(),
-            status: "NOW LIVE",
+            status: "ALBUM IS LIVE",
           },
         })),
       );
