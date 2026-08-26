@@ -11,7 +11,7 @@ import { RequestQueryResolver } from "@graphql/Request/queries";
 import { UserQueryResolver } from "@graphql/User/queries";
 import { AlbumMutationResolver } from "@graphql/Album/mutations";
 import { AlbumQueryResolver } from "@graphql/Album/queries";
-import type { NextRequest } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { buildTypeDefsAndResolvers } from "type-graphql";
 
 import type { AuthorizedContext, Context } from "../lib/auth/context";
@@ -58,5 +58,17 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  try {
+    const cloned = request.clone();
+    const text = await cloned.text();
+    if (!text || text.trim() === "") {
+      return new NextResponse(
+        JSON.stringify({ errors: [{ message: "Empty request body" }] }),
+        { status: 400, headers: { "Content-Type": "application/json" } },
+      );
+    }
+  } catch {
+    // If body cannot be read, proceed to handler
+  }
   return handler(request);
 }

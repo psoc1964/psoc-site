@@ -31,6 +31,9 @@ function makeClient() {
     link: new HttpLink({
       uri: `/api`,
     }),
+    devtools: {
+      enabled: process.env.NODE_ENV !== "production",
+    },
   });
 }
 
