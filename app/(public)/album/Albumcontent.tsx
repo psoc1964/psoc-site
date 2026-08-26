@@ -367,12 +367,32 @@ export default function AlbumContent({
     }
   }, [albums]);
 
-  // ── Login toast ──────────────────────────────────────────────────────────
+  // ── URL Search & Login Query Params ──────────────────────────────────────
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
+    const searchParam =
+      params.get("search") || params.get("q") || params.get("album");
+
+    if (searchParam) {
+      setSearchQuery(searchParam);
+      setTimeout(() => {
+        const toolbar = document.querySelector(".filter-toolbar");
+        if (toolbar) {
+          toolbar.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }, 500);
+    }
+
     if (params.get("loggedin") === "true") {
       toast.success("You're logged in! You can now view the album.");
-      window.history.replaceState({}, "", window.location.pathname);
+      const nextParams = new URLSearchParams(window.location.search);
+      nextParams.delete("loggedin");
+      const nextQuery = nextParams.toString();
+      window.history.replaceState(
+        {},
+        "",
+        `${window.location.pathname}${nextQuery ? `?${nextQuery}` : ""}`,
+      );
     }
   }, []);
 
@@ -442,8 +462,11 @@ export default function AlbumContent({
   const filteredAlbums = useMemo(() => {
     let filtered = albums;
     if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      filtered = filtered.filter((a) => a.name.toLowerCase().includes(q));
+      const q = searchQuery.toLowerCase().replace(/['"’“”`]/g, "").trim();
+      filtered = filtered.filter((a) => {
+        const nameClean = a.name.toLowerCase().replace(/['"’“”`]/g, "").trim();
+        return nameClean.includes(q) || q.includes(nameClean);
+      });
     }
     if (selectedYear !== "all") {
       filtered = filtered.filter(

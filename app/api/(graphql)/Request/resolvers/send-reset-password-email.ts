@@ -41,7 +41,10 @@ export async function handleSendResetPasswordEmail(userEmail: string) {
         firstName: user.name?.split(" ")[0] || "",
         link: getForgetLink(res.id),
       });
-      await db.update(RequestTable).set({ attempts: res.attempts + 1 });
+      await db
+        .update(RequestTable)
+        .set({ attempts: res.attempts + 1 })
+        .where(eq(RequestTable.id, res.id));
       return null;
     }
     await db.delete(RequestTable).where(eq(RequestTable.id, res.id));

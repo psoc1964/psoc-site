@@ -9,8 +9,8 @@ import { sign } from "jsonwebtoken";
 import { UserTable } from "../../User/db";
 import { RequestTable, RequestType } from "../db";
 
-function getVerifyLink(id: number) {
-  const token = sign({ id }, process.env.SIGNING_KEY || "", {
+function getVerifyLink(id: number, userId: number) {
+  const token = sign({ id, userId }, process.env.SIGNING_KEY || "", {
     expiresIn: "2d",
   });
   return `${process.env.NEXT_PUBLIC_BASE_URL}/verify/${token}`;
@@ -22,10 +22,11 @@ export async function getVerificationLink(userID: number) {
     .values({ user: userID, type: RequestType.VerifyEmail })
     .returning();
   if (!inserted) return null;
-  return getVerifyLink(inserted.id);
+  return getVerifyLink(inserted.id, userID);
 }
 
 export async function handleSendVerificationEmail(userID: number) {
+  console.log("VERIFY EMAIL FUNCTION CALLED for userID:", userID);
   const [user] = await db
     .select()
     .from(UserTable)
@@ -48,24 +49,35 @@ export async function handleSendVerificationEmail(userID: number) {
           403,
           "You can only send verification email twice an hour",
         );
-      sendTemplateEmail(user.email, "VerifyEmail", {
-        firstName: user.name?.split(" ")[0] || "",
-        link: getVerifyLink(res.id),
-      });
-      waitUntil(db.update(RequestTable).set({ attempts: res.attempts + 1 }));
+      try {
+        await sendTemplateEmail(user.email, "VerifyEmail", {
+          firstName: user.name?.split(" ")[0] || "",
+          link: getVerifyLink(res.id, user.id),
+        });
+      } catch (err) {
+        console.error("Error sending verification email to", user.email, err);
+      }
+      await db
+        .update(RequestTable)
+        .set({ attempts: res.attempts + 1 })
+        .where(eq(RequestTable.id, res.id));
       return true;
     }
     await db.delete(RequestTable).where(eq(RequestTable.id, res.id));
   }
-  waitUntil(
-    (async () => {
-      const link = await getVerificationLink(user.id);
-      if (!link) return false;
-      sendTemplateEmail(user.email, "VerifyEmail", {
-        firstName: user.name?.split(" ")[0] || "",
-        link,
-      });
-    })(),
-  );
+
+  const link = await getVerificationLink(user.id);
+  if (!link) return false;
+
+  try {
+    const emailResult = await sendTemplateEmail(user.email, "VerifyEmail", {
+      firstName: user.name?.split(" ")[0] || "",
+      link,
+    });
+    console.log("Verification email dispatched to:", user.email, emailResult);
+  } catch (err) {
+    console.error("Failed to send verification email to", user.email, err);
+  }
+
   return true;
 }
