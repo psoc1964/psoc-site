@@ -1,30 +1,40 @@
 import { EmailComponent, EmailComponentType } from "@backend/lib/email/types";
 
-export const AlbumReleaseEmail = ({
-  albumName,
-  albumUrl,
-}: {
-  albumName: string;
+export interface AlbumReleaseData {
+  albumTitle: string;
+  albumCoverUrl: string;
   albumUrl: string;
-}) => ({
-  subject: `New album released: ${albumName}`,
-  title: `New album: ${albumName}`,
-  components: [
-    {
-      type: EmailComponentType.HEADING,
-      content: `${albumName} — Out Now!`,
-      options: { align: "center" },
-    },
-    {
-      type: EmailComponentType.PARAGRAPH,
-      content: `We're pleased to share ${albumName}. Take a moment to browse the new pictures.`,
-      options: { align: "center" },
-    },
-    {
-      type: EmailComponentType.BUTTON,
-      content: `View Album →`,
-      url: albumUrl,
-      options: { align: "center" },
-    },
-  ] as EmailComponent[],
-});
+  collectionName: string;
+  year: string;
+  status: string;
+}
+
+export const AlbumReleaseEmail = ({
+  albumTitle = "Athletic<br/>Meet '26",
+  albumCoverUrl = "http://psocbitm.com/meet1.png",
+  albumUrl = `http://localhost:3000/api/album/access?redirect=${encodeURIComponent("https://psocbitm.com/album")}`,
+  collectionName = "ATHLETIC MEET '26",
+  year = "2026",
+  status = "NOW LIVE",
+}: Partial<AlbumReleaseData> = {}) => {
+  const cleanSubject = albumTitle.replace(/<br\/>/gi, " ");
+  
+  return {
+    subject: `PSOC Album Release: ${cleanSubject}`,
+    title: cleanSubject,
+    components: [
+      {
+        type: EmailComponentType.PARAGRAPH,
+        content: "EDITORIAL_ALBUM_PAYLOAD",
+        options: {
+          albumTitle,
+          albumCoverUrl,
+          albumUrl,
+          collectionName,
+          year,
+          status,
+        } as any,
+      },
+    ] as EmailComponent[],
+  };
+};

@@ -7,7 +7,7 @@ import { handleUpdateAlbum } from "./resolvers/update-album";
 
 @Resolver()
 export class AlbumMutationResolver {
-  @Authorized()
+  @Authorized() 
   @Mutation(() => AlbumGQL)
   async createAlbum(
     @Ctx() ctx: AuthorizedContext,
@@ -30,7 +30,7 @@ export class AlbumMutationResolver {
     });
   }
 
-  @Authorized()
+  @Authorized() 
   @Mutation(() => AlbumGQL)
   async updateAlbum(
     @Ctx() ctx: AuthorizedContext,
@@ -41,6 +41,8 @@ export class AlbumMutationResolver {
     @Arg("isPublished", { nullable: true }) isPublished?: boolean,
     @Arg("featuredAlbum", { nullable: true }) featuredAlbum?: boolean,
     @Arg("isauthentic", { nullable: true }) isauthentic?: boolean,
+    // 2. ADDED THIS SO UPDATES CAN TRIGGER EMAILS TOO!
+    @Arg("sendEmail", { nullable: true }) sendEmail?: string, 
   ) {
     return handleUpdateAlbum(ctx, id, {
       name,
@@ -49,6 +51,7 @@ export class AlbumMutationResolver {
       isPublished,
       featuredAlbum,
       isauthentic,
+      sendEmail, // Passed it to the resolver
     } as any);
   }
 }

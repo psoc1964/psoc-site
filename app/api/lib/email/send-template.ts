@@ -1,7 +1,6 @@
-import { getRenderedVerifyTemplate } from "@backend/lib/email/html-verify";
-import { getRenderedTemplateText } from "@backend/lib/email/text";
-import { EmailComponent } from "@backend/lib/email/types";
-
+import { getRenderedVerifyTemplate, getRenderedTemplate } from "./html";
+import { getRenderedTemplateText } from "./text";
+import { EmailComponent } from "./types";
 import { sendEmail } from "./driver";
 // import { DeleteUser } from "./templates/delete-user";
 import { AlbumReleaseEmail } from "./templates/album-release";
@@ -49,6 +48,12 @@ export function getTemplate<T extends keyof typeof Template>(
     } =
       // @ts-expect-error -- dynamic
       Template[template](meta);
+
+    // DYNAMICALLY ROUTE TO THE CORRECT HTML ENGINE
+    const htmlContent = template === 'VerifyEmail'
+      ? getRenderedVerifyTemplate(method.title || method.subject, method.components)
+      : getRenderedTemplate(method.title || method.subject, method.components);
+
     return {
       to,
       subject: method.subject,
@@ -56,10 +61,7 @@ export function getTemplate<T extends keyof typeof Template>(
         method.title || method.subject,
         method.components,
       ),
-      html: getRenderedVerifyTemplate(
-      method.title || method.subject,
-      method.components,
-      ),
+      html: htmlContent,
     };
   });
 }
