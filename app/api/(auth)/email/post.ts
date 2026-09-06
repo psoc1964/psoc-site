@@ -1,3 +1,5 @@
+import { Roles } from "@backend/lib/constants/roles";
+import { handleSendVerificationEmail } from "@graphql/Request/resolvers/send-verification-email";
 import { UserTable } from "@graphql/User/db";
 import { createUser, getUser } from "@graphql/User/utils";
 import { hash } from "bcryptjs";
@@ -13,12 +15,14 @@ import { verifyUser } from "./put";
 
 export const POST = async (req: Request) => {
   const body = (await req.json()) as {
-    email: string;
+    email?: string;
     password?: string;
+    name?: string;
   };
 
   if (!body.email || !body.password) return ErrorResponses.missingBodyFields;
-  const existingUser = await getUser(eq(UserTable.email, body.email));
+  const email = body.email.toLowerCase().trim();
+  const existingUser = await getUser(eq(UserTable.email, email));
   if (existingUser) {
     if (await verifyUser(existingUser, body.password)) {
       return getTokenizedResponse(
@@ -31,11 +35,20 @@ export const POST = async (req: Request) => {
 
   const encryptedPassword = await hash(body.password, 10);
   const newUser = await createUser({
-    ...body,
+    email,
+    name: body.name?.trim() || null,
     password: encryptedPassword,
+    role: Roles.Stu,
+    emailVerified: false,
   });
 
   if (newUser) {
+    try {
+      await handleSendVerificationEmail(newUser.id);
+    } catch (error) {
+      console.error("Error sending verification email during signup:", error);
+    }
+
     return getTokenizedResponse(
       generateAccessToken(newUser.id),
       generateRefreshToken(newUser.id),

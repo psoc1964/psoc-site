@@ -21,6 +21,9 @@ export const { query } = registerApolloClient(() => {
       uri: `${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}`,
       credentials: "include",
     }),
+    devtools: {
+      enabled: false,
+    },
   });
 });
 

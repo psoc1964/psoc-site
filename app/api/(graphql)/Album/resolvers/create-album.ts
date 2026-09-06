@@ -6,6 +6,7 @@ import {
 } from "@backend/lib/email/send-template";
 import { EMAIL_REGEX } from "@/constants/validations";
 import { db } from "@/app/api/lib/db";
+import { toDriveThumbnail } from "@/app/(private)/lib/utils";
 import { ensureAdmin } from "../utils";
 
 import type { AlbumDBInsert, AlbumDB } from "../db";
@@ -96,8 +97,8 @@ export async function handleCreateAlbum(
   }
 
   if (shouldPublish && parsedRecipientEmails.length > 0) {
-    const albumUrl =
-      album.albumUrl || `${process.env.NEXT_PUBLIC_BASE_URL || ""}/album`;
+    const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+    const albumSearchUrl = `${baseURL}/album?search=${encodeURIComponent(album.name)}`;
     try {
       await sendBatchTemplateEmail(
         "AlbumReleaseEmail",
@@ -105,7 +106,11 @@ export async function handleCreateAlbum(
           to: recipientEmail,
           meta: {
             albumName: album.name,
-            albumUrl,
+            albumUrl: albumSearchUrl,
+            albumCoverUrl: toDriveThumbnail(album.thumbnailUrl, "w1000") || "",
+            collectionName: album.name,
+            year: new Date(album.createdAt).getFullYear().toString(),
+            status: "ALBUM IS LIVE",
           },
         })),
       );

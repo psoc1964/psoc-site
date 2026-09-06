@@ -59,6 +59,7 @@ export function getTemplate<T extends keyof typeof Template>(
       html: getRenderedTemplate(
         method.title || method.subject,
         method.components,
+        template,
       ),
     };
   });

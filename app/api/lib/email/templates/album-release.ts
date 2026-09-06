@@ -1,4 +1,4 @@
-import { EmailComponent, EmailComponentType } from "@backend/lib/email/types";
+/*import { EmailComponent, EmailComponentType } from "@backend/lib/email/types";
 
 export const AlbumReleaseEmail = ({
   albumName,
@@ -25,6 +25,50 @@ export const AlbumReleaseEmail = ({
       content: `View Album →`,
       url: albumUrl,
       options: { align: "center" },
+    },
+  ] as EmailComponent[],
+});*/
+
+import {
+  EmailComponent,
+  EmailComponentType,
+} from "@backend/lib/email/types";
+
+export const AlbumReleaseEmail = ({
+  albumName,
+  albumUrl,
+  albumCoverUrl,
+  collectionName,
+  year,
+  status,
+}: {
+  albumName: string;
+  albumUrl: string;
+  albumCoverUrl: string;
+  collectionName: string;
+  year: string;
+  status: string;
+}) => ({
+  subject: `New album released: ${albumName}`,
+
+  title: `New album: ${albumName}`,
+
+  components: [
+    {
+      type: EmailComponentType.PARAGRAPH,
+
+      // This is used by html.ts to identify
+      // this as the special Album Release template.
+      content: "EDITORIAL_ALBUM_PAYLOAD",
+
+      options: {
+        albumTitle: albumName,
+        albumCoverUrl,
+        collectionName,
+        year,
+        status,
+        albumUrl,
+      },
     },
   ] as EmailComponent[],
 });
