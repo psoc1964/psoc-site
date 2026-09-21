@@ -16,6 +16,7 @@ export function formatAlbumDate(date: string | Date): string {
 }
 export function toDriveThumbnail(url: string | undefined | null, size = "w800"): string {
   if (!url) return "";
+  if (url.startsWith("/api/drive-image")) return url;
   if (url.includes("drive.google.com/thumbnail")) return url;
   const fileMatch = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
   if (fileMatch) return `https://drive.google.com/thumbnail?id=${fileMatch[1]}&sz=${size}`;
