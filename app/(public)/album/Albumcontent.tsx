@@ -256,7 +256,7 @@ const ListCard = memo(({
         >
           {shouldLoad && album.thumbnailUrl ? (
             <img
-              src={errored ? "/psoc-logo-white.png" : toDriveThumbnail(album.thumbnailUrl)}
+              src={errored ? "/psoc-fallback-logo.png" : toDriveThumbnail(album.thumbnailUrl)}
               alt={album.name}
               loading="lazy"
               decoding="async"
