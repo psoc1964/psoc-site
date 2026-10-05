@@ -4,7 +4,9 @@ export async function GET(req: NextRequest) {
   const fileId = req.nextUrl.searchParams.get("id");
   if (!fileId) return new NextResponse("Missing id", { status: 400 });
 
-  const driveUrl = `https://drive.google.com/uc?export=view&id=${fileId}`;
+  // Use the lightweight thumbnail endpoint (approx 100KB) instead of the full export (can be 6MB+)
+  // This prevents Vercel serverless function payload size limit errors and timeouts in production.
+  const driveUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
 
   try {
     const response = await fetch(driveUrl, {
