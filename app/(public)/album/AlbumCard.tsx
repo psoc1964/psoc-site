@@ -43,7 +43,7 @@ const AlbumThumbnail = memo(({ src, alt }: { src?: string; alt: string }) => {
     <div ref={ref} className="w-full h-full relative">
       {showImage ? (
         <img
-          src={errored ? "/fallback.jpg" : src}
+          src={errored ? "/psoc-logo-white.png" : src}
           alt={alt}
           loading="lazy"
           decoding="async"

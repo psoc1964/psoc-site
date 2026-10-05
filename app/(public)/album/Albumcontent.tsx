@@ -213,6 +213,7 @@ const ListCard = memo(({
 }) => {
   const [user] = useUser();
   const [open, setOpen] = useState(false);
+  const [errored, setErrored] = useState(false);
 
   // Lazy-load the thumbnail once it's near (or in) the viewport.
   // Shared hook so this behaves identically to the desktop AlbumCard,
@@ -255,11 +256,12 @@ const ListCard = memo(({
         >
           {shouldLoad && album.thumbnailUrl ? (
             <img
-              src={toDriveThumbnail(album.thumbnailUrl)}
+              src={errored ? "/psoc-logo-white.png" : toDriveThumbnail(album.thumbnailUrl)}
               alt={album.name}
               loading="lazy"
               decoding="async"
               className="w-full h-full object-cover object-center"
+              onError={() => setErrored(true)}
             />
           ) : (
             <div className="skeleton-shimmer absolute inset-0 rounded-xl" />
